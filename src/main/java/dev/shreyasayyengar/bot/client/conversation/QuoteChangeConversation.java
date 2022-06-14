@@ -1,0 +1,50 @@
+package dev.shreyasayyengar.bot.client.conversation;
+
+import dev.shreyasayyengar.bot.DiscordBot;
+import dev.shreyasayyengar.bot.client.ClientCommission;
+import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.misc.utils.Util;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
+
+public class QuoteChangeConversation extends ListenerAdapter {
+
+    private final ClientCommission commission;
+    private final TextChannel textChannel;
+
+    public QuoteChangeConversation(ClientCommission commission, ButtonInteractionEvent event) {
+        this.commission = commission;
+        this.textChannel = commission.getClient().getTextChannel();
+
+        MessageEmbed embed = new EmbedBuilder()
+                .setTitle("Quote Change: " + commission.getPluginName())
+                .setDescription("Please enter the new price for this commission.")
+                .addField("Current Price:", "`$" + commission.getPrice() + "`", false)
+                .setColor(Util.getColor())
+                .build();
+
+        event.replyEmbeds(embed).setEphemeral(true).queue();
+
+        DiscordBot.get().bot().addEventListener(this);
+    }
+
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if (!event.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) return;
+        if (!event.getAuthor().getId().equals(DiscordBot.get().workingGuild.getOwnerId())) return;
+
+        double newQuote = Double.parseDouble(event.getMessage().getContentRaw());
+        commission.setPrice(newQuote);
+
+        event.getMessage().delete().queue();
+        commission.getClient().getTextChannel().sendMessage("@here").setEmbeds(EmbedUtil.priceUpdated(commission)).queue();
+        commission.setConfirmed(false);
+
+        DiscordBot.get().bot().removeEventListener(this);
+    }
+}
