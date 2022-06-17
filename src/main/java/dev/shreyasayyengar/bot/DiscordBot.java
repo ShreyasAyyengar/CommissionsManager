@@ -54,7 +54,7 @@ public class DiscordBot {
         instance = this;
         maintainAccessToken();
 
-        initMySQLConnection();
+        initMySQL();
         createBot();
         fixData();
         deserialiseMySQLData();
@@ -76,7 +76,7 @@ public class DiscordBot {
         }, 0, 5, TimeUnit.HOURS);
     }
 
-    private void initMySQLConnection() throws IOException, SQLException {
+    private void initMySQL() throws IOException, SQLException {
 
         database = new MySQL(
                 MySQLProperty.USERNAME.get(),
@@ -107,7 +107,8 @@ public class DiscordBot {
                 "    plugin_name tinytext null," +
                 "    source_code boolean  null," +
                 "    confirmed   boolean  null," +
-                "    price       double   null" +
+                "    price       double   null," +
+                "    info_embed  tinytext null" +
                 ");").executeUpdate();
     }
 
@@ -176,5 +177,3 @@ public class DiscordBot {
 //        2. Hold a reference to the Thread ExecutorService in DiscordBot and then call it when making SQL requests
 //        3. Make ClientInfoManager more of a ClientManager, that registeres ClientInfo AND THEN registers ClientCommissions
 //        4. Make a new class that extends Thread and then call all startup MySQL requests and register ClientInfo & ClientCommissions in it
-
-// TODO: System.gc(); literally reduced RAM by like 10MB so worth looking into

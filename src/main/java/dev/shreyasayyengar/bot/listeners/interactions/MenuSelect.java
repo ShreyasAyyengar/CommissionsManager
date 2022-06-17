@@ -25,12 +25,14 @@ public class MenuSelect extends ListenerAdapter {
             List<Button> buttons = Stream.of(
                     Button.success(pluginName + ".invoice", "Generate Invoice")
                             .withEmoji(Emoji.fromMarkdown("\uD83D\uDCB3")),
-                    Button.primary(pluginName + ".confirm", "Gain Client Confirmation")
+                    Button.primary(pluginName + ".confirm", "Gain Confirmation")
                             .withEmoji(Emoji.fromMarkdown("☑️")),
                     Button.secondary(pluginName + ".source-code", "Toggle Source Code")
                             .withEmoji(Emoji.fromUnicode("\uD83D\uDCDD")),
                     Button.secondary(pluginName + ".changequote", "Set Price")
-                            .withEmoji(Emoji.fromUnicode("\uD83D\uDCB8"))
+                            .withEmoji(Emoji.fromUnicode("\uD83E\uDE99")),
+                    Button.secondary(pluginName + ".info", "Info")
+                            .withEmoji(Emoji.fromUnicode("\uD83D\uDCC4"))
                     ).toList();
 
             List<Button> completeButton = Stream.of(

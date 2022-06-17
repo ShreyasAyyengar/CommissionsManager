@@ -20,6 +20,7 @@ public class ClientCommission {
 
     private final ClientInfo client;
     private final String pluginName;
+    private final String infoEmbed;
 
     private boolean requestedSourceCode;
     private boolean confirmed;
@@ -38,8 +39,9 @@ public class ClientCommission {
                     boolean requestedSourceCode = resultSet.getBoolean("source_code");
                     boolean confirmed = resultSet.getBoolean("confirmed");
                     double price = resultSet.getDouble("price");
+                    String infoEmbed = resultSet.getString("info_embed");
 
-                    new ClientCommission(holderId, pluginName, requestedSourceCode, confirmed, price);
+                    new ClientCommission(holderId, pluginName, requestedSourceCode, confirmed, price, infoEmbed);
                 }
 
             } catch (SQLException e) {
@@ -51,20 +53,22 @@ public class ClientCommission {
 
     }
 
-    public ClientCommission(ClientInfo client, String pluginName, boolean requestedSourceCode) {
+    public ClientCommission(ClientInfo client, String pluginName, boolean requestedSourceCode, String infoEmbed) {
         this.client = client;
         this.pluginName = pluginName;
         this.requestedSourceCode = requestedSourceCode;
         this.confirmed = false;
+        this.infoEmbed = infoEmbed;
 
         COMMISSIONS.add(this);
     }
 
-    public ClientCommission(String holderId, String pluginName, boolean requestedSourceCode, boolean confirmed, double price) {
+    public ClientCommission(String holderId, String pluginName, boolean requestedSourceCode, boolean confirmed, double price, String infoEmbed) {
         this.pluginName = pluginName;
         this.requestedSourceCode = requestedSourceCode;
         this.confirmed = confirmed;
         this.price = price;
+        this.infoEmbed = infoEmbed;
 
         this.client = DiscordBot.get().getClientManger().get(holderId);
         this.client.getCommissions().add(this);
@@ -92,20 +96,22 @@ public class ClientCommission {
                     .build().executeQuery();
 
             if (resultSet.next()) {
-                DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_commission_info SET plugin_name = ?, source_code = ?, confirmed = ?, price = ? WHERE holder_id = ?")
+                DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_commission_info SET plugin_name = ?, source_code = ?, confirmed = ?, price = ?, info_embed = ? WHERE holder_id = ?")
                         .setString(pluginName)
                         .setBoolean(requestedSourceCode)
                         .setBoolean(confirmed)
                         .setDouble(price)
+                        .setString(infoEmbed)
                         .setString(client.getHolder().getId())
                         .build().executeUpdate();
             } else {
-                DiscordBot.get().database.preparedStatementBuilder("insert into CM_commission_info (holder_id, plugin_name, source_code, confirmed, price) values (?, ?, ?, ?, ?);")
+                DiscordBot.get().database.preparedStatementBuilder("insert into CM_commission_info (holder_id, plugin_name, source_code, confirmed, price, info_embed) values (?, ?, ?, ?, ?, ?);")
                         .setString(client.getHolder().getId())
                         .setString(pluginName)
                         .setBoolean(requestedSourceCode)
                         .setBoolean(confirmed)
                         .setDouble(price)
+                        .setString(infoEmbed)
                         .build().executeUpdate();
             }
 
@@ -126,6 +132,10 @@ public class ClientCommission {
 
     public String getPluginName() {
         return pluginName;
+    }
+
+    public String getInfoEmbed() {
+        return infoEmbed;
     }
 
     public double getPrice() {

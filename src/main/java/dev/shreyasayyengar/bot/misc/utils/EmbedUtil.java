@@ -96,9 +96,17 @@ public class EmbedUtil {
     public static MessageEmbed acceptedQuote() {
         return new EmbedBuilder()
                 .setTitle("Quote Accepted!")
-                .setDescription("You have accepted the quote!")
-                .setFooter("Thank you for agreeing to this quote!")
+                .setDescription("You have accepted your commission quote! Here's a bit of extra information:")
+                .addField("What happens now?", "The development will now begin, and progress will constantly be reported to you in this channel.\n" +
+                        "Please let me know ASAP if you would like to cancel your commission.", false)
+                .addField("What can I do right now:", "Right now you may use `/email` to input your PayPal email, which will\n" +
+                        "be used to pay for the commission at a later point in time. Other than that, sit back and relax!", false)
+                .addField("What happens if I don't respond?", "If you are unable to provide a response to some of my questions within 96 hours (4 days)\n" +
+                        "then all development will halt temporarily until instructed to do so otherwise. ", false)
+                .addField("When do I make my payment?", "An invoice will be generated via PayPal once I believe the plugin is functional. \n" +
+                        "From there, you may test your plugin and report any bugs/changes/additions that you see fit, and I will return the new JAR file to you.", false)
                 .setColor(Color.GREEN)
+                .setFooter("If you have any questions, please reply here :)", DiscordBot.get().workingGuild.getOwner().getEffectiveAvatarUrl())
                 .setTimestamp(new Date().toInstant())
                 .build();
     }

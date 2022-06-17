@@ -5,6 +5,7 @@ import dev.shreyasayyengar.bot.client.ClientCommission;
 import dev.shreyasayyengar.bot.client.ClientInfo;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -20,7 +21,7 @@ public class ClientRequestConversation extends ListenerAdapter {
 
     private final ClientInfo client;
     private final List<String> responses = new ArrayList<>();
-    private ClientRequestStage stage = ClientRequestStage.DESCRIPTION;
+    private ClientRequestStage stage = ClientRequestStage.NAME;
 
     public ClientRequestConversation(ClientInfo clientInfo) {
         this.client = clientInfo;
@@ -84,11 +85,13 @@ public class ClientRequestConversation extends ListenerAdapter {
 
         compiledResponses.setColor(Util.getColor());
 
-        client.getTextChannel().sendMessageEmbeds(compiledResponses.build()).complete().pin().complete();
+        Message commissionRequestDone = client.getTextChannel().sendMessageEmbeds(compiledResponses.build()).complete();
+        commissionRequestDone.pin().complete();
+
         client.getTextChannel().sendMessage("<@690755476555563019>").complete();
         client.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
 
-        client.getCommissions().add(new ClientCommission(client, responses.get(4), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase)));
+        client.getCommissions().add(new ClientCommission(client, responses.get(4), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), commissionRequestDone.getId()));
 
         DiscordBot.get().bot().removeEventListener(this);
     }
@@ -110,11 +113,11 @@ public class ClientRequestConversation extends ListenerAdapter {
     // ------------------ ClientRequestStage ------------------ //
 
     enum ClientRequestStage {
+        NAME,
         DESCRIPTION,
         SERVER_TYPE,
         MINECRAFT_VERSION,
         JAVA_VERSION,
-        NAME,
         SRC,
         EXTRA_INFORMATION;
 
@@ -152,7 +155,7 @@ public class ClientRequestConversation extends ListenerAdapter {
                         .setTitle("Would you like access to the source code once your plugin is finished?")
                         .addField("Options include:", "`Yes` | `No`", true)
                         .addField("Reminder:", "If the source code is requested, this adds a $5 fee to the total.", true)
-                        .setFooter("You can always opt out or opt in at any point in the process. Just let me know!");
+                        .setFooter("You can always opt out or opt of this at any point. Just let me know!");
 
                 case EXTRA_INFORMATION -> embed = new EmbedBuilder()
                         .setTitle("Anything else you would like to add?")

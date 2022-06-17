@@ -7,6 +7,7 @@ import dev.shreyasayyengar.bot.client.conversation.ClientEmailConversation;
 import dev.shreyasayyengar.bot.client.conversation.QuoteChangeConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -39,6 +40,8 @@ public class ButtonClick extends ListenerAdapter {
             ClientCommission commission = clientInfo.getCommission(pluginName);
 
             switch (action) {
+
+                // ----------------------------- Commission Info Buttons --------------------------------- //
                 case "invoice" -> {
                     if (commission.checkPrice()) {
                         event.replyEmbeds(EmbedUtil.noPriceSet()).setEphemeral(true).queue();
@@ -89,6 +92,11 @@ public class ButtonClick extends ListenerAdapter {
                 }
 
                 case "changequote" -> new QuoteChangeConversation(commission, event);
+
+                case "info" -> {
+                    Message infoMessage = clientInfo.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete();
+                    event.replyEmbeds(infoMessage.getEmbeds().get(0)).setEphemeral(true).queue();
+                }
 
                 case "complete" -> {
                     event.replyEmbeds(EmbedUtil.commissionComplete(commission))
