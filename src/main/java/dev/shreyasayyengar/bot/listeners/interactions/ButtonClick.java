@@ -110,6 +110,7 @@ public class ButtonClick extends ListenerAdapter {
 
                 case "cancel" -> {
                     clientInfo.getCommissions().remove(commission);
+                    clientInfo.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete().delete().queue();
                     event.replyEmbeds(EmbedUtil.cancelCommission(commission)).queue();
                 }
 
