@@ -69,11 +69,11 @@ public class ClientRequestConversation extends ListenerAdapter {
         String arrow = "<:purple_arrow:980020213863055390> ";
         EmbedBuilder compiledResponses = new EmbedBuilder()
                 .setTitle(client.getHolder().getEffectiveName() + "'s Plugin Request")
-                .setDescription("For the plugin: `" + responses.get(4) + "`")
+                .setDescription("For the plugin: `" + responses.get(0) + "`")
                 .addField("Description:", arrow + "`" + responses.get(0) + "`", false)
                 .addField("Plugin Type:", arrow + "`" + responses.get(1) + "`", false)
                 .addField("Minecraft Version:", arrow + "`" + responses.get(2) + "`", false)
-                .addField("Java Version:", arrow + "`" + responses.get(3) + "`", false);
+                .addField("Java Version:", arrow + "`" + responses.get(4) + "`", false);
 
         if (no.stream().noneMatch(responses.get(5)::equalsIgnoreCase)) {
             compiledResponses.addField("Requested SRC:", arrow + "`True|Yes`", false);
