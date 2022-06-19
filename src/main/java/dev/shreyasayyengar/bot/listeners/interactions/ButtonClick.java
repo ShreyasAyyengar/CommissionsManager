@@ -6,6 +6,7 @@ import dev.shreyasayyengar.bot.client.ClientInfo;
 import dev.shreyasayyengar.bot.client.conversation.ClientEmailConversation;
 import dev.shreyasayyengar.bot.client.conversation.QuoteChangeConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -29,7 +30,13 @@ public class ButtonClick extends ListenerAdapter {
         String buttonID = event.getButton().getId().toLowerCase();
         List<ActionRow> disabledButtons = event.getMessage().getActionRows().stream().map(ActionRow::asDisabled).toList();
 
-        // ------------------------- Commission Info Buttons
+        // ------------------------- Commission Info Buttons ------------------------- //
+
+        if (buttonID.equalsIgnoreCase("purge-channel")) {
+            Category parentCategory = event.getTextChannel().getParentCategory();
+            parentCategory.getChannels().forEach(channel -> channel.delete().queue());
+            parentCategory.delete().queue();
+        }
 
         if (buttonID.contains(".")) {
 

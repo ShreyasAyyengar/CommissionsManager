@@ -70,16 +70,16 @@ public class ClientRequestConversation extends ListenerAdapter {
         EmbedBuilder compiledResponses = new EmbedBuilder()
                 .setTitle(client.getHolder().getEffectiveName() + "'s Plugin Request")
                 .setDescription("For the plugin: `" + responses.get(0) + "`")
-                .addField("Description:", arrow + "`" + responses.get(0) + "`", false)
-                .addField("Plugin Type:", arrow + "`" + responses.get(1) + "`", false)
-                .addField("Minecraft Version:", arrow + "`" + responses.get(2) + "`", false)
+                .addField("Description:", arrow + "`" + responses.get(1) + "`", false)
+                .addField("Plugin Type:", arrow + "`" + responses.get(2) + "`", false)
+                .addField("Minecraft Version:", arrow + "`" + responses.get(3) + "`", false)
                 .addField("Java Version:", arrow + "`" + responses.get(4) + "`", false);
 
         if (no.stream().noneMatch(responses.get(5)::equalsIgnoreCase)) {
             compiledResponses.addField("Requested SRC:", arrow + "`True|Yes`", false);
         }
 
-        if (no.stream().noneMatch(string -> responses.get(5).toLowerCase().startsWith(string))) {
+        if (no.stream().noneMatch(string -> responses.get(6).toLowerCase().startsWith(string))) {
             compiledResponses.addField("Extra Information", arrow + "`" + responses.get(6) + "`", false);
         }
 
@@ -91,7 +91,7 @@ public class ClientRequestConversation extends ListenerAdapter {
         client.getTextChannel().sendMessage("<@690755476555563019>").complete();
         client.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
 
-        client.getCommissions().add(new ClientCommission(client, responses.get(4), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), commissionRequestDone.getId()));
+        client.getCommissions().add(new ClientCommission(client, responses.get(0), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), commissionRequestDone.getId()));
 
         DiscordBot.get().bot().removeEventListener(this);
     }

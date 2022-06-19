@@ -5,6 +5,7 @@ import dev.shreyasayyengar.bot.client.ClientCommission;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.User;
 
 import java.awt.*;
 import java.util.Date;
@@ -18,15 +19,6 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Error while executing command...")
                 .setDescription("`This command can only be used in private channels of clients!`")
-                .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
-                .build();
-    }
-
-    public static MessageEmbed invalidAmount() {
-        return new EmbedBuilder()
-                .setTitle("Error while executing command...")
-                .setDescription("`The amount provided must be greater than 1!`")
                 .setColor(Color.RED)
                 .setTimestamp(new Date().toInstant())
                 .build();
@@ -330,6 +322,17 @@ public class EmbedUtil {
                 .setDescription("The bot is now exiting and shutting down. If this is an IDE stagnant crash, please restart the bot through your IDE!")
                 .setColor(Util.getColor())
                 .setTimestamp(new Date().toInstant())
+                .build();
+    }
+
+    public static MessageEmbed requestPurge(User user) {
+        return new EmbedBuilder()
+                .setTitle(user.getAsTag() + " has left the server!")
+                .setDescription("Their information has already been removed from the database!")
+                .addField("User ID: ", user.getId(), false)
+                .setColor(new Color(213, 171, 255))
+                .setTimestamp(new Date().toInstant())
+                .setFooter("To purge their channel, click the button below.")
                 .build();
     }
 }

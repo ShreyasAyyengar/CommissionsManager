@@ -5,9 +5,11 @@ import dev.shreyasayyengar.bot.client.ClientInfo;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import okhttp3.*;
 import org.json.JSONObject;
 
@@ -72,7 +74,11 @@ public class Invoice {
 
         setQRCode();
 
-        Message invoiceEmbed = interactionHook.editOriginalEmbeds(getInvoiceEmbed().build()).addFile(this.QRCodeImg, "qr_code.png").complete();
+        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromMarkdown("<:PayPal:933225559343923250>"));
+        Message invoiceEmbed = interactionHook.editOriginalEmbeds(getInvoiceEmbed().build())
+                .setActionRow(paypalButton)
+                .addFile(this.QRCodeImg, "qr_code.png")
+                .complete();
         invoiceEmbed.pin().queue();
         invoiceEmbed.getTextChannel().getHistory().retrievePast(1).completeAfter(1, TimeUnit.SECONDS).forEach(message -> message.delete().queue());
         this.messageID = invoiceEmbed.getId();
@@ -123,10 +129,11 @@ public class Invoice {
         if (jsonObject.getString("status").equalsIgnoreCase("paid")) {
             this.status = "PAID";
 
-            clientInfo.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).clearFiles().queue();
+            Button viewInvoiceButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromMarkdown("<:PayPal:933225559343923250>"));
+            clientInfo.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).setActionRow(viewInvoiceButton).clearFiles().queue();
 
             MessageEmbed embed = new EmbedBuilder(EmbedUtil.invoicePaid())
-                    .setDescription("{name}'s invoice has been paid!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
+                    .setDescription("{name}'s invoice has been paid!" .replace("{name}", clientInfo.getHolder().getEffectiveName()))
                     .build();
             clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
             closeInvoice();
@@ -193,7 +200,10 @@ public class Invoice {
                 .addField("**Date Issued:**", "<t:" + date.getTime() / 1000 + ":F>" + "\n\n", false)
                 .setThumbnail("attachment://qr_code.png")
                 .setTimestamp(new Date().toInstant())
-                .setFooter("This message only displays the most important information regarding your invoice. Please check the invoice on PayPal for more, official information.")
+                .setFooter("""
+                        This message will update upon payment.
+
+                        Reminder: This message only displays the most important information regarding your invoice. Please check the invoice on PayPal for more, official information.""")
                 .setColor(Util.getColor());
     }
 

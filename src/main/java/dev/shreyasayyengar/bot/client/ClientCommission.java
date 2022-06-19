@@ -120,6 +120,18 @@ public class ClientCommission {
         }
     }
 
+    public void purge() {
+        COMMISSIONS.remove(this);
+        client.getCommissions().remove(this);
+        try {
+            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_commission_info WHERE holder_id = ?")
+                    .setString(client.getHolder().getId())
+                    .build().executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public boolean checkPrice() {
         return !(price > 0);
     }

@@ -3,6 +3,7 @@ package dev.shreyasayyengar.bot.misc.managers;
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientInfo;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -37,6 +38,16 @@ public class ClientInfoManager {
         });
 
         service.shutdown();
+    }
+
+    public static void purgeMemberSQL(User user) {
+        try {
+            ClientInfo remove = DiscordBot.get().getClientManger().getMap().remove(user.getId());
+            remove.purgeCommissions();
+            DiscordBot.get().database.preparedStatementBuilder("delete from CM_client_info where member_id = ?;").setString(1, user.getId()).executeUpdate();
+        } catch (Exception err) {
+            err.printStackTrace();
+        }
     }
 
     public HashMap<String, ClientInfo> getMap() {

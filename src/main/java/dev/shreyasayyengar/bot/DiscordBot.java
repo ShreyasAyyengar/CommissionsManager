@@ -5,6 +5,7 @@ import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
 import dev.shreyasayyengar.bot.database.MySQL;
+import dev.shreyasayyengar.bot.listeners.MemberRemove;
 import dev.shreyasayyengar.bot.listeners.MemberUpdatePending;
 import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
 import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
@@ -19,7 +20,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -40,7 +40,6 @@ public class DiscordBot {
     private String paypalAccessToken;
 
     public Guild workingGuild;
-    public Member owner; // TODO use this
     public MySQL database;
 
     private JDA discordBot;
@@ -123,7 +122,6 @@ public class DiscordBot {
 
     private void fixData() {
         this.workingGuild = discordBot.getGuildById(PrimaryDiscordProperty.WORKING_GUILD.get());
-        this.owner = workingGuild.getOwner();
         this.workingGuild.loadMembers().get();
         this.clientInfoManager = new ClientInfoManager();
     }
@@ -144,14 +142,15 @@ public class DiscordBot {
     private Stream<EventListener> getListeners() {
         return Stream.of(
                 new MemberUpdatePending(),
-//                new MemberVoiceUpdate(),
+//              new MemberVoiceUpdate(),
+                new MemberRemove(),
                 new PrivateChannelCommandManager(),
                 new MiscellaneousSlashCommandManager(),
                 new MiscellaneousCommandManager(),
                 new ButtonClick(),
                 new MenuSelect(),
                 new ModalSubmit()
-//                new MiscellaneousCommandManager()
+//              new MiscellaneousCommandManager()
         );
     }
 

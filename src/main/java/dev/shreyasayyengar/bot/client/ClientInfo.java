@@ -74,10 +74,11 @@ public class ClientInfo {
      * This constructor is used to load an existing ClientInfo object from a ResultSet. This constructor will
      * initialise the object and keep it in the ClientManager, to be used for later. This <b>will not generate categories</b>
      * and run any other setup actions, this meerly loads the ClientInfo object to be recognised and visible.
-     * @param holderId
-     * @param voiceChannelId
-     * @param textChannelId
-     * @param categoryId
+     *
+     * @param holderId       The Discord ID of the holder of the ClientInfo object.
+     * @param voiceChannelId The Discord ID of the VoiceChannel of the ClientInfo object.
+     * @param textChannelId  The Discord ID of the TextChannel of the ClientInfo object.
+     * @param categoryId     The Discord ID of the Channel Categoryw of the ClientInfo object.
      */
     public ClientInfo(String holderId, String voiceChannelId, String textChannelId, String categoryId) {
         this.holder = DiscordBot.get().workingGuild.getMemberById(holderId);
@@ -141,6 +142,18 @@ public class ClientInfo {
         }
     }
 
+    public void serialiseCommissions() {
+        for (ClientCommission commission : commissions) {
+            commission.serialise();
+        }
+    }
+
+    public void purgeCommissions() {
+        for (ClientCommission commission : commissions) {
+            commission.purge();
+        }
+    }
+
     // ---------------------------------------------------------------------------------------------------------------//
     // ------------------------------------------------- Getters ----------------------------------------------------//
     // ---------------------------------------------------------------------------------------------------------------//
@@ -199,11 +212,5 @@ public class ClientInfo {
         if (o == null || getClass() != o.getClass()) return false;
         ClientInfo that = (ClientInfo) o;
         return Objects.equals(holder.getId().toLowerCase(), that.holder.getId().toLowerCase());
-    }
-
-    public void serialiseCommissions() {
-        for (ClientCommission commission : commissions) {
-            commission.serialise();
-        }
     }
 }
