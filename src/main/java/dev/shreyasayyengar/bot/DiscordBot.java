@@ -12,6 +12,7 @@ import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
 import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
 import dev.shreyasayyengar.bot.misc.managers.ClientInfoManager;
 import dev.shreyasayyengar.bot.misc.managers.ShutdownManager;
+import dev.shreyasayyengar.bot.misc.utils.Department;
 import dev.shreyasayyengar.bot.paypal.AccessTokenRequest;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import dev.shreyasayyengar.bot.properties.MySQLProperty;
@@ -45,8 +46,8 @@ public class DiscordBot {
     private JDA discordBot;
     private ClientInfoManager clientInfoManager;
 
-    public static void log(String message) {
-        System.out.println("[CommissionsManager] " + message);
+    public static void log(Department department, String message) {
+        System.out.println("[CommissionsManager - " + department.name() + "] " + message);
     }
 
     public DiscordBot() throws LoginException, InterruptedException, IOException, SQLException {
@@ -60,7 +61,7 @@ public class DiscordBot {
 
         initShutdownHook();
 
-        log("Bot is *truly* ready!");
+        log(Department.Main, "Fully started and ready!");
         System.gc();
     }
 
@@ -85,7 +86,7 @@ public class DiscordBot {
                 Integer.parseInt(MySQLProperty.PORT.get())
         );
 
-        log("[NySQL] Loading Tables...");
+        log(Department.MySQL, "Loading Tables...");
         database.preparedStatement("create table if not exists CM_client_info(" +
                 "    member_id    tinytext     null," +
                 "    text_id      tinytext     null," +

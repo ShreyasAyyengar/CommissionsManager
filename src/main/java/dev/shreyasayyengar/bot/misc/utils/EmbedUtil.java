@@ -89,13 +89,13 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Quote Accepted!")
                 .setDescription("You have accepted your commission quote! Here's a bit of extra information:")
-                .addField("What happens now?", "The development will now begin, and progress will constantly be reported to you in this channel.\n" +
+                .addField("What happens now?", "The development will now begin, and progress will constantly be reported to you in this channel. " +
                         "Please let me know ASAP if you would like to cancel your commission.", false)
-                .addField("What can I do right now:", "Right now you may use `/email` to input your PayPal email, which will\n" +
+                .addField("What can I do right now:", "Right now you may use `/email` to input your PayPal email, which will " +
                         "be used to pay for the commission at a later point in time. Other than that, sit back and relax!", false)
-                .addField("What happens if I don't respond?", "If you are unable to provide a response to some of my questions within 96 hours (4 days)\n" +
+                .addField("What happens if I don't respond?", "If you are unable to provide a response to some of my questions within 96 hours (4 days) " +
                         "then all development will halt temporarily until instructed to do so otherwise. ", false)
-                .addField("When do I make my payment?", "An invoice will be generated via PayPal once I believe the plugin is functional. \n" +
+                .addField("When do I make my payment?", "An invoice will be generated via PayPal once I believe the plugin is functional. " +
                         "From there, you may test your plugin and report any bugs/changes/additions that you see fit, and I will return the new JAR file to you.", false)
                 .setColor(Color.GREEN)
                 .setFooter("If you have any questions, please reply here :)", DiscordBot.get().workingGuild.getOwner().getEffectiveAvatarUrl())
@@ -224,7 +224,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setAuthor("New Vouch!", null, member.getUser().getAvatarUrl())
                 .setTitle("Vouch for " + member.getEffectiveName() + "'s plugin commission!")
-                .addField("Vouch: ", "`" + vouch + "`" + member.getAsMention(), false)
+                .addField("Vouch: ", "`" + vouch + "` - " + member.getAsMention(), false)
                 .addField("SpigotMC Username: ", "`" + spigotMC + "`", false)
                 .setFooter("Thank you for leaving a vouch!")
                 .setColor(Color.PINK)

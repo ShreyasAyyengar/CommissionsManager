@@ -1,6 +1,7 @@
 package dev.shreyasayyengar.bot.database;
 
 import dev.shreyasayyengar.bot.DiscordBot;
+import dev.shreyasayyengar.bot.misc.utils.Department;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -26,9 +27,9 @@ public class MySQL {
 
         try {
             openConnection();
-            DiscordBot.log("[MySQL] Connection to MySQL database established!");
+            DiscordBot.log(Department.MySQL, "Connection to MySQL database established!");
         } catch (SQLException x) {
-            DiscordBot.log("[MySQL] There was a problem connecting to the MySQL database!");
+            DiscordBot.log(Department.MySQL, "There was a problem connecting to the MySQL database!");
             Runtime.getRuntime().exit(-1);
         }
     }
@@ -46,7 +47,7 @@ public class MySQL {
         try {
             ps = this.connection.prepareStatement(query);
         } catch (SQLException x) {
-            DiscordBot.log("[MySQL] There was a problem communicating with the MySQL Database!");
+            DiscordBot.log(Department.MySQL, "There was a problem communicating with the MySQL Database!");
         }
         return ps;
     }
