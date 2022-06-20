@@ -91,18 +91,20 @@ public class ClientCommission {
     public void serialise() {
         try {
             // Does the commission exist?
-            ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_commission_info WHERE holder_id = ?")
+            ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_commission_info WHERE holder_id = ? AND plugin_name = ?")
                     .setString(client.getHolder().getId())
+                    .setString(pluginName)
                     .build().executeQuery();
 
             if (resultSet.next()) {
-                DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_commission_info SET plugin_name = ?, source_code = ?, confirmed = ?, price = ?, info_embed = ? WHERE holder_id = ?")
+                DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_commission_info SET plugin_name = ?, source_code = ?, confirmed = ?, price = ?, info_embed = ? WHERE holder_id = ? AND plugin_name = ?")
                         .setString(pluginName)
                         .setBoolean(requestedSourceCode)
                         .setBoolean(confirmed)
                         .setDouble(price)
                         .setString(infoEmbed)
                         .setString(client.getHolder().getId())
+                        .setString(pluginName)
                         .build().executeUpdate();
             } else {
                 DiscordBot.get().database.preparedStatementBuilder("insert into CM_commission_info (holder_id, plugin_name, source_code, confirmed, price, info_embed) values (?, ?, ?, ?, ?, ?);")
