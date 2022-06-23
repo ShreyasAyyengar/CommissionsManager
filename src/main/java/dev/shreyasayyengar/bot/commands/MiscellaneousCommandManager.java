@@ -104,7 +104,6 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                 }
             }
 
-
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

@@ -21,13 +21,14 @@ import java.util.stream.Stream;
  */
 public class ClientInfo {
 
+    private final Collection<ClientCommission> commissions = new HashSet<>();
+    private final Collection<Invoice> invoices = new HashSet<>();
+
     private final Member holder;
     private final VoiceChannel voiceChannel;
     private final TextChannel textChannel;
     private final Category category;
-    private final Collection<ClientCommission> commissions = new HashSet<>();
 
-    private final Collection<Invoice> invoices = new HashSet<>();
     private String paypalEmail;
 
     /**
@@ -142,6 +143,10 @@ public class ClientInfo {
         }
     }
 
+    public void closeCommission(ClientCommission commission) {
+        commission.close();
+    }
+
     public void serialiseCommissions() {
         for (ClientCommission commission : commissions) {
             commission.serialise();
@@ -154,10 +159,7 @@ public class ClientInfo {
         }
     }
 
-    // ---------------------------------------------------------------------------------------------------------------//
     // ------------------------------------------------- Getters ----------------------------------------------------//
-    // ---------------------------------------------------------------------------------------------------------------//
-
     public Member getHolder() {
         return holder;
     }

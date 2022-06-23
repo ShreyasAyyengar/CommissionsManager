@@ -2,6 +2,7 @@ package dev.shreyasayyengar.bot.misc.utils;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientCommission;
+import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -122,9 +123,25 @@ public class EmbedUtil {
                 .build();
     }
 
+    public static MessageEmbed noInvoices() {
+        return new EmbedBuilder()
+                .setTitle("Error while executing command...")
+                .setDescription("There are no pending invoices available for this client!")
+                .setColor(Color.RED)
+                .setTimestamp(new Date().toInstant())
+                .build();
+    }
+
     public static MessageEmbed selectCommission() {
         return new EmbedBuilder()
                 .setDescription("Select a commission to view more information!")
+                .setColor(Util.getColor())
+                .build();
+    }
+
+    public static MessageEmbed selectInvoice() {
+        return new EmbedBuilder()
+                .setDescription("Select an invoice to view more information!")
                 .setColor(Util.getColor())
                 .build();
     }
@@ -137,11 +154,28 @@ public class EmbedUtil {
                 .build();
     }
 
+    public static MessageEmbed invoiceInformation(String invoiceID) {
+        return new EmbedBuilder()
+                .setTitle("Invoice Information: " + invoiceID)
+                .setDescription("`Click the buttons below to view more information!`")
+                .setColor(Util.getColor())
+                .build();
+    }
+
+    public static MessageEmbed invoiceNotFound(String invoiceID) {
+        return new EmbedBuilder()
+                .setTitle("Error while executing command...")
+                .setDescription("`The invoice with ID " + invoiceID + " was not found!`")
+                .setColor(Color.RED)
+                .setTimestamp(new Date().toInstant())
+                .build();
+    }
+
     public static MessageEmbed noPriceSet() {
         return new EmbedBuilder()
                 .setTitle("Error while processing...")
                 .setDescription("`Cannot create invoice: This commission has no price set!`")
-                .setFooter("Set a price for this commission via /commissioninfo")
+                .setFooter("Set a price for this commission via /commission")
                 .setColor(Color.RED)
                 .build();
     }
@@ -150,7 +184,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Error while processing...")
                 .setDescription("`This commission has not been confirmed by the client yet!`")
-                .setFooter("Ask for confirmation via /commissioninfo")
+                .setFooter("Ask for confirmation via /commission")
                 .setColor(Color.RED)
                 .build();
     }
@@ -208,6 +242,15 @@ public class EmbedUtil {
                         "or by clicking the vouch button below! This would be extremely helpful to me, and I would be very grateful for any feedback you may have!", false)
                 .addField("Feedback", "If you have any feedback regarding my services or this discord server, please use `/feedback`.", false)
                 .setColor(Color.GREEN)
+                .setTimestamp(new Date().toInstant())
+                .build();
+    }
+
+    public static MessageEmbed cancelInvoice(Invoice invoice) {
+        return new EmbedBuilder()
+                .setTitle("Cancelled Invoice: " + invoice.getInvoiceID())
+                .setDescription("This invoice has been cancelled and all relevant information has been discarded.")
+                .setColor(Color.RED)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -333,6 +376,17 @@ public class EmbedUtil {
                 .setColor(new Color(213, 171, 255))
                 .setTimestamp(new Date().toInstant())
                 .setFooter("To purge their channel, click the button below.")
+                .build();
+    }
+
+    public static MessageEmbed nudge(Invoice invoice) {
+        return new EmbedBuilder()
+                .setTitle("Outstanding Invoice!")
+                .setDescription("This is a reminder that you have an outstanding invoice!")
+                .addField("Invoice ID: ", invoice.getInvoiceID(), false)
+                .setFooter("Click the button below to pay it via PayPal!")
+                .setColor(Util.getColor())
+                .setTimestamp(new Date().toInstant())
                 .build();
     }
 }

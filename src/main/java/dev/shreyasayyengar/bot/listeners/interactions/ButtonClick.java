@@ -6,6 +6,7 @@ import dev.shreyasayyengar.bot.client.ClientInfo;
 import dev.shreyasayyengar.bot.client.conversation.ClientEmailConversation;
 import dev.shreyasayyengar.bot.client.conversation.QuoteChangeConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
@@ -30,7 +31,6 @@ public class ButtonClick extends ListenerAdapter {
         String buttonID = event.getButton().getId().toLowerCase();
         List<ActionRow> disabledButtons = event.getMessage().getActionRows().stream().map(ActionRow::asDisabled).toList();
 
-        // ------------------------- Commission Info Buttons ------------------------- //
 
         if (buttonID.equalsIgnoreCase("purge-channel")) {
             Category parentCategory = event.getTextChannel().getParentCategory();
@@ -38,10 +38,11 @@ public class ButtonClick extends ListenerAdapter {
             parentCategory.delete().queue();
         }
 
-        if (buttonID.contains(".")) {
+        // ------------------------- Commission Info Buttons ------------------------- //
 
-            String pluginName = buttonID.split("\\.")[0];
-            String action = buttonID.split("\\.")[1];
+        if (buttonID.startsWith("commission.")) {
+            String pluginName = buttonID.split("\\.")[1];
+            String action = buttonID.split("\\.")[2];
 
             ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
             ClientCommission commission = clientInfo.getCommission(pluginName);
@@ -88,8 +89,8 @@ public class ButtonClick extends ListenerAdapter {
 
                     event.replyEmbeds(EmbedUtil.confirmCommission(commission))
                             .addActionRow(
-                                    Button.success(pluginName + ".accept", "Accept Quote").withEmoji(Emoji.fromMarkdown("✅")),
-                                    Button.danger(pluginName + ".reject", "Reject Quote").withEmoji(Emoji.fromMarkdown("⛔")))
+                                    Button.success("commission." + pluginName + ".accept", "Accept Quote").withEmoji(Emoji.fromMarkdown("✅")),
+                                    Button.danger("commission." + pluginName + ".reject", "Reject Quote").withEmoji(Emoji.fromMarkdown("⛔")))
                             .queue();
                 }
 
@@ -112,11 +113,11 @@ public class ButtonClick extends ListenerAdapter {
                                     Button.link("https://tinyurl.com/mpmk7fy2", "Vouch on SpigotMC").withEmoji(Emoji.fromMarkdown("<:spigot:933250194877849640>"))
                             ).queue();
                     event.getChannel().sendMessage(clientInfo.getHolder().getAsMention()).queue(message -> message.delete().queue());
-                    clientInfo.getCommissions().remove(commission);
+                    clientInfo.closeCommission(commission);
                 }
 
                 case "cancel" -> {
-                    clientInfo.getCommissions().remove(commission);
+                    clientInfo.closeCommission(commission);
                     clientInfo.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete().delete().queue();
                     event.replyEmbeds(EmbedUtil.cancelCommission(commission)).queue();
                 }
@@ -135,6 +136,34 @@ public class ButtonClick extends ListenerAdapter {
                 }
 
                 // -------------------- Vouch Button-------------------- //
+            }
+        }
+
+        // ------------------------- Invoice Buttons ------------------------- //
+
+        if (buttonID.startsWith("invoice.")) {
+            String invoiceID = buttonID.split("\\.")[1].toUpperCase();
+            String action = buttonID.split("\\.")[2];
+
+            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
+            Invoice invoice = clientInfo.getInvoices().stream().filter(inv -> inv.getInvoiceID().equalsIgnoreCase(invoiceID)).findFirst().orElse(null);
+
+            if (invoice == null) {
+                event.replyEmbeds(EmbedUtil.invoiceNotFound(invoiceID)).setEphemeral(true).queue();
+                return;
+            }
+
+            switch (action) {
+                case "nudge" -> {
+                    Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromMarkdown("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
+                    event.replyEmbeds(EmbedUtil.nudge(invoice)).addActionRow(paypalButton).queue();
+                    return;
+                }
+
+                case "cancel" -> {
+                    event.replyEmbeds(EmbedUtil.cancelInvoice(invoice)).queue();
+                    invoice.cancel();
+                }
             }
         }
 

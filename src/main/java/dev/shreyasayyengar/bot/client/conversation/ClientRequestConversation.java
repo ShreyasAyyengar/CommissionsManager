@@ -92,7 +92,6 @@ public class ClientRequestConversation extends ListenerAdapter {
         client.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
 
         client.getCommissions().add(new ClientCommission(client, responses.get(0), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), commissionRequestDone.getId()));
-        System.out.println("added commission");
 
         DiscordBot.get().bot().removeEventListener(this);
     }

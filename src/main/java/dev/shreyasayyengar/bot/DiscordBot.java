@@ -1,7 +1,6 @@
 package dev.shreyasayyengar.bot;
 
 import dev.shreyasayyengar.bot.client.ClientCommission;
-import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
 import dev.shreyasayyengar.bot.database.MySQL;
@@ -129,9 +128,11 @@ public class DiscordBot {
 
     private void deserialiseMySQLData() {
         ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
-        scheduledService.schedule(ClientCommission::registerCommissions, 1, TimeUnit.SECONDS);
+        scheduledService.schedule(() -> {
+            ClientCommission.registerCommissions();
+            Invoice.registerInvoices();
+        }, 1, TimeUnit.SECONDS);
 
-        Invoice.registerInvoices();
     }
 
     private void initShutdownHook() {
@@ -147,7 +148,6 @@ public class DiscordBot {
                 new MemberRemove(),
                 new PrivateChannelCommandManager(),
                 new MiscellaneousSlashCommandManager(),
-                new MiscellaneousCommandManager(),
                 new ButtonClick(),
                 new MenuSelect(),
                 new ModalSubmit()

@@ -78,11 +78,7 @@ public class ClientCommission {
     public void generateInvoice(ButtonInteractionEvent event) throws IOException, URISyntaxException {
         event.replyEmbeds(EmbedUtil.invoiceInProgress()).queue();
 
-        if (requestedSourceCode) {
-            price += 5;
-        }
-
-        InvoiceDraft invoiceDraft = new InvoiceDraft(client, pluginName, price, event.getHook());
+        InvoiceDraft invoiceDraft = new InvoiceDraft(client, pluginName, requestedSourceCode ? price + 5 : price, event.getHook());
         invoiceDraft.generateInvoice();
 
         client.getInvoices().add(invoiceDraft.getFinalInvoice());
@@ -118,6 +114,19 @@ public class ClientCommission {
             }
 
         } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void close() {
+        COMMISSIONS.remove(this);
+        client.getCommissions().remove(this);
+
+        try {
+            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_commission_info WHERE holder_id = ?")
+                    .setString(client.getHolder().getId())
+                    .build().executeUpdate();
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

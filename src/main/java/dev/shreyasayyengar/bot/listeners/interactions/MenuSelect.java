@@ -16,33 +16,55 @@ public class MenuSelect extends ListenerAdapter {
 
     @Override
     public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
-        String pluginName = event.getValues().get(0);
 
-        ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
 
-        clientInfo.getCommissions().stream().filter(commission -> commission.getPluginName().equals(pluginName)).findFirst().ifPresent(commission -> {
+        if (event.getComponentId().equalsIgnoreCase("menu:commissions")) {
+            String pluginName = event.getValues().get(0).replace("commissions.", "");
 
-            List<Button> buttons = Stream.of(
-                    Button.success(pluginName + ".invoice", "Generate Invoice")
-                            .withEmoji(Emoji.fromMarkdown("\uD83D\uDCB3")),
-                    Button.primary(pluginName + ".confirm", "Gain Confirmation")
-                            .withEmoji(Emoji.fromMarkdown("☑️")),
-                    Button.secondary(pluginName + ".source-code", "Toggle Source Code")
-                            .withEmoji(Emoji.fromUnicode("\uD83D\uDCDD")),
-                    Button.secondary(pluginName + ".changequote", "Set Price")
-                            .withEmoji(Emoji.fromUnicode("\uD83E\uDE99")),
-                    Button.secondary(pluginName + ".info", "Info")
-                            .withEmoji(Emoji.fromUnicode("\uD83D\uDCC4"))
-                    ).toList();
+            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
 
-            List<Button> completeButton = Stream.of(
-                    Button.success(pluginName + ".complete", "Complete")
-                            .withEmoji(Emoji.fromMarkdown("✅")),
-                    Button.danger(pluginName + ".cancel", "Cancel")
-                            .withEmoji(Emoji.fromMarkdown("⛔"))
-            ).toList();
+            clientInfo.getCommissions().stream().filter(commission -> commission.getPluginName().equals(pluginName)).findFirst().ifPresent(commission -> {
 
-            event.replyEmbeds(EmbedUtil.commissionInformation(commission.getPluginName())).addActionRow(buttons).addActionRow(completeButton).setEphemeral(true).queue();
-        });
+                List<Button> buttons = Stream.of(
+                        Button.success("commission." + pluginName + ".invoice", "Generate Invoice")
+                                .withEmoji(Emoji.fromMarkdown("\uD83D\uDCB3")),
+                        Button.primary("commission." + pluginName + ".confirm", "Gain Confirmation")
+                                .withEmoji(Emoji.fromMarkdown("☑️")),
+                        Button.secondary("commission." + pluginName + ".source-code", "Toggle Source Code")
+                                .withEmoji(Emoji.fromUnicode("\uD83D\uDCDD")),
+                        Button.secondary("commission." + pluginName + ".changequote", "Set Price")
+                                .withEmoji(Emoji.fromUnicode("\uD83E\uDE99")),
+                        Button.secondary("commission." + pluginName + ".info", "Info")
+                                .withEmoji(Emoji.fromUnicode("\uD83D\uDCC4"))
+                ).toList();
+
+                List<Button> completeButton = Stream.of(
+                        Button.success("commission." + pluginName + ".complete", "Complete")
+                                .withEmoji(Emoji.fromMarkdown("✅")),
+                        Button.danger("commission." + pluginName + ".cancel", "Cancel")
+                                .withEmoji(Emoji.fromMarkdown("⛔"))
+                ).toList();
+
+                event.replyEmbeds(EmbedUtil.commissionInformation(commission.getPluginName())).addActionRow(buttons).addActionRow(completeButton).setEphemeral(true).queue();
+            });
+        }
+
+        if (event.getComponentId().equalsIgnoreCase("menu:invoices")) {
+            String invoiceId = event.getValues().get(0).replace("invoices.", "");
+
+            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
+
+            clientInfo.getInvoices().stream().filter(invoice -> invoice.getInvoiceID().equalsIgnoreCase(invoiceId)).findFirst().ifPresent(invoice -> {
+
+                List<Button> buttons = Stream.of(
+                        Button.primary("invoice." + invoiceId + ".nudge", "Nudge Payment")
+                                .withEmoji(Emoji.fromMarkdown("\uD83D\uDDE3️")),
+                        Button.danger("invoice." + invoiceId + ".cancel", "Cancel Invoice")
+                                .withEmoji(Emoji.fromMarkdown("⛔"))
+                ).toList();
+
+                event.replyEmbeds(EmbedUtil.invoiceInformation(invoice.getInvoiceID())).addActionRow(buttons).setEphemeral(true).queue();
+            });
+        }
     }
 }

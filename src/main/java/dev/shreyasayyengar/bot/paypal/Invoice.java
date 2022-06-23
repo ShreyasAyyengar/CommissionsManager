@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class Invoice {
 
     public static final Collection<Invoice> INVOICES = new HashSet<>();
-    private static final boolean LOOPING = false;
+    private static boolean LOOPING = false;
 
     private final ClientInfo clientInfo;
     private final String invoiceID;
@@ -61,6 +61,23 @@ public class Invoice {
         }
     }
 
+    private static void cycleChecks() {
+        if (!LOOPING) {
+            ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
+            scheduledService.scheduleAtFixedRate(() -> {
+                try {
+                    for (Invoice invoice : INVOICES) {
+                        invoice.updateIfPaid();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }, 0, 10, TimeUnit.SECONDS);
+
+            LOOPING = true;
+        }
+    }
+
     public Invoice(ClientInfo info, JSONObject invoiceData, InteractionHook interactionHook) throws IOException {
         this.clientInfo = info;
 
@@ -74,7 +91,7 @@ public class Invoice {
 
         setQRCode();
 
-        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromMarkdown("<:PayPal:933225559343923250>"));
+        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromMarkdown("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
         Message invoiceEmbed = interactionHook.editOriginalEmbeds(getInvoiceEmbed().build())
                 .setActionRow(paypalButton)
                 .addFile(this.QRCodeImg, "qr_code.png")
@@ -94,24 +111,9 @@ public class Invoice {
         this.invoiceID = invoiceID;
 
         INVOICES.add(this);
+        clientInfo.getInvoices().add(this);
 
         cycleChecks();
-    }
-
-    private void cycleChecks() {
-        if (!LOOPING) {
-            ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
-            scheduledService.scheduleAtFixedRate(() -> {
-                try {
-                    for (Invoice invoice : INVOICES) {
-                        invoice.updateIfPaid();
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }, 0, 10, TimeUnit.SECONDS);
-        }
-
     }
 
     private void updateIfPaid() throws IOException {
@@ -129,11 +131,11 @@ public class Invoice {
         if (jsonObject.getString("status").equalsIgnoreCase("paid")) {
             this.status = "PAID";
 
-            Button viewInvoiceButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromMarkdown("<:PayPal:933225559343923250>"));
+            Button viewInvoiceButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromMarkdown("<:PayPal:933225559343923250>")).withLabel("View Invoice via PayPal");
             clientInfo.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).setActionRow(viewInvoiceButton).clearFiles().queue();
 
             MessageEmbed embed = new EmbedBuilder(EmbedUtil.invoicePaid())
-                    .setDescription("{name}'s invoice has been paid!" .replace("{name}", clientInfo.getHolder().getEffectiveName()))
+                    .setDescription("{name}'s invoice has been paid!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
                     .build();
             clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
             closeInvoice();
@@ -142,8 +144,42 @@ public class Invoice {
         response.close();
     }
 
+    public void cancel() {
+        closeInvoice();
+
+        OkHttpClient client = new OkHttpClient();
+        MediaType JSON = MediaType.get("application/json; charset=utf-8");
+
+        RequestBody body = RequestBody.create(new JSONObject().put("subject", "Invoice Cancelled").put("note", "Commission Invoice has been Cancelled!").put("send_to_invoicer", true).put("send_to_recipient", true).toString(), JSON);
+
+        Request request = new Request.Builder()
+                .url("https://api-m.paypal.com/v2/invoicing/invoices/" + invoiceID + "/cancel")
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + DiscordBot.get().getPaypalAccessToken())
+                .post(body)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            if (String.valueOf(response.code()).startsWith("2")) {
+                MessageEmbed embed = new EmbedBuilder()
+                        .setTitle("Invoice Cancelled")
+                        .setDescription("{name}'s invoice has been cancelled!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
+                        .setColor(Color.RED)
+                        .setFooter("For the invoice: " + invoiceID)
+                        .setTimestamp(new Date().toInstant())
+                        .build();
+
+                clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void closeInvoice() {
         INVOICES.remove(this);
+        clientInfo.getInvoices().remove(this);
 
         try {
             DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_invoice_info WHERE invoice_id = ?")
@@ -187,9 +223,6 @@ public class Invoice {
 
     @SuppressWarnings("deprecation")
     private EmbedBuilder getInvoiceEmbed() {
-
-        Date date = new Date();
-        date.setMinutes(date.getMinutes() + 1);
         return new EmbedBuilder()
                 .setAuthor("Invoice: " + this.invoiceID, null, clientInfo.getHolder().getEffectiveAvatarUrl())
                 .setTitle("Important Information regarding your invoice:")
@@ -197,7 +230,7 @@ public class Invoice {
                 .addField("**Billed to:**", "`" + this.clientEmail + "`\n\n", false)
                 .addField("**Merchant Info:**", "Name: `" + this.merchantName + "`\n Email:`" + this.merchantEmail + "`\n\n", false)
                 .addField("**Total:**", "`" + this.total + " " + this.currency + "`\n\n", false)
-                .addField("**Date Issued:**", "<t:" + date.getTime() / 1000 + ":F>" + "\n\n", false)
+                .addField("**Date Issued:**", "<t:" + new Date().getTime() / 1000 + ":F>" + "\n\n", false)
                 .setThumbnail("attachment://qr_code.png")
                 .setTimestamp(new Date().toInstant())
                 .setFooter("""
@@ -218,15 +251,29 @@ public class Invoice {
         return invoiceEmbed.build();
     }
 
+
     public void serialise() {
         try {
-            DiscordBot.get().database.preparedStatementBuilder("insert into CM_invoice_info (invoice_id, message_id, client_id) values (?, ?, ?);")
-                    .setString(this.invoiceID)
-                    .setString(this.messageID)
-                    .setString(this.clientInfo.getHolder().getId())
-                    .build().executeUpdate();
+            ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info WHERE invoice_id = ?")
+                    .setString(invoiceID)
+                    .build().executeQuery();
+
+            if (!resultSet.next()) {
+                DiscordBot.get().database.preparedStatementBuilder("insert into CM_invoice_info (invoice_id, message_id, client_id) values (?, ?, ?);")
+                        .setString(this.invoiceID)
+                        .setString(this.messageID)
+                        .setString(this.clientInfo.getHolder().getId())
+                        .build().executeUpdate();
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // -------------------------------- GETTERS -------------------------------- //
+
+    public String getInvoiceID() {
+        return invoiceID;
     }
 }
