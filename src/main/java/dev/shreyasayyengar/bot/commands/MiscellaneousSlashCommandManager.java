@@ -23,7 +23,7 @@ public class MiscellaneousSlashCommandManager extends ListenerAdapter {
         if (event.getName().equalsIgnoreCase("feedback")) {
 
             TextInput feedbackTextInput = TextInput.create("feedback", "Please write any feedback here!", TextInputStyle.PARAGRAPH).build();
-            Modal feedbackModal = Modal.create("feedback-modal", "Feedback Form!")
+            Modal feedbackModal = Modal.create("feedback", "Feedback Form!")
                     .addActionRows(ActionRow.of(feedbackTextInput))
                     .build();
 

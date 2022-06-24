@@ -25,6 +25,7 @@ public class QuoteChangeConversation extends ListenerAdapter {
                 .setTitle("Quote Change: " + commission.getPluginName())
                 .setDescription("Please enter the new price for this commission.")
                 .addField("Current Price:", "`$" + commission.getPrice() + "`", false)
+                .setFooter("Type '!cancel' to cancel this process.")
                 .setColor(Util.getColor())
                 .build();
 
@@ -38,7 +39,15 @@ public class QuoteChangeConversation extends ListenerAdapter {
         if (!event.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) return;
         if (!event.getAuthor().getId().equals(DiscordBot.get().workingGuild.getOwnerId())) return;
 
-        double newQuote = Double.parseDouble(event.getMessage().getContentRaw());
+        String message = event.getMessage().getContentRaw();
+
+        if (message.equalsIgnoreCase("!cancel")) {
+            event.getMessage().delete().queue();
+            DiscordBot.get().bot().removeEventListener(this);
+            return;
+        }
+
+        double newQuote = Double.parseDouble(message);
         commission.setPrice(newQuote);
 
         event.getMessage().delete().queue();

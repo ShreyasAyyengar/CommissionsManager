@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Util {
 
@@ -61,18 +60,4 @@ public class Util {
     public static Color getColor() {
         return new Color(123, 3, 252);
     }
-
-    public static ClientInfo linkFromChannel(TextChannel channel) {
-
-        AtomicReference<ClientInfo> clientInfo = new AtomicReference<>();
-
-        DiscordBot.get().getClientManger().getMap().values().forEach(info -> {
-            if (info.getTextChannel().getId().equalsIgnoreCase(channel.getId())) {
-                clientInfo.set(info);
-            }
-        });
-
-        return clientInfo.get();
-    }
-
 }

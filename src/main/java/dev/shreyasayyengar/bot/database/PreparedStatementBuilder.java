@@ -8,6 +8,7 @@ import java.sql.*;
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings("unused")
 public class PreparedStatementBuilder {
 
     private final PreparedStatement theStatement;

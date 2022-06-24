@@ -139,13 +139,6 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed selectInvoice() {
-        return new EmbedBuilder()
-                .setDescription("Select an invoice to view more information!")
-                .setColor(Util.getColor())
-                .build();
-    }
-
     public static MessageEmbed commissionInformation(String pluginName) {
         return new EmbedBuilder()
                 .setTitle(pluginName)
@@ -159,15 +152,6 @@ public class EmbedUtil {
                 .setTitle("Invoice Information: " + invoiceID)
                 .setDescription("`Click the buttons below to view more information!`")
                 .setColor(Util.getColor())
-                .build();
-    }
-
-    public static MessageEmbed invoiceNotFound(String invoiceID) {
-        return new EmbedBuilder()
-                .setTitle("Error while executing command...")
-                .setDescription("`The invoice with ID " + invoiceID + " was not found!`")
-                .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
                 .build();
     }
 
@@ -238,19 +222,10 @@ public class EmbedUtil {
                 .setTitle("Commission Complete: " + commission.getPluginName())
                 .setDescription("This commission has been completed and all relevant information has been discarded.")
                 .addField("Thank you!", "Thank you for using my plugin services, and I hope you are satisfied with the final product!", false)
-                .addField("Final Request", "It would mean **a lot** to me if you could vouch for my service, either on [My SpigotMC page], " +
-                        "or by clicking the vouch button below! This would be extremely helpful to me, and I would be very grateful for any feedback you may have!", false)
-                .addField("Feedback", "If you have any feedback regarding my services or this discord server, please use `/feedback`.", false)
+                .addField("Final Request", "It would mean **a lot** to me if you could vouch for my service, either on [My SpigotMC page](https://www.spigotmc.org/threads/open-%E2%9C%A8-high-quality-plugins-configurable-affordable-easy-experienced-%E2%9C%A8.513897/), " +
+                        "or by clicking the vouch button below! **This would be extremely helpful to me**, and I would be very grateful for any feedback you may have!", false)
+                .addField("Feedback", "If you **have any feedback** regarding my services or this discord server, please use `/feedback`.", false)
                 .setColor(Color.GREEN)
-                .setTimestamp(new Date().toInstant())
-                .build();
-    }
-
-    public static MessageEmbed cancelInvoice(Invoice invoice) {
-        return new EmbedBuilder()
-                .setTitle("Cancelled Invoice: " + invoice.getInvoiceID())
-                .setDescription("This invoice has been cancelled and all relevant information has been discarded.")
-                .setColor(Color.RED)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -344,7 +319,7 @@ public class EmbedUtil {
 
     public static MessageEmbed inviteEmbed() {
         return new EmbedBuilder()
-                .setDescription("**__https://discord.gg/5nFQBzy7X__**\n\n**Use this link to invite others!**\n*shreyasayyengar.dev*")
+                .setDescription("**__https://discord.gg/5nFQBzy7Xx__**\n\n**Use this link to invite others!**\n*shreyasayyengar.dev*")
                 .setColor(Util.getColor())
                 .setThumbnail(DiscordBot.get().workingGuild.getIconUrl())
                 .build();
@@ -383,8 +358,54 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Outstanding Invoice!")
                 .setDescription("This is a reminder that you have an outstanding invoice!")
-                .addField("Invoice ID: ", invoice.getInvoiceID(), false)
+                .addField("Invoice ID: ", invoice.getID(), false)
                 .setFooter("Click the button below to pay it via PayPal!")
+                .setColor(Util.getColor())
+                .setTimestamp(new Date().toInstant())
+                .build();
+    }
+
+    public static MessageEmbed askPurpose(ClientCommission commission) {
+        return new EmbedBuilder()
+                .setTitle("Before generating an invoice:")
+                .setDescription("Is this invoice for the main product of the commission: `" + commission.getPluginName() + "`?")
+                .setColor(Util.getColor())
+                .build();
+    }
+
+    public static MessageEmbed noAttachments() {
+        return new EmbedBuilder()
+                .setTitle("No Attachments!")
+                .setDescription("You must attach a file to your message to be added to the invoice's file holding.")
+                .setColor(Util.getColor())
+                .setTimestamp(new Date().toInstant())
+                .build();
+    }
+
+    public static MessageEmbed addAttachments(Invoice invoice) {
+        return new EmbedBuilder()
+                .setTitle("Add attachments to the invoice: " + invoice.getID())
+                .setDescription("These files will be added to the invoice's file holding. " +
+                        "Once the invoice is paid, the files will be released to the client!")
+                .setFooter("Please send any attachments below.")
+                .setColor(Util.getColor())
+                .setTimestamp(new Date().toInstant())
+                .build();
+    }
+
+    public static MessageEmbed attachmentsAdded() {
+        return new EmbedBuilder()
+                .setTitle("Attachments Added!")
+                .setDescription("Success! The attachments have been added to the invoice!")
+                .setColor(Util.getColor())
+                .setTimestamp(new Date().toInstant())
+                .build();
+    }
+
+    public static MessageEmbed checkDMForMore() {
+        return new EmbedBuilder()
+                .setTitle("Check your DM's for more instructions")
+                .setDescription("You can upload files to holding from there.")
                 .setColor(Util.getColor())
                 .setTimestamp(new Date().toInstant())
                 .build();

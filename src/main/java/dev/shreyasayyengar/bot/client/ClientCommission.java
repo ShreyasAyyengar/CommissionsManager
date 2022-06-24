@@ -2,6 +2,7 @@ package dev.shreyasayyengar.bot.client;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.paypal.Invoice;
 import dev.shreyasayyengar.bot.paypal.InvoiceDraft;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
@@ -17,6 +18,8 @@ import java.util.concurrent.Executors;
 public class ClientCommission {
 
     public static final Collection<ClientCommission> COMMISSIONS = new HashSet<>();
+
+    private final Collection<Invoice> invoices = new HashSet<>();
 
     private final ClientInfo client;
     private final String pluginName;
@@ -48,9 +51,7 @@ public class ClientCommission {
                 throw new RuntimeException(e);
             }
         });
-
         service.shutdown();
-
     }
 
     public ClientCommission(ClientInfo client, String pluginName, boolean requestedSourceCode, String infoEmbed) {
@@ -78,10 +79,8 @@ public class ClientCommission {
     public void generateInvoice(ButtonInteractionEvent event) throws IOException, URISyntaxException {
         event.replyEmbeds(EmbedUtil.invoiceInProgress()).queue();
 
-        InvoiceDraft invoiceDraft = new InvoiceDraft(client, pluginName, requestedSourceCode ? price + 5 : price, event.getHook());
+        InvoiceDraft invoiceDraft = new InvoiceDraft(this, pluginName, requestedSourceCode ? price + 5 : price, event.getHook());
         invoiceDraft.generateInvoice();
-
-        client.getInvoices().add(invoiceDraft.getFinalInvoice());
     }
 
     public void serialise() {
@@ -171,6 +170,10 @@ public class ClientCommission {
 
     public boolean isConfirmed() {
         return confirmed;
+    }
+
+    public Collection<Invoice> getInvoices() {
+        return invoices;
     }
 
     public void setRequestedSourceCode(boolean requestedSourceCode) {

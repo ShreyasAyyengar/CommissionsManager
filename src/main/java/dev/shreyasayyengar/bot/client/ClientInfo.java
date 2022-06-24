@@ -2,7 +2,6 @@ package dev.shreyasayyengar.bot.client;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
-import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
@@ -22,7 +21,6 @@ import java.util.stream.Stream;
 public class ClientInfo {
 
     private final Collection<ClientCommission> commissions = new HashSet<>();
-    private final Collection<Invoice> invoices = new HashSet<>();
 
     private final Member holder;
     private final VoiceChannel voiceChannel;
@@ -153,12 +151,6 @@ public class ClientInfo {
         }
     }
 
-    public void purgeCommissions() {
-        for (ClientCommission commission : commissions) {
-            commission.purge();
-        }
-    }
-
     // ------------------------------------------------- Getters ----------------------------------------------------//
     public Member getHolder() {
         return holder;
@@ -191,10 +183,6 @@ public class ClientInfo {
 
     public String getPaypalEmail() {
         return paypalEmail;
-    }
-
-    public Collection<Invoice> getInvoices() {
-        return invoices;
     }
 
     public Collection<ClientCommission> getCommissions() {

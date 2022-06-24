@@ -50,7 +50,8 @@ public class ClientRequestConversation extends ListenerAdapter {
 
         responses.add(event.getMessage().getContentRaw());
 
-        if (responses.size() < 7) {
+        if (responses.size() < ClientRequestStage.values().length) {
+
             event.getTextChannel().deleteMessages(event.getChannel().getHistory().retrievePast(2).complete()).queue();
 
             setStage(stage.next());

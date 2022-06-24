@@ -3,7 +3,7 @@ package dev.shreyasayyengar.bot.paypal;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.client.ClientCommission;
 import dev.shreyasayyengar.bot.properties.PayPalProperty;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import okhttp3.*;
@@ -22,7 +22,7 @@ public class InvoiceDraft {
 
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private final ClientInfo clientInfo;
+    private final ClientCommission commission;
     private final String invoiceName = "Minecraft Plugin Development Services";
     private final String productName;
     private final double price;
@@ -30,10 +30,9 @@ public class InvoiceDraft {
     private final InteractionHook interactionHook;
 
     private String invoiceURL;
-    private Invoice finalInvoice;
 
-    public InvoiceDraft(ClientInfo clientInfo, String productName, double price, InteractionHook interactionHook) {
-        this.clientInfo = clientInfo;
+    public InvoiceDraft(ClientCommission commission, String productName, double price, InteractionHook interactionHook) {
+        this.commission = commission;
         this.productName = productName;
         this.price = price + 0.30;
         this.interactionHook = interactionHook;
@@ -114,11 +113,7 @@ public class InvoiceDraft {
 
         JSONObject invoiceDataObject = new JSONObject(client.newCall(request).execute().body().string());
 
-        finalInvoice = new Invoice(clientInfo, invoiceDataObject, interactionHook);
-    }
-
-    public Invoice getFinalInvoice() {
-        return finalInvoice;
+        new Invoice(commission, invoiceDataObject, interactionHook);
     }
 
     class BaseJSON {
@@ -130,7 +125,7 @@ public class InvoiceDraft {
 
         public String fixJSON() {
             rawJSON = this.rawJSON
-                    .replace("{client_email}", InvoiceDraft.this.clientInfo.getPaypalEmail())
+                    .replace("{client_email}", InvoiceDraft.this.commission.getClient().getPaypalEmail())
                     .replace("{email}", PayPalProperty.EMAIL.get()) // TODO
 //                    .replace("{email}", "sb-37wlt16728216@business.example.com")
                     .replace("{website}", PayPalProperty.WEBSITE.get())

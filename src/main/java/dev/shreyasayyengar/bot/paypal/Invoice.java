@@ -1,6 +1,7 @@
 package dev.shreyasayyengar.bot.paypal;
 
 import dev.shreyasayyengar.bot.DiscordBot;
+import dev.shreyasayyengar.bot.client.ClientCommission;
 import dev.shreyasayyengar.bot.client.ClientInfo;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
@@ -21,10 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +33,9 @@ public class Invoice {
     public static final Collection<Invoice> INVOICES = new HashSet<>();
     private static boolean LOOPING = false;
 
+    private final Collection<File> filesHolding = new HashSet<>();
     private final ClientInfo clientInfo;
+    private final ClientCommission commission;
     private final String invoiceID;
     private final String messageID;
     private String status;
@@ -53,8 +54,9 @@ public class Invoice {
                 String clientInfoId = resultSet.getString("client_id");
                 String invoiceId = resultSet.getString("invoice_id");
                 String messageId = resultSet.getString("message_id");
+                String commissionName = resultSet.getString("commission_name");
 
-                new Invoice(clientInfoId, messageId, invoiceId);
+                new Invoice(clientInfoId, commissionName, messageId, invoiceId);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -78,8 +80,10 @@ public class Invoice {
         }
     }
 
-    public Invoice(ClientInfo info, JSONObject invoiceData, InteractionHook interactionHook) throws IOException {
-        this.clientInfo = info;
+    public Invoice(ClientCommission commission, JSONObject invoiceData, InteractionHook interactionHook) throws IOException {
+
+        this.clientInfo = commission.getClient();
+        this.commission = commission;
 
         this.invoiceID = invoiceData.getString("id");
         this.status = invoiceData.getString("status").equalsIgnoreCase("paid") ? "PAID" : "UNPAID";
@@ -100,18 +104,22 @@ public class Invoice {
         invoiceEmbed.getTextChannel().getHistory().retrievePast(1).completeAfter(1, TimeUnit.SECONDS).forEach(message -> message.delete().queue());
         this.messageID = invoiceEmbed.getId();
 
+        this.commission.getInvoices().add(this);
         INVOICES.add(this);
 
         cycleChecks();
     }
 
-    public Invoice(String clientInfoID, String messageID, String invoiceID) {
+    public Invoice(String clientInfoID, String commissionName, String messageID, String invoiceID) {
+
         this.clientInfo = DiscordBot.get().getClientManger().get(clientInfoID);
+        this.commission = clientInfo.getCommission(commissionName);
+
         this.messageID = messageID;
         this.invoiceID = invoiceID;
 
+        this.commission.getInvoices().add(this);
         INVOICES.add(this);
-        clientInfo.getInvoices().add(this);
 
         cycleChecks();
     }
@@ -139,9 +147,49 @@ public class Invoice {
                     .build();
             clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
             closeInvoice();
+
+            releaseFiles();
         }
 
         response.close();
+    }
+
+    public void nudgePayment() {
+        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + this.getID(), Emoji.fromMarkdown("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
+        clientInfo.getTextChannel().sendMessageEmbeds(EmbedUtil.nudge(this)).setActionRow(paypalButton).content("@here").queue();
+    }
+
+    public void releaseFiles() {
+
+        if (filesHolding.size() == 0) return;
+
+        MessageEmbed builder = new EmbedBuilder()
+                .setTitle("Files in Holding Below:")
+                .setDescription("This commission contained files that were only meant to be released once the invoice was paid. Now that it has been paid, here are the released files:")
+                .setColor(Util.getColor())
+                .setTimestamp(new Date().toInstant())
+                .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
+                .build();
+
+        clientInfo.getTextChannel().sendMessageEmbeds(builder).queue();
+
+        List<File> files = filesHolding.stream().toList();
+
+        files.stream()
+                .skip(1)
+                .reduce(
+                        clientInfo.getTextChannel().sendFile(files.get(0)),
+                        (action, file) -> action.addFile(file, file.getName()),
+                        (a, b) -> a
+                )
+                .queue();
+
+        filesHolding.forEach(File::delete);
+        filesHolding.clear();
+    }
+
+    public void addFileToHolding(File file) {
+        this.filesHolding.add(file);
     }
 
     public void cancel() {
@@ -166,7 +214,7 @@ public class Invoice {
                         .setTitle("Invoice Cancelled")
                         .setDescription("{name}'s invoice has been cancelled!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
                         .setColor(Color.RED)
-                        .setFooter("For the invoice: " + invoiceID)
+                        .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
                         .setTimestamp(new Date().toInstant())
                         .build();
 
@@ -179,7 +227,7 @@ public class Invoice {
 
     private void closeInvoice() {
         INVOICES.remove(this);
-        clientInfo.getInvoices().remove(this);
+        this.commission.getInvoices().remove(this);
 
         try {
             DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_invoice_info WHERE invoice_id = ?")
@@ -221,7 +269,6 @@ public class Invoice {
         response.close();
     }
 
-    @SuppressWarnings("deprecation")
     private EmbedBuilder getInvoiceEmbed() {
         return new EmbedBuilder()
                 .setAuthor("Invoice: " + this.invoiceID, null, clientInfo.getHolder().getEffectiveAvatarUrl())
@@ -251,7 +298,6 @@ public class Invoice {
         return invoiceEmbed.build();
     }
 
-
     public void serialise() {
         try {
             ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info WHERE invoice_id = ?")
@@ -259,10 +305,11 @@ public class Invoice {
                     .build().executeQuery();
 
             if (!resultSet.next()) {
-                DiscordBot.get().database.preparedStatementBuilder("insert into CM_invoice_info (invoice_id, message_id, client_id) values (?, ?, ?);")
+                DiscordBot.get().database.preparedStatementBuilder("insert into CM_invoice_info (invoice_id, message_id, client_id, commission_name) values (?, ?, ?, ?);")
                         .setString(this.invoiceID)
                         .setString(this.messageID)
                         .setString(this.clientInfo.getHolder().getId())
+                        .setString(this.commission.getPluginName())
                         .build().executeUpdate();
             }
 
@@ -273,7 +320,11 @@ public class Invoice {
 
     // -------------------------------- GETTERS -------------------------------- //
 
-    public String getInvoiceID() {
+    public String getID() {
         return invoiceID;
+    }
+
+    public String getMessageID() {
+        return messageID;
     }
 }

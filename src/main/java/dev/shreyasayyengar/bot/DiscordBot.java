@@ -97,7 +97,7 @@ public class DiscordBot {
         database.preparedStatement("create table if not exists CM_invoice_info(" +
                 "    invoice_id tinytext null," +
                 "    message_id tinytext null," +
-                "    client_id tinytext null" +
+                "    client_id  tinytext null" +
 
                 ");").executeUpdate();
 

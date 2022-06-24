@@ -6,7 +6,6 @@ import dev.shreyasayyengar.bot.client.ClientInfo;
 import dev.shreyasayyengar.bot.client.conversation.ClientRequestConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
-import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -24,7 +23,7 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 
-        Stream<String> request = Stream.of("request", "collaborator", "quote", "commissions", "invoices");
+        Stream<String> request = Stream.of("request", "collaborator", "quote", "commissions");
 
         if (request.anyMatch(event.getName().toLowerCase()::contains)) {
             if (Util.privateChannel(event.getTextChannel())) {
@@ -77,43 +76,23 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
             }
 
             case "commissions" -> {
-                SelectMenu.Builder builder = SelectMenu.create("menu:commissions")
-                        .setPlaceholder("Select a commission...")
-                        .setRequiredRange(1, 1);
-
                 Collection<ClientCommission> commissions = clientInfo.getCommissions();
 
-                if (commissions.isEmpty()) {
+                if (commissions.size() == 0) {
                     event.replyEmbeds(EmbedUtil.noCommissions()).setEphemeral(true).queue();
                     return;
                 }
 
+                SelectMenu.Builder builder = SelectMenu.create("menu:commissions")
+                        .setPlaceholder("Select a commission...")
+                        .setRequiredRange(1, 1);
+
                 for (ClientCommission commission : commissions) {
-                    builder.addOption(commission.getPluginName(), "commissions." + commission.getPluginName());
+                    builder.addOption(commission.getPluginName(), "commission." + commission.getPluginName());
                 }
 
                 SelectMenu commissionsMenu = builder.build();
                 event.replyEmbeds(EmbedUtil.selectCommission()).addActionRow(commissionsMenu).setEphemeral(true).queue();
-            }
-
-            case "invoices" -> {
-                SelectMenu.Builder builder = SelectMenu.create("menu:invoices")
-                        .setPlaceholder("Select an invoice...")
-                        .setRequiredRange(1, 1);
-
-                Collection<Invoice> invoices = clientInfo.getInvoices();
-
-                if (invoices.isEmpty()) {
-                    event.replyEmbeds(EmbedUtil.noInvoices()).setEphemeral(true).queue();
-                    return;
-                }
-
-                for (Invoice invoice : invoices) {
-                    builder.addOption(invoice.getInvoiceID(), "invoices." + invoice.getInvoiceID());
-                }
-
-                SelectMenu invoicesMenu = builder.build();
-                event.replyEmbeds(EmbedUtil.selectInvoice()).addActionRow(invoicesMenu).setEphemeral(true).queue();
             }
 
             case "email" -> {
