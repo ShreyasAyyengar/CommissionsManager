@@ -61,7 +61,7 @@ public class DiscordBot {
 
         initShutdownHook();
 
-        log(Department.Main, "Fully started and ready!");
+        log(Department.Main, "*** CommissionsManager Ready! ***");
         System.gc();
     }
 
@@ -76,40 +76,47 @@ public class DiscordBot {
         }, 0, 5, TimeUnit.HOURS);
     }
 
-    private void initMySQL() throws IOException, SQLException {
+    private void initMySQL() {
+        try {
+            database = new MySQL(
+                    MySQLProperty.USERNAME.get(),
+                    MySQLProperty.PASSWORD.get(),
+                    MySQLProperty.DATABASE.get(),
+                    MySQLProperty.HOST.get(),
+                    Integer.parseInt(MySQLProperty.PORT.get())
+            );
 
-        database = new MySQL(
-                MySQLProperty.USERNAME.get(),
-                MySQLProperty.PASSWORD.get(),
-                MySQLProperty.DATABASE.get(),
-                MySQLProperty.HOST.get(),
-                Integer.parseInt(MySQLProperty.PORT.get())
-        );
+            log(Department.MySQL, "Loading Tables...");
+            database.preparedStatement("create table if not exists CM_client_info(" +
+                    "    member_id    tinytext     null," +
+                    "    text_id      tinytext     null," +
+                    "    voice_id     tinytext     null," +
+                    "    category_id  tinytext     null," +
+                    "    paypal_email tinytext null" +
+                    ");").executeUpdate();
 
-        log(Department.MySQL, "Loading Tables...");
-        database.preparedStatement("create table if not exists CM_client_info(" +
-                "    member_id    tinytext     null," +
-                "    text_id      tinytext     null," +
-                "    voice_id     tinytext     null," +
-                "    category_id  tinytext     null," +
-                "    paypal_email tinytext null" +
-                ");").executeUpdate();
+            database.preparedStatement("create table if not exists CM_invoice_info(" +
+                    "    invoice_id tinytext null," +
+                    "    message_id tinytext null," +
+                    "    client_id  tinytext null" +
 
-        database.preparedStatement("create table if not exists CM_invoice_info(" +
-                "    invoice_id tinytext null," +
-                "    message_id tinytext null," +
-                "    client_id  tinytext null" +
+                    ");").executeUpdate();
 
-                ");").executeUpdate();
+            database.preparedStatement("create table if not exists CM_commission_info(" +
+                    "    holder_id   tinytext null," +
+                    "    plugin_name tinytext null," +
+                    "    source_code boolean  null," +
+                    "    confirmed   boolean  null," +
+                    "    price       double   null," +
+                    "    info_embed  tinytext null" +
+                    ");").executeUpdate();
 
-        database.preparedStatement("create table if not exists CM_commission_info(" +
-                "    holder_id   tinytext null," +
-                "    plugin_name tinytext null," +
-                "    source_code boolean  null," +
-                "    confirmed   boolean  null," +
-                "    price       double   null," +
-                "    info_embed  tinytext null" +
-                ");").executeUpdate();
+        } catch (Exception e) {
+            log(Department.MySQL, "FATAL ERROR WHEN initMySQL: " + e.getMessage());
+            e.printStackTrace();
+
+            System.exit(1);
+        }
     }
 
     private void createBot() throws LoginException, InterruptedException {

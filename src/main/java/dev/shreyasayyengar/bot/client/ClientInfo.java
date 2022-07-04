@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 /**
  * The ClientInfo class is used to store all data that oversees a client in the Discord Server. This class stores
  * the client's private TextChannels, VoiceChannels, and Category to manage sending messages and conversations.
- * The ClientInfo class also stores active ClientCommissions and Invoices (for ones that are not paid).
+ * The ClientInfo class also stores active {@link ClientCommission}s.
  */
 public class ClientInfo {
 
