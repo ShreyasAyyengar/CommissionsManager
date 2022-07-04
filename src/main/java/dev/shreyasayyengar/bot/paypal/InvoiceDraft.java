@@ -42,10 +42,16 @@ public class InvoiceDraft {
         pushDraft(draftURL);
     }
 
-    private BaseJSON getBaseJSON() throws URISyntaxException, FileNotFoundException {
-        File f = new File(this.getClass().getResource("/invoice_template.yml").toURI());
+    private BaseJSON getBaseJSON() throws URISyntaxException, IOException {
+
+        File templateFile = new File("invoice_template.yml");
+        InputStream inputStream = getClass().getResourceAsStream("/invoice_template.yml");
+        FileOutputStream fileOutput = new FileOutputStream(templateFile);
+        inputStream.transferTo(fileOutput);
+
+
         Yaml yaml = new Yaml();
-        Object loadedYaml = yaml.load(new FileReader(f));
+        Object loadedYaml = yaml.load(new FileReader(templateFile));
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return new BaseJSON(gson.toJson(loadedYaml, LinkedHashMap.class));
     }
