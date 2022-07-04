@@ -17,7 +17,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 
         try {
-            if (event.getGuild().getOwner().getId().equalsIgnoreCase(PrimaryDiscordProperty.OWNER_ID.get())) {
+            if (event.getAuthor().getId().equalsIgnoreCase(PrimaryDiscordProperty.OWNER_ID.get())) {
 
                 if (event.getMessage().getContentRaw().equalsIgnoreCase("!about")) {
 
@@ -101,6 +101,10 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .build();
 
                     event.getTextChannel().sendMessageEmbeds(specialThanks).queue();
+                }
+
+                if (event.getMessage().getContentRaw().contains("thank you darling")) {
+                    event.getMessage().reply("You're most welcome! :blush: :heart:").queue();
                 }
             }
 

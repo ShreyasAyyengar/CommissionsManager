@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -20,21 +21,22 @@ import java.util.stream.Stream;
 public class ClientRequestConversation extends ListenerAdapter {
 
     private final ClientInfo client;
+    private final InteractionHook initialMessageHook;
     private final List<String> responses = new ArrayList<>();
+
+    private Message currentMessage;
     private ClientRequestStage stage = ClientRequestStage.NAME;
 
-    public ClientRequestConversation(ClientInfo clientInfo) {
+    public ClientRequestConversation(ClientInfo clientInfo, InteractionHook initialMessageHook) {
         this.client = clientInfo;
-
-        clientInfo.getTextChannel().sendMessage(clientInfo.getHolder().getAsMention()).queue(message -> message.delete().queue());
+        this.initialMessageHook = initialMessageHook;
 
         checkStage();
-
         DiscordBot.get().bot().addEventListener(this);
     }
 
     private void checkStage() {
-        client.getTextChannel().sendMessageEmbeds(getStage().getEmbedInstruction()).queue();
+        client.getTextChannel().sendMessageEmbeds(getStage().getEmbedInstruction()).queue(message -> currentMessage = message);
     }
 
     @Override
@@ -50,15 +52,13 @@ public class ClientRequestConversation extends ListenerAdapter {
 
         responses.add(event.getMessage().getContentRaw());
 
+        event.getTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
+
         if (responses.size() < ClientRequestStage.values().length) {
-
-            event.getTextChannel().deleteMessages(event.getChannel().getHistory().retrievePast(2).complete()).queue();
-
             setStage(stage.next());
             checkStage();
-
         } else {
-            event.getTextChannel().deleteMessages(event.getChannel().getHistory().retrievePast(3).complete()).queue();
+            initialMessageHook.deleteOriginal().queue();
             finish();
         }
     }
@@ -68,31 +68,66 @@ public class ClientRequestConversation extends ListenerAdapter {
         Collection<String> no = Stream.of("no", "none", "n").toList();
 
         String arrow = "<:purple_arrow:980020213863055390> ";
-        EmbedBuilder compiledResponses = new EmbedBuilder()
-                .setTitle(client.getHolder().getEffectiveName() + "'s Plugin Request")
-                .setDescription("For the plugin: `" + responses.get(0) + "`")
-                .addField("Description:", arrow + "`" + responses.get(1) + "`", false)
-                .addField("Plugin Type:", arrow + "`" + responses.get(2) + "`", false)
-                .addField("Minecraft Version:", arrow + "`" + responses.get(3) + "`", false)
-                .addField("Java Version:", arrow + "`" + responses.get(4) + "`", false);
+
+        boolean longerDescription = false;
+        boolean longerExtraInfo = false;
+
+        EmbedBuilder compiledResponses = new EmbedBuilder();
+        compiledResponses.setTitle(client.getHolder().getEffectiveName() + "'s Plugin Request");
+        compiledResponses.setDescription("For the plugin: `" + responses.get(0) + "`");
+
+        if (responses.get(1).length() > 1000) {
+            compiledResponses.addField("Description:", arrow + "`See below:`", false);
+            longerDescription = true;
+        } else {
+            compiledResponses.addField("Description:", arrow + "`" + responses.get(1) + "`", false);
+        }
+
+        compiledResponses.addField("Plugin Type:", arrow + "`" + responses.get(2) + "`", false);
+        compiledResponses.addField("Minecraft Version:", arrow + "`" + responses.get(3) + "`", false);
+        compiledResponses.addField("Java Version:", arrow + "`" + responses.get(4) + "`", false);
 
         if (no.stream().noneMatch(responses.get(5)::equalsIgnoreCase)) {
             compiledResponses.addField("Requested SRC:", arrow + "`True|Yes`", false);
         }
 
         if (no.stream().noneMatch(string -> responses.get(6).toLowerCase().startsWith(string))) {
-            compiledResponses.addField("Extra Information", arrow + "`" + responses.get(6) + "`", false);
+            if (responses.get(6).length() > 1000) {
+                compiledResponses.addField("Extra Info:", arrow + "`See below:`", false);
+                longerExtraInfo = true;
+            } else {
+                compiledResponses.addField("Extra Info:", arrow + "`" + responses.get(6) + "`", false);
+            }
         }
 
         compiledResponses.setColor(Util.getColor());
 
         Message commissionRequestDone = client.getTextChannel().sendMessageEmbeds(compiledResponses.build()).complete();
-        commissionRequestDone.pin().complete();
+        String id = commissionRequestDone.getId();
 
+        if (longerDescription) {
+            MessageEmbed description = new EmbedBuilder()
+                    .setTitle("Description:")
+                    .setDescription(responses.get(1))
+                    .setColor(Util.getColor())
+                    .build();
+            client.getTextChannel().sendMessageEmbeds(description).complete();
+        }
+
+        if (longerExtraInfo) {
+            MessageEmbed extraInfo = new EmbedBuilder()
+                    .setTitle("Extra Info:")
+                    .setDescription(responses.get(6))
+                    .setColor(Util.getColor())
+                    .build();
+            client.getTextChannel().sendMessageEmbeds(extraInfo).complete();
+        }
+
+        commissionRequestDone.pin().complete();
         client.getTextChannel().sendMessage("<@690755476555563019>").complete();
         client.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
 
-        client.getCommissions().add(new ClientCommission(client, responses.get(0), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), commissionRequestDone.getId()));
+        client.getCommissions().add(new ClientCommission(client, responses.get(0), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), id));
 
         DiscordBot.get().bot().removeEventListener(this);
     }

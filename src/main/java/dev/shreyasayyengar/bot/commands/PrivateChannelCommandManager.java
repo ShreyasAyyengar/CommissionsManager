@@ -65,14 +65,13 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
                     return;
                 }
 
-                new ClientRequestConversation(DiscordBot.get().getClientManger().get(event.getMember().getId()));
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("Please fill out the following information by answering in the chat!")
                         .setDescription("If you would like to cancel this request, please type `!stoprequest`")
                         .setColor(Util.getColor())
                         .build();
 
-                event.replyEmbeds(embed).queue();
+                event.replyEmbeds(embed).queue(interactionHook -> new ClientRequestConversation(DiscordBot.get().getClientManger().get(event.getMember().getId()), interactionHook));
             }
 
             case "commissions" -> {

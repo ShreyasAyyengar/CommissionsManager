@@ -26,7 +26,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 public class ButtonClick extends ListenerAdapter {
-
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
 
@@ -135,7 +134,11 @@ public class ButtonClick extends ListenerAdapter {
 
                 case "cancel" -> {
                     clientInfo.closeCommission(commission);
-                    clientInfo.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete().delete().queue();
+
+                    if (commission.getInfoEmbed() != null) {
+                        clientInfo.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete().delete().queue();
+                    }
+
                     event.replyEmbeds(EmbedUtil.cancelCommission(commission)).queue();
                 }
 
@@ -234,7 +237,6 @@ public class ButtonClick extends ListenerAdapter {
                     builder.addActionRow(TextInput.create("description", "Sub-Invoice Description", TextInputStyle.SHORT).setRequired(true).build());
                     builder.addActionRow(TextInput.create("amount", "Sub-Invoice Price", TextInputStyle.SHORT).setRequired(true).build());
 
-
                     event.replyModal(builder.build()).queue();
                 }
 
@@ -250,11 +252,15 @@ public class ButtonClick extends ListenerAdapter {
                             });
                         });
 
-                case "nudge" ->
-                        clientInfo.getCommissions().stream().flatMap(commission -> commission.getInvoices().stream()).filter(inv -> inv.getID().equalsIgnoreCase(value)).findFirst().ifPresent(Invoice::nudgePayment);
+                case "nudge" -> {
+                    clientInfo.getCommissions().stream().flatMap(commission -> commission.getInvoices().stream()).filter(inv -> inv.getID().equalsIgnoreCase(value)).findFirst().ifPresent(Invoice::nudgePayment);
+                    event.getInteraction().reply("See below:").setEphemeral(true).queue();
+                }
 
-                case "cancel" ->
-                        clientInfo.getCommissions().stream().flatMap(commission -> commission.getInvoices().stream()).filter(inv -> inv.getID().equalsIgnoreCase(value)).findFirst().ifPresent(Invoice::cancel);
+                case "cancel" -> {
+                    clientInfo.getCommissions().stream().flatMap(commission -> commission.getInvoices().stream()).filter(inv -> inv.getID().equalsIgnoreCase(value)).findFirst().ifPresent(Invoice::cancel);
+                    event.getInteraction().reply("See below:").setEphemeral(true).queue();
+                }
 
             }
         }
