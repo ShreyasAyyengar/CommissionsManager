@@ -21,8 +21,6 @@ public class PreparedStatementBuilder {
     public ResultSet executeQuery() throws SQLException {
 
         ResultSet resultSet = this.theStatement.executeQuery();
-        close();
-
         return resultSet;
     }
 
