@@ -111,6 +111,14 @@ public class DiscordBot {
                     "    info_embed  tinytext null" +
                     ");").executeUpdate();
 
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+                try {
+                    database.preparedStatementBuilder("select 1;").executeUpdate();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }, 0, 30, TimeUnit.SECONDS);
+
         } catch (Exception e) {
             log(Department.MySQL, "FATAL ERROR WHEN initMySQL: " + e.getMessage());
             e.printStackTrace();
