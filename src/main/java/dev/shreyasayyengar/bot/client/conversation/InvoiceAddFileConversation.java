@@ -48,7 +48,10 @@ public class InvoiceAddFileConversation extends ListenerAdapter {
         for (Message.Attachment attachment : message.getAttachments()) {
 
             try {
-                File file = new File("/Users/ShreyasSrinivasAyyengar/JetBrains/IdeaProjects/CommissionsManager/files-holding/" + attachment.getFileName());
+                File folder = new File("files-holding");
+                if (!folder.exists()) folder.mkdir();
+
+                File file = new File("files-holding/" + attachment.getFileName());
                 attachment.downloadToFile(file).thenAcceptAsync(downloadedFile -> invoice.addFileToHolding(file));
             } catch (Exception e) {
                 throw new RuntimeException(e);
