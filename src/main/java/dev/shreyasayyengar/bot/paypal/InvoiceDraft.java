@@ -10,10 +10,7 @@ import okhttp3.*;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 
@@ -46,7 +43,7 @@ public class InvoiceDraft {
     }
 
     private BaseJSON getBaseJSON() throws URISyntaxException, FileNotFoundException {
-        File f = new File(getClass().getClassLoader().getResource("/invoice_template.yml").toURI());
+        File f = new File(this.getClass().getResource("/invoice_template.yml").toURI());
         Yaml yaml = new Yaml();
         Object loadedYaml = yaml.load(new FileReader(f));
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
