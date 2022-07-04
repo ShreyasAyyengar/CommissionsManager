@@ -46,7 +46,7 @@ public class InvoiceDraft {
     }
 
     private BaseJSON getBaseJSON() throws URISyntaxException, FileNotFoundException {
-        File f = new File(getClass().getClassLoader().getResource("invoice_template.yml").toURI());
+        File f = new File(getClass().getResource("/invoice_template.yml").toURI());
         Yaml yaml = new Yaml();
         Object loadedYaml = yaml.load(new FileReader(f));
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
