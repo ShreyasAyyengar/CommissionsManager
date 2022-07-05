@@ -19,5 +19,4 @@ public abstract class AbstractClientConversation extends ListenerAdapter {
     public abstract void cancel();
 
     public abstract void onMessageReceived(@NotNull MessageReceivedEvent event);
-
 }
