@@ -24,4 +24,3 @@ public enum MySQLProperty {
         return prop.getProperty(this.property);
     }
 }
-

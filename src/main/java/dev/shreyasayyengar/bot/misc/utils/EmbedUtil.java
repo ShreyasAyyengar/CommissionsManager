@@ -11,6 +11,15 @@ import net.dv8tion.jda.api.entities.User;
 import java.awt.*;
 import java.util.Date;
 
+/**
+ * The EmbedUtil class is a static utility class that contains methods
+ * that return MessageEmbed objects, depending on what type of
+ * embed needs to be sent. Static methods here are called all
+ * throughout the lifetime of the bot.
+ * <p></p>
+ *
+ * @author Shreyas A.
+ */
 public class EmbedUtil {
 
     private EmbedUtil() {

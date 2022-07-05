@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.client.conversation;
+package dev.shreyasayyengar.bot.client.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientInfo;
@@ -11,6 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
+/**
+ * A ClientEmailConversation is a user <---> bot conversation that is initiated by the user.
+ * This conversation is used to store the user's email address that will later be used
+ * to send an {@link dev.shreyasayyengar.bot.paypal.Invoice} to.
+ * <p></p>
+ * @author Shreyas Ayyengar
+ */
 public class ClientEmailConversation extends ListenerAdapter {
 
     private final ClientInfo clientInfo;
@@ -32,18 +39,6 @@ public class ClientEmailConversation extends ListenerAdapter {
         DiscordBot.get().bot().addEventListener(this);
     }
 
-    @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-
-        if (!event.getTextChannel().getId().equalsIgnoreCase(clientInfo.getTextChannel().getId())) return;
-        if (!event.getAuthor().getId().equals(clientInfo.getHolder().getId())) return;
-
-        String email = event.getMessage().getContentStripped().trim();
-        clientInfo.setPaypalEmail(email);
-
-        finish();
-    }
-
     private void finish() {
 
         MessageEmbed embed = new EmbedBuilder()
@@ -58,5 +53,17 @@ public class ClientEmailConversation extends ListenerAdapter {
         clientInfo.getTextChannel().sendMessageEmbeds(embed).queue();
 
         DiscordBot.get().bot().removeEventListener(this);
+    }
+
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+
+        if (!event.getTextChannel().getId().equalsIgnoreCase(clientInfo.getTextChannel().getId())) return;
+        if (!event.getAuthor().getId().equals(clientInfo.getHolder().getId())) return;
+
+        String email = event.getMessage().getContentStripped().trim();
+        clientInfo.setPaypalEmail(email);
+
+        finish();
     }
 }

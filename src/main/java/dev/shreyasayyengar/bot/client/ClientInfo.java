@@ -17,6 +17,9 @@ import java.util.stream.Stream;
  * The ClientInfo class is used to store all data that oversees a client in the Discord Server. This class stores
  * the client's private TextChannels, VoiceChannels, and Category to manage sending messages and conversations.
  * The ClientInfo class also stores active {@link ClientCommission}s.
+ * <p></p>
+ *
+ * @author Shreyas Ayyengar
  */
 public class ClientInfo {
 
@@ -35,6 +38,10 @@ public class ClientInfo {
      * duplicate channels and categories.
      * <p></p>
      * To <b>load</b> an existing ClientInfo object via a ResultSet use the {@link #ClientInfo(String, String, String, String)} constructor.
+     *
+     * <p></p>
+     *
+     * @param holder The JDA Member object of the user to wrap.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public ClientInfo(Member holder) {
@@ -70,7 +77,7 @@ public class ClientInfo {
     }
 
     /**
-     * This constructor is used to load an existing ClientInfo object from a ResultSet. This constructor will
+     * This constructor is used to load an existing ClientInfo object from a {@link ResultSet}. This constructor will
      * initialise the object and keep it in the ClientManager, to be used for later. This <b>will not generate categories</b>
      * and run any other setup actions, this meerly loads the ClientInfo object to be recognised and visible.
      *
@@ -109,6 +116,9 @@ public class ClientInfo {
         textChannel.sendMessageEmbeds(EmbedUtil.leftAsCollaborator(member)).queue();
     }
 
+    /**
+     * Serialise the ClientInfo object to the MySQL server.
+     */
     public void serialise() {
         try {
             // Does the client exist?
@@ -141,10 +151,18 @@ public class ClientInfo {
         }
     }
 
+    /**
+     * This removes the ClientCommission passed in from the {@link #commissions} list and from
+     * the global ClientCommission list.
+     */
     public void closeCommission(ClientCommission commission) {
         commission.close();
     }
 
+    /**
+     * Iterates through all ClientCommissions inside the {@link #commissions} list to the MySQL
+     * database.
+     */
     public void serialiseCommissions() {
         for (ClientCommission commission : commissions) {
             commission.serialise();
@@ -162,6 +180,14 @@ public class ClientInfo {
 
     public VoiceChannel getVoiceChannel() {
         return voiceChannel;
+    }
+
+    public ClientCommission getCommission(String pluginName) {
+        return commissions.stream().filter(commission -> commission.getPluginName().equalsIgnoreCase(pluginName)).findFirst().orElse(null);
+    }
+
+    public Collection<ClientCommission> getCommissions() {
+        return commissions;
     }
 
     public Collection<Permission> getAllowedPermissions() {
@@ -183,14 +209,6 @@ public class ClientInfo {
 
     public String getPaypalEmail() {
         return paypalEmail;
-    }
-
-    public Collection<ClientCommission> getCommissions() {
-        return commissions;
-    }
-
-    public ClientCommission getCommission(String pluginName) {
-        return commissions.stream().filter(commission -> commission.getPluginName().equalsIgnoreCase(pluginName)).findFirst().orElse(null);
     }
 
     public void setPaypalEmail(String paypalEmail) {

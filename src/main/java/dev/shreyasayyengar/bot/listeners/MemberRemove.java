@@ -2,10 +2,8 @@ package dev.shreyasayyengar.bot.listeners;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientInfo;
-import dev.shreyasayyengar.bot.misc.managers.ClientInfoManager;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -19,11 +17,10 @@ public class MemberRemove extends ListenerAdapter {
         User user = event.getUser();
 
         ClientInfo clientInfo = DiscordBot.get().getClientManger().get(user.getId());
-        TextChannel channel  = clientInfo.getTextChannel();
 
-        ClientInfoManager.purgeMemberSQL(user);
+        DiscordBot.get().getClientManger().purgeMemberSQL(user);
 
-        channel.sendMessageEmbeds(EmbedUtil.requestPurge(user))
+        clientInfo.getTextChannel().sendMessageEmbeds(EmbedUtil.requestPurge(user))
                 .setActionRow(Button.danger("purge-channel", "Purge Channels").withEmoji(Emoji.fromMarkdown("\uD83D\uDDD1️")))
                 .queue();
     }

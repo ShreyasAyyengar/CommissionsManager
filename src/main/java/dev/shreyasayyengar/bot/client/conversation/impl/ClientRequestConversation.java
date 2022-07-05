@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.client.conversation;
+package dev.shreyasayyengar.bot.client.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientCommission;
@@ -18,6 +18,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * A ClientRequestConversation is a user <---> bot conversation that is initiated by a client
+ * who wishes to make a commission request. Once started, the discord bot will take
+ * the client through the various stages of {@link ClientRequestStage}. Once finished
+ * the confirmation provided by the conversation will construct a new {@link ClientCommission}.
+ * <p></p>
+ *
+ * @author Shreyas Ayyengar
+ */
 public class ClientRequestConversation extends ListenerAdapter {
 
     private final ClientInfo client;
@@ -36,32 +45,8 @@ public class ClientRequestConversation extends ListenerAdapter {
     }
 
     private void checkStage() {
-        client.getTextChannel().sendMessageEmbeds(getStage().getEmbedInstruction()).queue(message -> currentMessage = message);
-    }
-
-    @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-
-        if (!event.getTextChannel().getId().equalsIgnoreCase(client.getTextChannel().getId())) return;
-        if (!event.getAuthor().getId().equals(client.getHolder().getId())) return;
-
-        if (event.getMessage().getContentRaw().contains("!stoprequest")) {
-            cancel();
-            return;
-        }
-
-        responses.add(event.getMessage().getContentRaw());
-
-        event.getTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
-
-        if (responses.size() < ClientRequestStage.values().length) {
-            setStage(stage.next());
-            checkStage();
-        } else {
-            initialMessageHook.deleteOriginal().queue();
-            finish();
-        }
-    }
+        client.getTextChannel().sendMessageEmbeds(stage.getEmbedInstruction()).queue(message -> currentMessage = message);
+    } // Check the current ClientRequestStage and instruct.
 
     private void finish() {
 
@@ -146,6 +131,30 @@ public class ClientRequestConversation extends ListenerAdapter {
         DiscordBot.get().bot().removeEventListener(this);
     }
 
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+
+        if (!event.getTextChannel().getId().equalsIgnoreCase(client.getTextChannel().getId())) return;
+        if (!event.getAuthor().getId().equals(client.getHolder().getId())) return;
+
+        if (event.getMessage().getContentRaw().contains("!stoprequest")) {
+            cancel();
+            return;
+        }
+
+        responses.add(event.getMessage().getContentRaw());
+
+        event.getTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
+
+        if (responses.size() < ClientRequestStage.values().length) {
+            setStage(stage.next());
+            checkStage();
+        } else {
+            initialMessageHook.deleteOriginal().queue();
+            finish();
+        }
+    }
+
     // ------------------ ClientRequestStage ------------------ //
 
     enum ClientRequestStage {
@@ -211,9 +220,5 @@ public class ClientRequestConversation extends ListenerAdapter {
 
     public void setStage(ClientRequestStage stage) {
         this.stage = stage;
-    }
-
-    public ClientRequestStage getStage() {
-        return stage;
     }
 }

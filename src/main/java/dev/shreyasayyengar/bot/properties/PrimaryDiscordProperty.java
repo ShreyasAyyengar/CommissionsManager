@@ -25,5 +25,4 @@ public enum PrimaryDiscordProperty {
 
         return prop.getProperty(this.property);
     }
-
 }

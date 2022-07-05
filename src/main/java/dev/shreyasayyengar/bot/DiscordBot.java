@@ -42,7 +42,7 @@ import java.util.stream.Stream;
  */
 public class DiscordBot {
 
-    private static DiscordBot instance;
+    private static DiscordBot instance; // Ths instance of this class. (Singleton)
 
     private JDA discordBot;
     private ClientInfoManager clientInfoManager;
@@ -77,7 +77,6 @@ public class DiscordBot {
      * This method generates a new OAuth2 access token for the PayPal API
      * every 5 hours. This is done via HTTP requests to the PayPal API.
      *
-     * @author Shreyas Ayyengar
      * @see AccessTokenRequest
      */
     private void maintainAccessToken() {
@@ -94,9 +93,8 @@ public class DiscordBot {
     /**
      * This method initializes the MySQL database. It also sends
      * keep-alive queries to the database every 30 seconds to prevent
-     * the database connection from closing. (Will fix in future)
+     * the database connection from closing. TODO: (Will fix in future)
      *
-     * @author Shreyas Ayyengar
      * @see MySQL
      */
     private void initMySQL() {
@@ -152,8 +150,6 @@ public class DiscordBot {
 
     /**
      * This method initializes the JDA object, and sets the required data.
-     *
-     * @author Shreyas Ayyengar
      */
     private void createBot() throws LoginException, InterruptedException {
         this.discordBot = JDABuilder.createDefault(PrimaryDiscordProperty.BOT_TOKEN.get())
@@ -164,6 +160,12 @@ public class DiscordBot {
                 .build().awaitReady();
     }
 
+    /**
+     * The fixData method assigns the all private variables of this class
+     * such as the Working Discord JDA Guild, and the ClientInfoManager.
+     *
+     * @see ClientInfoManager
+     */
     private void fixData() {
         this.workingGuild = discordBot.getGuildById(PrimaryDiscordProperty.WORKING_GUILD.get());
         this.workingGuild.loadMembers().get();
@@ -171,11 +173,25 @@ public class DiscordBot {
         this.clientInfoManager.registerExistingClients();
     }
 
+    /**
+     * This method deserialises the data from the MySQL database and stores
+     * them in respective objects and lists.
+     *
+     * @see ClientInfoManager
+     * @see Invoice#registerInvoices()
+     */
     private void deserialiseMySQLData() {
         ClientCommission.registerCommissions();
         Invoice.registerInvoices();
     }
 
+    /**
+     * This method initializes the shutdown hook, which is used to
+     * properly close the MySQL database connection and serialise
+     * any important data for the next time the bot is started.
+     *
+     * @see ShutdownManager
+     */
     private void initShutdownHook() {
         Runtime.getRuntime().addShutdownHook(new ShutdownManager());
     }

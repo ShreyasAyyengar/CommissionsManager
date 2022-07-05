@@ -5,6 +5,17 @@ import dev.shreyasayyengar.bot.client.ClientInfo;
 import dev.shreyasayyengar.bot.misc.utils.Department;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 
+/**
+ * The ShutdownManager is crucial to the programs' functionality. It is used to
+ * shut down the bot and save all data to the database. Without the ShutdownManager,
+ * the bot will not be able to save data to the database, and will be reset to its
+ * default state upon restart. Simple serialisation is called via {@link #serialise()} methods
+ * from {@link ClientInfo} & {@link Invoice} classes.
+ *
+ * <p></p>
+ *
+ * @author Shreyas Ayyengar
+ */
 public class ShutdownManager extends Thread {
 
     @Override

@@ -9,6 +9,11 @@ import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.awt.*;
 
+/**
+ * Utility class for the program. (Possible for removal)
+ *
+ * @author Shreyas Ayyengar
+ */
 public class Util {
 
     private Util() {

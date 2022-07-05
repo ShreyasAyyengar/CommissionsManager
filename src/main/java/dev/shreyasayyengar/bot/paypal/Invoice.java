@@ -28,8 +28,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * An Invoice is a payment request that is sent to a user via PayPal. This class is used to wrap
+ * information provided by PayPal's API and to store it properly within the program. <b>This class is not to be
+ * instantiated directly</b>, but rather through the {@link InvoiceDraft} class. The {@link InvoiceDraft} class is
+ * a <i>blueprint/builder like</i> class that is used to create an Invoice, and once everything is set,
+ * it is pushed to PayPal with an HTTP request, and the information returned is stored in this class. Strong
+ * encapsulation is required for this class, as it is not meant to be used directly nor is it meant to have data
+ * exposed outside this class.
+ * <p></p>
+ *
+ * @author Shreyas Ayyengar
+ * @see InvoiceDraft
+ */
 public class Invoice {
-
     public static final Collection<Invoice> INVOICES = new HashSet<>();
     private static boolean LOOPING = false;
 
@@ -46,6 +58,10 @@ public class Invoice {
     private String merchantEmail;
     private File QRCodeImg;
 
+    /**
+     * The registerInvoices method is used to register all the invoices that are currently stored in the database.
+     * This is only called once, when the program is started via {@link DiscordBot#deserialiseMySQLData()}.
+     */
     public static void registerInvoices() {
         try {
             ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info").build().executeQuery();
@@ -63,6 +79,12 @@ public class Invoice {
         }
     }
 
+    /**
+     * The cycleChecks method loops through all invoices inside the {@link #INVOICES} collection, and checks if they
+     * are paid or not. Action is only taken if the invoice is paid, and is done so by updating the {@link #status} of the
+     * invoice object. The MessageEmbed, which would've been sent to the user immediately after the invoice was created
+     * ({@link #getInvoiceEmbed()}) is updated to reflect the new status, provided by {@link #getPaidInvoiceEmbed()}.
+     */
     private static void cycleChecks() {
         if (!LOOPING) {
             ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
@@ -80,7 +102,13 @@ public class Invoice {
         }
     }
 
-    public Invoice(ClientCommission commission, JSONObject invoiceData, InteractionHook interactionHook) throws IOException {
+    /**
+     * This is the main constructor for this object, and is used to create an final Invoice object from an @{link InvoiceDraft} object.
+     * It assigns all the private variables and sends embeds to the client's text channel to let them know their invoice has been
+     * generated properly. <b>This constructor is not to be used directly</b>, but rather through the {@link InvoiceDraft} class.
+     * (hence the protected access modifier).
+     */
+    protected Invoice(ClientCommission commission, JSONObject invoiceData, InteractionHook interactionHook) throws IOException {
 
         this.clientInfo = commission.getClient();
         this.commission = commission;
@@ -110,7 +138,12 @@ public class Invoice {
         cycleChecks();
     }
 
-    public Invoice(String clientInfoID, String commissionName, String messageID, String invoiceID) {
+    /**
+     * This is the secondary constructor for this object, and is invoked when pulling information from the
+     * database during a restart/reload of the discord bot. <b>This method cannot be used anywhere else other than this class</b>
+     * hence the private access modifier.
+     */
+    private Invoice(String clientInfoID, String commissionName, String messageID, String invoiceID) {
 
         this.clientInfo = DiscordBot.get().getClientManger().get(clientInfoID);
         this.commission = clientInfo.getCommission(commissionName);
@@ -124,6 +157,14 @@ public class Invoice {
         cycleChecks();
     }
 
+    /**
+     * This method makes regular calls to PayPal's API requesting if the Invoice has been paid or not.
+     * If the invoice has been paid successfully and the status returned is "<code>PAID</code>", then
+     * the {@link #status} is updated to reflect this, and the {@link #getPaidInvoiceEmbed()} method is called to
+     * edit the embed to reflect the new status. No action is taken if the return status is not "<code>PAID</code>".
+     *
+     * @apiNote This method is called automatically by the {@link #cycleChecks()}
+     */
     private void updateIfPaid() throws IOException {
 
         OkHttpClient client = new OkHttpClient();
@@ -154,77 +195,11 @@ public class Invoice {
         response.close();
     }
 
-    public void nudgePayment() {
-        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + this.getID(), Emoji.fromMarkdown("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
-        clientInfo.getTextChannel().sendMessageEmbeds(EmbedUtil.nudge(this)).setActionRow(paypalButton).content("@here").queue();
-    }
-
-    public void releaseFiles() {
-
-        if (filesHolding.size() == 0) return;
-
-        MessageEmbed builder = new EmbedBuilder()
-                .setTitle("Files in Holding Below:")
-                .setDescription("This commission contained files that were only meant to be released once the invoice was paid. Now that it has been paid, here are the released files:")
-                .setColor(Util.getColor())
-                .setTimestamp(new Date().toInstant())
-                .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
-                .build();
-
-        clientInfo.getTextChannel().sendMessageEmbeds(builder).queue();
-
-        List<File> files = filesHolding.stream().toList();
-
-        files.stream()
-                .skip(1)
-                .reduce(
-                        clientInfo.getTextChannel().sendFile(files.get(0)),
-                        (action, file) -> action.addFile(file, file.getName()),
-                        (a, b) -> a
-                )
-                .queue();
-
-        filesHolding.forEach(File::delete);
-        filesHolding.clear();
-    }
-
-    public void addFileToHolding(File file) {
-        this.filesHolding.add(file);
-    }
-
-    public void cancel() {
-        closeInvoice();
-
-        OkHttpClient client = new OkHttpClient();
-        MediaType JSON = MediaType.get("application/json; charset=utf-8");
-
-        RequestBody body = RequestBody.create(new JSONObject().put("subject", "Invoice Cancelled").put("note", "Commission Invoice has been Cancelled!").put("send_to_invoicer", true).put("send_to_recipient", true).toString(), JSON);
-
-        Request request = new Request.Builder()
-                .url("https://api-m.paypal.com/v2/invoicing/invoices/" + invoiceID + "/cancel")
-                .addHeader("Content-Type", "application/json")
-                .addHeader("Authorization", "Bearer " + DiscordBot.get().getPaypalAccessToken())
-                .post(body)
-                .build();
-
-        try {
-            Response response = client.newCall(request).execute();
-            if (String.valueOf(response.code()).startsWith("2")) {
-                MessageEmbed embed = new EmbedBuilder()
-                        .setTitle("Invoice Cancelled")
-                        .setDescription("{name}'s invoice has been cancelled!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
-                        .setColor(Color.RED)
-                        .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
-                        .setTimestamp(new Date().toInstant())
-                        .build();
-
-                clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * The closeInvoice method internally closes the invoice and discards the data
+     * associated with it. This method is called either when the invoice is paid, cancelled
+     * or when removed from the database.
+     */
     private void closeInvoice() {
         INVOICES.remove(this);
         this.commission.getInvoices().remove(this);
@@ -238,6 +213,10 @@ public class Invoice {
         }
     }
 
+    /**
+     * This method calls the PayPal's API and obtains and stores the QR code image for this invoice, ({@link #QRCodeImg})
+     * and uses the image as a thumbnail when generating Embeds.
+     */
     private void setQRCode() throws IOException {
 
         OkHttpClient client = new OkHttpClient();
@@ -298,6 +277,95 @@ public class Invoice {
         return invoiceEmbed.build();
     }
 
+    /**
+     * Nudges and prompts the {@link ClientInfo}s holder to pay the invoice.
+     */
+    public void nudgePayment() {
+        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + this.getID(), Emoji.fromMarkdown("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
+        clientInfo.getTextChannel().sendMessageEmbeds(EmbedUtil.nudge(this)).setActionRow(paypalButton).content("@here").queue();
+    }
+
+    /**
+     * Adds a file to the invoices holding files. ({@link #filesHolding})
+     * This method is directly called via {@link dev.shreyasayyengar.bot.client.conversation.impl.InvoiceAddFileConversation}
+     */
+    public void addFileToHolding(File file) {
+        this.filesHolding.add(file);
+    }
+
+    /**
+     * This method releases all files contains in the {@link #filesHolding} list.
+     * This enables automatic file release when the invoice is paid, therefore eliminating
+     * the need for a human to send the files to the {@link ClientInfo}'s text channel.
+     */
+    public void releaseFiles() {
+
+        if (filesHolding.size() == 0) return;
+
+        MessageEmbed builder = new EmbedBuilder()
+                .setTitle("Files in Holding Below:")
+                .setDescription("This commission contained files that were only meant to be released once the invoice was paid. Now that it has been paid, here are the released files:")
+                .setColor(Util.getColor())
+                .setTimestamp(new Date().toInstant())
+                .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
+                .build();
+
+        clientInfo.getTextChannel().sendMessageEmbeds(builder).queue();
+
+        List<File> files = filesHolding.stream().toList();
+
+        files.stream()
+                .skip(1)
+                .reduce(
+                        clientInfo.getTextChannel().sendFile(files.get(0)),
+                        (action, file) -> action.addFile(file, file.getName()),
+                        (a, b) -> a
+                )
+                .queue();
+
+        filesHolding.forEach(File::delete);
+        filesHolding.clear();
+    }
+
+    /**
+     * This method cancels the invoice, both internally and externally through PayPal's API.
+     */
+    public void cancel() {
+        closeInvoice();
+
+        OkHttpClient client = new OkHttpClient();
+        MediaType JSON = MediaType.get("application/json; charset=utf-8");
+
+        RequestBody body = RequestBody.create(new JSONObject().put("subject", "Invoice Cancelled").put("note", "Commission Invoice has been Cancelled!").put("send_to_invoicer", true).put("send_to_recipient", true).toString(), JSON);
+
+        Request request = new Request.Builder()
+                .url("https://api-m.paypal.com/v2/invoicing/invoices/" + invoiceID + "/cancel")
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + DiscordBot.get().getPaypalAccessToken())
+                .post(body)
+                .build();
+
+        try {
+            Response response = client.newCall(request).execute();
+            if (String.valueOf(response.code()).startsWith("2")) {
+                MessageEmbed embed = new EmbedBuilder()
+                        .setTitle("Invoice Cancelled")
+                        .setDescription("{name}'s invoice has been cancelled!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
+                        .setColor(Color.RED)
+                        .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
+                        .setTimestamp(new Date().toInstant())
+                        .build();
+
+                clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Serialises the invoice to the MySQL database (if not paid).
+     */
     public void serialise() {
         try {
             ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info WHERE invoice_id = ?")

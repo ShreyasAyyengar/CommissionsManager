@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.client.conversation;
+package dev.shreyasayyengar.bot.client.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientCommission;
@@ -12,6 +12,14 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * A QuoteChangeConversation is a restricted conversation that is initiated only by the owner
+ * of the discord bot / developer / me. This conversation is used to change the quote of an existing {@link ClientCommission}
+ * by calling {@link ClientCommission#setPrice(double)}.
+ * <p></p>
+ *
+ * @author Shreyas Ayyengar
+ */
 public class QuoteChangeConversation extends ListenerAdapter {
 
     private final ClientCommission commission;

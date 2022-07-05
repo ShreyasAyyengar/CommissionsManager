@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.client.conversation;
+package dev.shreyasayyengar.bot.client.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
@@ -13,6 +13,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+/**
+ * A InvoiceAddFileConversation is a restricted conversation that is initiated only by the owner
+ * of the discord bot / developer / me. This conversation is used to add a file to an existing {@link Invoice}
+ * by calling {@link Invoice#addFileToHolding(File)}. This conversation opens a Private DM/Channel with the user
+ * and requires the user to upload a file, most commonly a <code>.jar</code> file.
+ * <p></p>
+ *
+ * @author Shreyas Ayyengar
+ */
 public class InvoiceAddFileConversation extends ListenerAdapter {
 
     private final Invoice invoice;

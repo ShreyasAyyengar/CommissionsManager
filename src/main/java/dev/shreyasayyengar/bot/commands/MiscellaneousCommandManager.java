@@ -87,13 +87,13 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .setDescription("**I would like to thank the following people for their contributions to this discord server, and overall for making this possible!**")
                             .addField("Special Thanks", """ 
                                     <@414314531683303426> - For helping me relentlessly and endlessly with testing and bug fixing my <@979533208012087296> Discord bot.
-                                    
+                                                                        
                                     <@477288891351695381> - Being one of the first people to beta test my discord server and the live version of my <@979533208012087296> Discord bot!
-                                    
+                                                                        
                                     <@715022019284172890> - For helping with PayPal invoice management, and testing out the new features.
-                                    
+                                                                        
                                     And last but not least: You guys! (<@&979538113816838174>). Thank you for using my plugin development services, and growing my community, little by little!
-                                    
+                                                                        
                                     A lot of the features, development, and general server flow would not be possible without some very cool people! So thank you all for being awesome!
                                     """, false)
                             .setFooter("- Shreyas A.", event.getGuild().getMemberById(PrimaryDiscordProperty.OWNER_ID.get()).getEffectiveAvatarUrl())

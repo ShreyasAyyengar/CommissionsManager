@@ -3,7 +3,7 @@ package dev.shreyasayyengar.bot.commands;
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientCommission;
 import dev.shreyasayyengar.bot.client.ClientInfo;
-import dev.shreyasayyengar.bot.client.conversation.ClientRequestConversation;
+import dev.shreyasayyengar.bot.client.conversation.impl.ClientRequestConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -50,8 +50,6 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
 
                 if (action.equalsIgnoreCase("remove")) {
                     if (clientInfo.getTextChannel().getMembers().stream().map(Member::getId).anyMatch(id -> id.equalsIgnoreCase(member.getId()))) {
-                        event.replyEmbeds(EmbedUtil.alreadyCollaborator()).setEphemeral(true).queue();
-
                         clientInfo.removeCollaborator(member);
                     } else {
                         event.replyEmbeds(EmbedUtil.notCollaborator()).setEphemeral(true).queue();

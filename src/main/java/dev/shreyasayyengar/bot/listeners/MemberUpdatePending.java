@@ -82,5 +82,4 @@ public class MemberUpdatePending extends ListenerAdapter {
 
         welcomeChannel.sendMessageEmbeds(embed).queue();
     }
-
 }

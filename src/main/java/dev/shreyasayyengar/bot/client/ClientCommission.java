@@ -39,6 +39,10 @@ public class ClientCommission {
     private boolean confirmed;
     private double price;
 
+    /**
+     * Registers all serialise commissions from the MySQL database and loads them up
+     * and assigns them to the corresponding {@link ClientInfo} object.
+     */
     public static void registerCommissions() {
         try {
             ResultSet resultSet = DiscordBot.get().database.preparedStatement("SELECT * FROM CM_commission_info").executeQuery();
@@ -60,6 +64,17 @@ public class ClientCommission {
 
     }
 
+    /**
+     * Constructs a new ClientCommission object during Runtime. <b>This method should not be called
+     * if the Commission is not being generated live.</b>. i.e only when created via the <code>/request</code>
+     * command used by users in the Discord server.
+     * <p></p>
+     *
+     * @param client              The {@link ClientInfo} object that the commission is linked to.
+     * @param pluginName          The name of the plugin that the commission is for.
+     * @param requestedSourceCode Whether the client has requested source code.
+     * @param infoEmbed           The {@link net.dv8tion.jda.api.entities.MessageEmbed} that contains the info for the commission.
+     */
     public ClientCommission(ClientInfo client, String pluginName, boolean requestedSourceCode, String infoEmbed) {
         this.client = client;
         this.pluginName = pluginName;
@@ -70,6 +85,18 @@ public class ClientCommission {
         COMMISSIONS.add(this);
     }
 
+    /**
+     * Constructs a new ClientCommission object from the MySQL database. <b>This method should not be called
+     * if the Commission is not being loaded from the database.</b>
+     * <p></p>
+     *
+     * @param holderId            The {@link ClientInfo}'s holder ID that the commission is linked to.
+     * @param pluginName          The name of the plugin that the commission is for.
+     * @param requestedSourceCode Whether the client has requested source code.
+     * @param confirmed           Whether the commission has been confirmed by the client.
+     * @param price               The price of the commission.
+     * @param infoEmbed           The {@link net.dv8tion.jda.api.entities.MessageEmbed} message ID that contains the info for the commission.
+     */
     public ClientCommission(String holderId, String pluginName, boolean requestedSourceCode, boolean confirmed, double price, String infoEmbed) {
         this.pluginName = pluginName;
         this.requestedSourceCode = requestedSourceCode;
@@ -82,6 +109,17 @@ public class ClientCommission {
         COMMISSIONS.add(this);
     }
 
+    /**
+     * Generates a PayPal {@link InvoiceDraft} which is later pushed and converted to a final {@link Invoice},
+     * which is also stored in {@link #invoices} once pushed to it's final state.
+     * <p></p>
+     *
+     * @param event The {@link ButtonInteractionEvent} that triggered this invoice generation request. (The Interaction
+     *              WebHook will update the Embeds with the status of the invoice.
+     *              the m
+     * @see InvoiceDraft
+     * @see Invoice
+     */
     public void generateInvoice(ButtonInteractionEvent event) throws IOException, URISyntaxException {
         event.replyEmbeds(EmbedUtil.invoiceInProgress()).queue();
 
@@ -89,6 +127,9 @@ public class ClientCommission {
         invoiceDraft.generateInvoice();
     }
 
+    /**
+     * Seralises the Commission and vital data to the MySQL database.
+     */
     public void serialise() {
         try {
             // Does the commission exist?
@@ -123,6 +164,9 @@ public class ClientCommission {
         }
     }
 
+    /**
+     * Closes the commission for any reason and removes it from the {@link #COMMISSIONS} & {@link ClientInfo#getCommissions()} list.
+     */
     public void close() {
         COMMISSIONS.remove(this);
         client.getCommissions().remove(this);
@@ -136,18 +180,9 @@ public class ClientCommission {
         }
     }
 
-    public void purge() {
-        COMMISSIONS.remove(this);
-        client.getCommissions().remove(this);
-        try {
-            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_commission_info WHERE holder_id = ?")
-                    .setString(client.getHolder().getId())
-                    .build().executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * @return A simple predicate determining if the price is within a valid range.
+     */
     public boolean checkPrice() {
         return !(price > 0);
     }
