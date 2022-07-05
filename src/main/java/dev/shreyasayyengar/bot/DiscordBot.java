@@ -34,17 +34,26 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+/**
+ * The main class of the Discord Bot. This class is responsible for initializing the bot and
+ * constructing/initialising/assigning relevant data, that will later be used during runtime.
+ *
+ * @author Shreyas Ayyengar
+ */
 public class DiscordBot {
 
     private static DiscordBot instance;
 
+    private JDA discordBot;
+    private ClientInfoManager clientInfoManager;
     private String paypalAccessToken;
 
     public Guild workingGuild;
     public MySQL database;
 
-    private JDA discordBot;
-    private ClientInfoManager clientInfoManager;
+    public static DiscordBot get() {
+        return instance;
+    }
 
     public static void log(Department department, String message) {
         System.out.println("[CommissionsManager - " + department.name() + "] " + message);
@@ -58,13 +67,19 @@ public class DiscordBot {
         createBot();
         fixData();
         deserialiseMySQLData();
-
         initShutdownHook();
 
         log(Department.Main, "*** CommissionsManager Ready! ***");
         System.gc();
     }
 
+    /**
+     * This method generates a new OAuth2 access token for the PayPal API
+     * every 5 hours. This is done via HTTP requests to the PayPal API.
+     *
+     * @author Shreyas Ayyengar
+     * @see AccessTokenRequest
+     */
     private void maintainAccessToken() {
         ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
         scheduledService.scheduleAtFixedRate(() -> {
@@ -76,6 +91,14 @@ public class DiscordBot {
         }, 0, 5, TimeUnit.HOURS);
     }
 
+    /**
+     * This method initializes the MySQL database. It also sends
+     * keep-alive queries to the database every 30 seconds to prevent
+     * the database connection from closing. (Will fix in future)
+     *
+     * @author Shreyas Ayyengar
+     * @see MySQL
+     */
     private void initMySQL() {
         try {
             database = new MySQL(
@@ -111,8 +134,7 @@ public class DiscordBot {
                     "    info_embed  tinytext null" +
                     ");").executeUpdate();
 
-            ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-            service.scheduleAtFixedRate(() -> {
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
                 try {
                     database.preparedStatementBuilder("select 1;").executeQuery();
                 } catch (SQLException e) {
@@ -128,6 +150,11 @@ public class DiscordBot {
         }
     }
 
+    /**
+     * This method initializes the JDA object, and sets the required data.
+     *
+     * @author Shreyas Ayyengar
+     */
     private void createBot() throws LoginException, InterruptedException {
         this.discordBot = JDABuilder.createDefault(PrimaryDiscordProperty.BOT_TOKEN.get())
                 .setActivity(Activity.watching("shreyasayyengar.dev"))
@@ -141,15 +168,12 @@ public class DiscordBot {
         this.workingGuild = discordBot.getGuildById(PrimaryDiscordProperty.WORKING_GUILD.get());
         this.workingGuild.loadMembers().get();
         this.clientInfoManager = new ClientInfoManager();
+        this.clientInfoManager.registerExistingClients();
     }
 
     private void deserialiseMySQLData() {
-        ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
-        scheduledService.schedule(() -> {
-            ClientCommission.registerCommissions();
-            Invoice.registerInvoices();
-        }, 1, TimeUnit.SECONDS);
-
+        ClientCommission.registerCommissions();
+        Invoice.registerInvoices();
     }
 
     private void initShutdownHook() {
@@ -175,10 +199,6 @@ public class DiscordBot {
         return discordBot;
     }
 
-    public static DiscordBot get() {
-        return instance;
-    }
-
     public ClientInfoManager getClientManger() {
         return clientInfoManager;
     }
@@ -187,9 +207,3 @@ public class DiscordBot {
         return paypalAccessToken;
     }
 }
-
-// TODO: figure out what on EARTH happened when registering ClientInfo through the ClientInfoManager and then subsequently registering ClientCommissions
-// Ideas: 1. Remove all executor servers and see what happens, (completely remove them from the startup proess, check running order)
-//        2. Hold a reference to the Thread ExecutorService in DiscordBot and then call it when making SQL requests
-//        3. Make ClientInfoManager more of a ClientManager, that registeres ClientInfo AND THEN registers ClientCommissions
-//        4. Make a new class that extends Thread and then call all startup MySQL requests and register ClientInfo & ClientCommissions in it

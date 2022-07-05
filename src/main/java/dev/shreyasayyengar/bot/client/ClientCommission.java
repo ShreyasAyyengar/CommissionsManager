@@ -12,9 +12,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+/**
+ * A ClientCommission represents an ongoing commission for a client. This object
+ * may be constructed in two different ways: Either by creating a new commission, or by
+ * loading an existing commission from the database.
+ * <p></p>
+ * The commission stores vital info, such as the {@link ClientInfo} it is linked to,
+ * the price of the commission, whether the Client has requested source code,
+ * and the {@link Invoice}s that is associated with the commission.
+ * <p></p>
+ *
+ * @author Shreyas Ayyengar
+ */
 public class ClientCommission {
 
     public static final Collection<ClientCommission> COMMISSIONS = new HashSet<>();
@@ -30,28 +40,24 @@ public class ClientCommission {
     private double price;
 
     public static void registerCommissions() {
-        ExecutorService service = Executors.newSingleThreadExecutor();
+        try {
+            ResultSet resultSet = DiscordBot.get().database.preparedStatement("SELECT * FROM CM_commission_info").executeQuery();
 
-        service.execute(() -> {
-            try {
-                ResultSet resultSet = DiscordBot.get().database.preparedStatement("SELECT * FROM CM_commission_info").executeQuery();
+            while (resultSet.next()) {
+                String holderId = resultSet.getString("holder_id");
+                String pluginName = resultSet.getString("plugin_name");
+                boolean requestedSourceCode = resultSet.getBoolean("source_code");
+                boolean confirmed = resultSet.getBoolean("confirmed");
+                double price = resultSet.getDouble("price");
+                String infoEmbed = resultSet.getString("info_embed");
 
-                while (resultSet.next()) {
-                    String holderId = resultSet.getString("holder_id");
-                    String pluginName = resultSet.getString("plugin_name");
-                    boolean requestedSourceCode = resultSet.getBoolean("source_code");
-                    boolean confirmed = resultSet.getBoolean("confirmed");
-                    double price = resultSet.getDouble("price");
-                    String infoEmbed = resultSet.getString("info_embed");
-
-                    new ClientCommission(holderId, pluginName, requestedSourceCode, confirmed, price, infoEmbed);
-                }
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
+                new ClientCommission(holderId, pluginName, requestedSourceCode, confirmed, price, infoEmbed);
             }
-        });
-        service.shutdown();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public ClientCommission(ClientInfo client, String pluginName, boolean requestedSourceCode, String infoEmbed) {

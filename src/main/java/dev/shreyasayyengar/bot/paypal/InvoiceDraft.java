@@ -49,7 +49,6 @@ public class InvoiceDraft {
         FileOutputStream fileOutput = new FileOutputStream(templateFile);
         inputStream.transferTo(fileOutput);
 
-
         Yaml yaml = new Yaml();
         Object loadedYaml = yaml.load(new FileReader(templateFile));
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
