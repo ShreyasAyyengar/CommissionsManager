@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientCommission;
-import dev.shreyasayyengar.bot.properties.PayPalProperty;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import okhttp3.*;
 import org.json.JSONObject;
@@ -181,8 +180,8 @@ public class InvoiceDraft {
         public String fixJSON() {
             rawJSON = this.rawJSON
                     .replace("{client_email}", InvoiceDraft.this.commission.getClient().getPaypalEmail())
-                    .replace("{email}", PayPalProperty.EMAIL.get())
-                    .replace("{website}", PayPalProperty.WEBSITE.get())
+                    .replace("{email}", "shreyas.ayyengar@gmail.com")
+                    .replace("{website}", "https://shreyasayyengar.dev")
                     .replace("{invoice_name}", InvoiceDraft.this.invoiceName)
                     .replace("{invoice_description}", InvoiceDraft.this.productName + " (Plugin Service)")
                     .replace("{invoice_amount}", InvoiceDraft.this.price + "");

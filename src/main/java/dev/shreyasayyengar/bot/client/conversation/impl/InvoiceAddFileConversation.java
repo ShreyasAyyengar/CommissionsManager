@@ -1,9 +1,9 @@
 package dev.shreyasayyengar.bot.client.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
+import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.Invoice;
-import dev.shreyasayyengar.bot.properties.PrimaryDiscordProperty;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PrivateChannel;
@@ -29,14 +29,14 @@ public class InvoiceAddFileConversation extends ListenerAdapter {
     public InvoiceAddFileConversation(Invoice invoice) {
         this.invoice = invoice;
 
-        DiscordBot.get().bot().getUserById(PrimaryDiscordProperty.OWNER_ID.get()).openPrivateChannel().queue(privateChannel -> privateChannel.sendMessageEmbeds(EmbedUtil.addAttachments(invoice)).queue());
+        DiscordBot.get().bot().getUserById(Authentication.OWNER_ID.get()).openPrivateChannel().queue(privateChannel -> privateChannel.sendMessageEmbeds(EmbedUtil.addAttachments(invoice)).queue());
         DiscordBot.get().bot().addEventListener(this);
     }
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getChannelType() != ChannelType.PRIVATE) return;
-        if (!event.getPrivateChannel().getUser().getId().equalsIgnoreCase(PrimaryDiscordProperty.OWNER_ID.get()))
+        if (!event.getPrivateChannel().getUser().getId().equalsIgnoreCase(Authentication.OWNER_ID.get()))
             return;
 
         PrivateChannel privateChannel = event.getPrivateChannel();

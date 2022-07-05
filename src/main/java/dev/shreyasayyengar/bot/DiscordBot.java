@@ -12,11 +12,10 @@ import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
 import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
 import dev.shreyasayyengar.bot.misc.managers.ClientInfoManager;
 import dev.shreyasayyengar.bot.misc.managers.ShutdownManager;
+import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.Department;
 import dev.shreyasayyengar.bot.paypal.AccessTokenRequest;
 import dev.shreyasayyengar.bot.paypal.Invoice;
-import dev.shreyasayyengar.bot.properties.MySQLProperty;
-import dev.shreyasayyengar.bot.properties.PrimaryDiscordProperty;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -59,7 +58,7 @@ public class DiscordBot {
         System.out.println("[CommissionsManager - " + department.name() + "] " + message);
     }
 
-    public DiscordBot() throws LoginException, InterruptedException, IOException, SQLException {
+    public DiscordBot() throws LoginException, InterruptedException {
         instance = this;
         maintainAccessToken();
 
@@ -100,11 +99,11 @@ public class DiscordBot {
     private void initMySQL() {
         try {
             database = new MySQL(
-                    MySQLProperty.USERNAME.get(),
-                    MySQLProperty.PASSWORD.get(),
-                    MySQLProperty.DATABASE.get(),
-                    MySQLProperty.HOST.get(),
-                    Integer.parseInt(MySQLProperty.PORT.get())
+                    Authentication.MYSQL_USERNAME.get(),
+                    Authentication.MYSQL_PASSWORD.get(),
+                    Authentication.MYSQL_DATABASE.get(),
+                    Authentication.MYSQL_HOST.get(),
+                    3306
             );
 
             log(Department.MySQL, "Loading Tables...");
@@ -152,7 +151,7 @@ public class DiscordBot {
      * This method initializes the JDA object, and sets the required data.
      */
     private void createBot() throws LoginException, InterruptedException {
-        this.discordBot = JDABuilder.createDefault(PrimaryDiscordProperty.BOT_TOKEN.get())
+        this.discordBot = JDABuilder.createDefault(Authentication.BOT_TOKEN.get())
                 .setActivity(Activity.watching("shreyasayyengar.dev"))
                 .addEventListeners(getListeners().toArray())
                 .setEnabledIntents(Arrays.stream(GatewayIntent.values()).filter(intent -> intent != GatewayIntent.GUILD_PRESENCES).toList())
@@ -167,7 +166,7 @@ public class DiscordBot {
      * @see ClientInfoManager
      */
     private void fixData() {
-        this.workingGuild = discordBot.getGuildById(PrimaryDiscordProperty.WORKING_GUILD.get());
+        this.workingGuild = discordBot.getGuildById(Authentication.GUILD_ID.get());
         this.workingGuild.loadMembers().get();
         this.clientInfoManager = new ClientInfoManager();
         this.clientInfoManager.registerExistingClients();
@@ -223,3 +222,5 @@ public class DiscordBot {
         return paypalAccessToken;
     }
 }
+
+// TODO: Consider migrating Authentication#OWNER_ID to Guild#getOwner()#getId()

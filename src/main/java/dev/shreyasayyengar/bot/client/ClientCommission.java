@@ -7,7 +7,6 @@ import dev.shreyasayyengar.bot.paypal.InvoiceDraft;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -66,7 +65,7 @@ public class ClientCommission {
 
     /**
      * Constructs a new ClientCommission object during Runtime. <b>This method should not be called
-     * if the Commission is not being generated live.</b>. i.e only when created via the <code>/request</code>
+     * if the Commission is not being generated live.</b> i.e only when created via the <code>/request</code>
      * command used by users in the Discord server.
      * <p></p>
      *
@@ -120,7 +119,7 @@ public class ClientCommission {
      * @see InvoiceDraft
      * @see Invoice
      */
-    public void generateInvoice(ButtonInteractionEvent event) throws IOException, URISyntaxException {
+    public void generateInvoice(ButtonInteractionEvent event) throws IOException {
         event.replyEmbeds(EmbedUtil.invoiceInProgress()).queue();
 
         InvoiceDraft invoiceDraft = new InvoiceDraft(this, pluginName, requestedSourceCode ? price + 5 : price, event.getHook());

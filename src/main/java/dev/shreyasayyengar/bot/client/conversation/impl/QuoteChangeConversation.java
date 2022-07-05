@@ -2,6 +2,7 @@ package dev.shreyasayyengar.bot.client.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientCommission;
+import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -45,7 +46,7 @@ public class QuoteChangeConversation extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (!event.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) return;
-        if (!event.getAuthor().getId().equals(DiscordBot.get().workingGuild.getOwnerId())) return;
+        if (!event.getAuthor().getId().equals(Authentication.OWNER_ID.get())) return;
 
         String message = event.getMessage().getContentRaw();
 

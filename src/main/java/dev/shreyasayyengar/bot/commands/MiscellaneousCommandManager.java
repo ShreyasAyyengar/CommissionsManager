@@ -1,7 +1,7 @@
 package dev.shreyasayyengar.bot.commands;
 
+import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.Util;
-import dev.shreyasayyengar.bot.properties.PrimaryDiscordProperty;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -17,7 +17,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 
         try {
-            if (event.getAuthor().getId().equalsIgnoreCase(PrimaryDiscordProperty.OWNER_ID.get())) {
+            if (event.getAuthor().getId().equalsIgnoreCase(Authentication.OWNER_ID.get())) {
 
                 if (event.getMessage().getContentRaw().equalsIgnoreCase("!about")) {
 
@@ -26,7 +26,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                     MessageEmbed aboutEmbed = new EmbedBuilder()
                             .setTitle("Welcome to shreyasayyengar.dev!")
                             .setDescription("The **#1** place for **all** your plugin development needs & services!")
-                            .setThumbnail(event.getGuild().getMemberById(PrimaryDiscordProperty.OWNER_ID.get()).getEffectiveAvatarUrl())
+                            .setThumbnail(event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
                             .addField("Who?", "Hi! I'm `Shreyas Ayyengar` and I am a high school student and a Java Developer! I specialise in creating Bukkit plugins for Minecraft Servers of all types and sizes. " +
                                     "I also do some private bot development on the side when I feel like it :D ", false)
 
@@ -53,7 +53,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                                     """, false)
                             .setColor(Util.getColor())
                             .setThumbnail("attachment://shreyasayyengar.png")
-                            .setFooter("Shreyas Ayyengar", event.getGuild().getMemberById(PrimaryDiscordProperty.OWNER_ID.get()).getEffectiveAvatarUrl())
+                            .setFooter("Shreyas Ayyengar", event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
                             .build();
 
                     event.getTextChannel().sendMessageEmbeds(aboutEmbed).addFile(file, "shreyasayyengar.png").queue();
@@ -73,7 +73,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
 
                                             If you have any questions! Feel free to ping me in your private channel"""
                                     , false)
-                            .setFooter("- Shreyas A.", event.getGuild().getMemberById(PrimaryDiscordProperty.OWNER_ID.get()).getEffectiveAvatarUrl())
+                            .setFooter("- Shreyas A.", event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
                             .setColor(Util.getColor())
                             .build();
 
@@ -96,7 +96,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                                                                         
                                     A lot of the features, development, and general server flow would not be possible without some very cool people! So thank you all for being awesome!
                                     """, false)
-                            .setFooter("- Shreyas A.", event.getGuild().getMemberById(PrimaryDiscordProperty.OWNER_ID.get()).getEffectiveAvatarUrl())
+                            .setFooter("- Shreyas A.", event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
                             .setColor(Util.getColor())
                             .build();
 

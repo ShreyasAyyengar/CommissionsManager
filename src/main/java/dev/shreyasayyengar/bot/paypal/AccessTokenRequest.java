@@ -1,8 +1,8 @@
 package dev.shreyasayyengar.bot.paypal;
 
 import dev.shreyasayyengar.bot.DiscordBot;
+import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.Department;
-import dev.shreyasayyengar.bot.properties.PayPalProperty;
 import okhttp3.*;
 import org.json.JSONObject;
 
@@ -38,7 +38,7 @@ public class AccessTokenRequest {
                 .url("https://api-m.paypal.com/v1/oauth2/token")
                 .addHeader("Accept", "application/json")
                 .addHeader("Accept-Language", "en_US")
-                .addHeader("Authorization", Credentials.basic(PayPalProperty.CLIENT_ID.get(), PayPalProperty.CLIENT_SECRET.get()))
+                .addHeader("Authorization", Credentials.basic(Authentication.PAYPAL_CLIENT_ID.get(), Authentication.PAYPAL_CLIENT_SECRET.get()))
                 .post(body)
                 .build();
 

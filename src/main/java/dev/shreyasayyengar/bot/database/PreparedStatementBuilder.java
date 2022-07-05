@@ -19,9 +19,7 @@ public class PreparedStatementBuilder {
     }
 
     public ResultSet executeQuery() throws SQLException {
-
-        ResultSet resultSet = this.theStatement.executeQuery();
-        return resultSet;
+        return this.theStatement.executeQuery();
     }
 
     public int executeUpdate() throws SQLException {

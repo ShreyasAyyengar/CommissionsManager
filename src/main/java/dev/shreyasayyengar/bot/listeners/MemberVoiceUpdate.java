@@ -1,9 +1,9 @@
 package dev.shreyasayyengar.bot.listeners;
 
 import dev.shreyasayyengar.bot.DiscordBot;
+import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
-import dev.shreyasayyengar.bot.properties.PrimaryDiscordProperty;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.CombinedAudio;
 import net.dv8tion.jda.api.entities.Channel;
@@ -31,7 +31,7 @@ public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHa
 
     @Override
     public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
-        if (event.getMember().getId().equalsIgnoreCase(PrimaryDiscordProperty.OWNER_ID.get())) {
+        if (event.getMember().getId().equalsIgnoreCase(Authentication.OWNER_ID.get())) {
 
             if (Util.privateChannel(event.getChannelJoined())) return;
 
@@ -44,7 +44,7 @@ public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHa
 
     @Override
     public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
-        if (event.getMember().getId().equalsIgnoreCase(PrimaryDiscordProperty.OWNER_ID.get())) {
+        if (event.getMember().getId().equalsIgnoreCase(Authentication.OWNER_ID.get())) {
 
             if (Util.privateChannel(event.getChannelLeft())) return;
 

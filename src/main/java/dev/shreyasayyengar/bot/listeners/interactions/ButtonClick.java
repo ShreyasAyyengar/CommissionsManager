@@ -22,7 +22,6 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 
 public class ButtonClick extends ListenerAdapter {
@@ -225,7 +224,7 @@ public class ButtonClick extends ListenerAdapter {
 
                     try {
                         commission.generateInvoice(event);
-                    } catch (IOException | URISyntaxException e) {
+                    } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
                 }
