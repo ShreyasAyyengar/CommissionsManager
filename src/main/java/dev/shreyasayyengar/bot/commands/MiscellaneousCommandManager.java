@@ -1,7 +1,5 @@
 package dev.shreyasayyengar.bot.commands;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -9,12 +7,8 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 
 public class MiscellaneousCommandManager extends ListenerAdapter {
@@ -111,25 +105,6 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
 
                 if (event.getMessage().getContentRaw().contains("thank you darling")) {
                     event.getMessage().reply("You're most welcome! :blush: :heart:").queue();
-                }
-
-                if (event.getMessage().getContentRaw().contains("find invoice.yml")) {
-                    try {
-                        File templateFile = new File("invoice_template.yml");
-                        InputStream inputStream = getClass().getResourceAsStream("/invoice_template.yml");
-                        FileOutputStream fileOutput = new FileOutputStream(templateFile);
-                        inputStream.transferTo(fileOutput);
-
-                        Yaml yaml = new Yaml();
-                        Object loadedYaml = yaml.load(new FileReader(templateFile));
-                        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-                        event.getMessage().reply("It worked! :blush: :heart:").queue();
-                    } catch (Exception e) {
-                        event.getMessage().reply("Error: " + e.getMessage()).queue();
-                    }
-
-                    event.getMessage().reply("sdgfsdg").queue();
                 }
             }
 
