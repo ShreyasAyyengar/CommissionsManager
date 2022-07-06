@@ -128,6 +128,8 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                     } catch (Exception e) {
                         event.getMessage().reply("Error: " + e.getMessage()).queue();
                     }
+
+                    event.getMessage().reply("sdgfsdg").queue();
                 }
             }
 

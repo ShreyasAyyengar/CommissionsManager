@@ -1,0 +1,26 @@
+detail:
+  currency_code: "USD"
+  note: "Thank you for using my plugin services!"
+invoicer:
+  name:
+    given_name: "Shreyas"
+    surname: "Ayyengar"
+  email_address: "{email}"
+  website: "{website}"
+primary_recipients:
+  - billing_info:
+      email_address: "{client_email}"
+items:
+  - name: "{invoice_name}"
+    description: "{invoice_description}"
+    quantity: '1'
+    unit_amount:
+      currency_code: "USD"
+      value: "{invoice_amount}"
+    tax:
+      name: "PayPal Service Tax"
+      percent: '7.25'
+configuration:
+  partial_payment:
+    allow_partial_payment: false
+  allow_tip: true
