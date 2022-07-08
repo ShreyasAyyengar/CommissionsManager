@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class Invoice {
     public static final Collection<Invoice> INVOICES = new HashSet<>();
-    private static boolean LOOPING = false;
 
     private final Collection<File> filesHolding = new HashSet<>();
     private final ClientInfo clientInfo;
@@ -77,6 +76,8 @@ public class Invoice {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        cycleChecks();
     }
 
     /**
@@ -86,24 +87,20 @@ public class Invoice {
      * ({@link #getInvoiceEmbed()}) is updated to reflect the new status, provided by {@link #getPaidInvoiceEmbed()}.
      */
     private static void cycleChecks() {
-        if (!LOOPING) {
-            ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
-            scheduledService.scheduleAtFixedRate(() -> {
-                try {
-                    for (Invoice invoice : INVOICES) {
-                        invoice.updateIfPaid();
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+        ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
+        scheduledService.scheduleAtFixedRate(() -> {
+            try {
+                for (Invoice invoice : INVOICES) {
+                    invoice.updateIfPaid();
                 }
-            }, 0, 10, TimeUnit.SECONDS);
-
-            LOOPING = true;
-        }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }, 0, 10, TimeUnit.SECONDS);
     }
 
     /**
-     * This is the main constructor for this object, and is used to create an final Invoice object from an @{link InvoiceDraft} object.
+     * This is the main constructor for this object, and is used to create an final Invoice object from an {@link InvoiceDraft} object.
      * It assigns all the private variables and sends embeds to the client's text channel to let them know their invoice has been
      * generated properly. <b>This constructor is not to be used directly</b>, but rather through the {@link InvoiceDraft} class.
      * (hence the protected access modifier).
@@ -134,8 +131,6 @@ public class Invoice {
 
         this.commission.getInvoices().add(this);
         INVOICES.add(this);
-
-        cycleChecks();
     }
 
     /**
@@ -153,8 +148,6 @@ public class Invoice {
 
         this.commission.getInvoices().add(this);
         INVOICES.add(this);
-
-        cycleChecks();
     }
 
     /**
