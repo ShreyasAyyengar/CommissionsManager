@@ -419,4 +419,17 @@ public class EmbedUtil {
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
+
+    public static MessageEmbed doesNotWork() {
+        return new EmbedBuilder()
+                .setTitle("\"This isn't working!\", \"Nothing happens!\", \"I am getting errors!\"")
+                .setDescription("If you are having issues with the latest .jar sent to you, please be " +
+                        "more detailed on what isn't working. \n\nIs there a specific command that is " +
+                        "failing or not responding? Is there a console error that is being thrown. " +
+                        "Is there a specific error message that is being thrown? Please include all " +
+                        "of the above in your message to aid in troubleshooting.")
+                .setColor(Util.getColor())
+                .setFooter("--CommissionsManager--")
+                .build();
+    }
 }

@@ -1,6 +1,7 @@
 package dev.shreyasayyengar.bot.commands;
 
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
+import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -105,6 +106,10 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
 
                 if (event.getMessage().getContentRaw().contains("thank you darling")) {
                     event.getMessage().reply("You're most welcome! :blush: :heart:").queue();
+                }
+
+                if (event.getMessage().getContentRaw().contains("!notwork")) {
+                    event.getMessage().replyEmbeds(EmbedUtil.doesNotWork()).queue();
                 }
             }
 
