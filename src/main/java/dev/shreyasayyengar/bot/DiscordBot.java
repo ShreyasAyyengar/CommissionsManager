@@ -11,7 +11,7 @@ import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
 import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
 import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
 import dev.shreyasayyengar.bot.misc.managers.ClientInfoManager;
-import dev.shreyasayyengar.bot.misc.managers.ShutdownManager;
+import dev.shreyasayyengar.bot.misc.managers.ThreadHandler;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.Department;
 import dev.shreyasayyengar.bot.paypal.AccessTokenRequest;
@@ -66,7 +66,7 @@ public class DiscordBot {
         createBot();
         fixData();
         deserialiseMySQLData();
-        initShutdownHook();
+        initThreadHandler();
 
         log(Department.Main, "*** CommissionsManager Ready! ***");
         System.gc();
@@ -185,14 +185,18 @@ public class DiscordBot {
     }
 
     /**
-     * This method initializes the shutdown hook, which is used to
-     * properly close the MySQL database connection and serialise
-     * any important data for the next time the bot is started.
+     * This method initializes the ThreadHandler, which is used to
+     * properly close the MySQL database connection, serialise
+     * any important data for the next time the bot is started,
+     * and manage stacktraces or errors that may occur during
+     * runtime.
      *
-     * @see ShutdownManager
+     * @see ThreadHandler
      */
-    private void initShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(new ShutdownManager());
+    private void initThreadHandler() {
+        ThreadHandler handler = new ThreadHandler();
+        Runtime.getRuntime().addShutdownHook(handler);
+        Thread.currentThread().setUncaughtExceptionHandler(handler.getUncaughtExceptionHandler());
     }
 
     // ----------------------------- GETTERS --------------------------------- //
