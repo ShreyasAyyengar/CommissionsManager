@@ -61,7 +61,7 @@ public class InvoiceAddFileConversation extends ListenerAdapter {
                 if (!folder.exists()) folder.mkdir();
 
                 File file = new File("files-holding/" + attachment.getFileName());
-                attachment.downloadToFile(file).thenAcceptAsync(downloadedFile -> invoice.addFileToHolding(file));
+                attachment.getProxy().downloadToFile(file).thenAcceptAsync(downloadedFile -> invoice.addFileToHolding(file));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

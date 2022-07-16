@@ -3,8 +3,8 @@ package dev.shreyasayyengar.bot.listeners;
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientInfo;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -21,7 +21,7 @@ public class MemberRemove extends ListenerAdapter {
         DiscordBot.get().getClientManger().purgeMemberSQL(user);
 
         clientInfo.getTextChannel().sendMessageEmbeds(EmbedUtil.requestPurge(user))
-                .setActionRow(Button.danger("purge-channel", "Purge Channels").withEmoji(Emoji.fromMarkdown("\uD83D\uDDD1️")))
+                .setActionRow(Button.danger("purge-channel", "Purge Channels").withEmoji(Emoji.fromUnicode("\uD83D\uDDD1️")))
                 .queue();
     }
 }
