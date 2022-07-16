@@ -5,6 +5,7 @@ import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
 import dev.shreyasayyengar.bot.database.MySQL;
+import dev.shreyasayyengar.bot.listeners.JDAException;
 import dev.shreyasayyengar.bot.listeners.MemberRemove;
 import dev.shreyasayyengar.bot.listeners.MemberUpdatePending;
 import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
@@ -210,7 +211,8 @@ public class DiscordBot {
                 new ButtonClick(),
                 new MenuSelect(),
                 new ModalSubmit(),
-                new MiscellaneousCommandManager()
+                new MiscellaneousCommandManager(),
+                new JDAException()
         );
     }
 

@@ -37,7 +37,7 @@ public class ButtonClick extends ListenerAdapter {
             parentCategory.delete().queue();
         }
 
-        // ------------------------- Initial /commission buttons -------------------- //
+        // ------------------------- Initial `/commission` buttons -------------------- //
         if (buttonID.startsWith("commission-info.")) {
             String commissionID = buttonID.replace("commission-info.", "");
             ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel()).getCommission(commissionID);
@@ -201,9 +201,9 @@ public class ButtonClick extends ListenerAdapter {
             }
         }
 
-        // ---------------------- Invoice Management Buttons ------------------------ //
+        // ---------------------- Specific Invoice Management Buttons ------------------------ //
         if (buttonID.startsWith("invoice-management.")) {
-            String value = buttonID.split("\\.")[1]; // This could be the plugin name or the invoice ID
+            String value = buttonID.split("\\.")[1]; // This could be the commission name or the invoice ID
             String action = buttonID.split("\\.")[2];
 
             ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
@@ -240,25 +240,28 @@ public class ButtonClick extends ListenerAdapter {
                 }
 
                 case "file-holding" -> {
-                    clientInfo.getCommissions().stream().flatMap(commission -> commission.getInvoices().stream()).filter(inv -> inv.getID().equalsIgnoreCase(value)).findFirst().ifPresent(InvoiceAddFileConversation::new);
-                    event.getInteraction().replyEmbeds(EmbedUtil.checkDMForMore()).setEphemeral(true).queue();
+                    Invoice invoice = clientInfo.getInvoice(value);
+
+                    new InvoiceAddFileConversation(invoice);
+                    event.getInteraction().editMessageEmbeds(EmbedUtil.checkDMForMore()).setActionRows().queue();
                 }
 
-                case "view-info" ->
-                        clientInfo.getCommissions().stream().flatMap(commission -> commission.getInvoices().stream()).filter(inv -> inv.getID().equalsIgnoreCase(value)).findFirst().ifPresent(invoice -> {
-                            event.getTextChannel().retrieveMessageById(invoice.getMessageID()).queue(message -> event.replyEmbeds(message.getEmbeds().get(0)).setEphemeral(true).queue());
-                        });
+                case "view-info" -> {
+                    Invoice invoice = clientInfo.getInvoice(value);
+                    event.getTextChannel().retrieveMessageById(invoice.getMessageID()).queue(message -> event.replyEmbeds(message.getEmbeds().get(0)).setEphemeral(true).queue());
+                }
 
                 case "nudge" -> {
-                    clientInfo.getCommissions().stream().flatMap(commission -> commission.getInvoices().stream()).filter(inv -> inv.getID().equalsIgnoreCase(value)).findFirst().ifPresent(Invoice::nudgePayment);
-                    event.getInteraction().reply("See below:").setEphemeral(true).queue();
+                    Invoice invoice = clientInfo.getInvoice(value);
+                    invoice.nudgePayment(event);
                 }
 
                 case "cancel" -> {
-                    clientInfo.getCommissions().stream().flatMap(commission -> commission.getInvoices().stream()).filter(inv -> inv.getID().equalsIgnoreCase(value)).findFirst().ifPresent(Invoice::cancel);
-                    event.getInteraction().reply("See below:").setEphemeral(true).queue();
-                }
+                    Invoice invoice = clientInfo.getInvoice(value);
 
+                    event.getInteraction().replyEmbeds(EmbedUtil.nudge(invoice)).setEphemeral(true).queue();
+                    invoice.cancel();
+                }
             }
         }
 

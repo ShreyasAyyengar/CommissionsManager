@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import okhttp3.*;
@@ -273,9 +274,9 @@ public class Invoice {
     /**
      * Nudges and prompts the {@link ClientInfo}s holder to pay the invoice.
      */
-    public void nudgePayment() {
-        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + this.getID(), Emoji.fromUnicode("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
-        clientInfo.getTextChannel().sendMessageEmbeds(EmbedUtil.nudge(this)).setActionRow(paypalButton).content("@here").queue();
+    public void nudgePayment(ButtonInteractionEvent event) {
+        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + this.getID(), Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
+        event.getInteraction().replyEmbeds(EmbedUtil.nudge(this)).addActionRow(paypalButton).setContent(clientInfo.getHolder().getAsMention()).queue();
     }
 
     /**

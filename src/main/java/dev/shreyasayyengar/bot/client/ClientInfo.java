@@ -2,6 +2,7 @@ package dev.shreyasayyengar.bot.client;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
@@ -183,7 +184,20 @@ public class ClientInfo {
     }
 
     public ClientCommission getCommission(String pluginName) {
-        return commissions.stream().filter(commission -> commission.getPluginName().equalsIgnoreCase(pluginName)).findFirst().orElse(null);
+        return commissions
+                .stream()
+                .filter(commission -> commission.getPluginName().equalsIgnoreCase(pluginName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Invoice getInvoice(String id) {
+        return commissions
+                .stream()
+                .flatMap(commission -> commission.getInvoices().stream())
+                .filter(invoice -> invoice.getID().equalsIgnoreCase(id))
+                .findFirst()
+                .orElse(null);
     }
 
     public Collection<ClientCommission> getCommissions() {
