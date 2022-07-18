@@ -45,7 +45,7 @@ public class QuoteChangeConversation extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        if (!event.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) return;
+        if (!event.getChannel().asTextChannel().getId().equalsIgnoreCase(textChannel.getId())) return;
         if (!event.getAuthor().getId().equals(Authentication.OWNER_ID.get())) return;
 
         String message = event.getMessage().getContentRaw();

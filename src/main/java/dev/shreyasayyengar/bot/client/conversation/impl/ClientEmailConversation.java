@@ -58,7 +58,7 @@ public class ClientEmailConversation extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 
-        if (!event.getTextChannel().getId().equalsIgnoreCase(clientInfo.getTextChannel().getId())) return;
+        if (!event.getChannel().getId().equalsIgnoreCase(clientInfo.getTextChannel().getId())) return;
         if (!event.getAuthor().getId().equals(clientInfo.getHolder().getId())) return;
 
         String email = event.getMessage().getContentStripped().trim();

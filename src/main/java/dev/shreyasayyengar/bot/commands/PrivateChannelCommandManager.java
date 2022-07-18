@@ -26,13 +26,13 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
         Stream<String> request = Stream.of("request", "collaborator", "quote", "commissions");
 
         if (request.anyMatch(event.getName().toLowerCase()::contains)) {
-            if (Util.privateChannel(event.getTextChannel())) {
+            if (Util.privateChannel(event.getChannel().asTextChannel())) {
                 event.replyEmbeds(EmbedUtil.onlyInPrivateChannels()).setEphemeral(true).queue();
                 return;
             }
         }
 
-        ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
+        ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
 
         switch (event.getName().toLowerCase()) {
             case "collaborator" -> {

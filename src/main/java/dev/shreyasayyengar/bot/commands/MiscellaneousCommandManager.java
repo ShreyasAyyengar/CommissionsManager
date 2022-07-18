@@ -57,7 +57,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .setFooter("Shreyas Ayyengar", event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
                             .build();
 
-                    event.getTextChannel().sendMessageEmbeds(aboutEmbed).addFile(file, "shreyasayyengar.png").queue();
+                    event.getChannel().sendMessageEmbeds(aboutEmbed).addFile(file, "shreyasayyengar.png").queue();
 
                 }
 
@@ -78,7 +78,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .setColor(Util.getColor())
                             .build();
 
-                    event.getTextChannel().sendMessageEmbeds(rulesEmbed).queue();
+                    event.getChannel().sendMessageEmbeds(rulesEmbed).queue();
                 }
 
                 if (event.getMessage().getContentRaw().equalsIgnoreCase("!special")) {
@@ -101,7 +101,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .setColor(Util.getColor())
                             .build();
 
-                    event.getTextChannel().sendMessageEmbeds(specialThanks).queue();
+                    event.getChannel().sendMessageEmbeds(specialThanks).queue();
                 }
 
                 if (event.getMessage().getContentRaw().contains("thank you darling")) {

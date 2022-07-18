@@ -19,7 +19,6 @@ import java.util.stream.Stream;
  * the client's private TextChannels, VoiceChannels, and Category to manage sending messages and conversations.
  * The ClientInfo class also stores active {@link ClientCommission}s.
  * <p></p>
- *
  * @author Shreyas Ayyengar
  */
 public class ClientInfo {

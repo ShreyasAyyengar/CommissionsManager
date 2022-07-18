@@ -134,7 +134,7 @@ public class ClientRequestConversation extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 
-        if (!event.getTextChannel().getId().equalsIgnoreCase(client.getTextChannel().getId())) return;
+        if (!event.getChannel().getId().equalsIgnoreCase(client.getTextChannel().getId())) return;
         if (!event.getAuthor().getId().equals(client.getHolder().getId())) return;
 
         if (event.getMessage().getContentRaw().contains("!stoprequest")) {
@@ -144,7 +144,7 @@ public class ClientRequestConversation extends ListenerAdapter {
 
         responses.add(event.getMessage().getContentRaw());
 
-        event.getTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
+        event.getChannel().asTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
 
         if (responses.size() < ClientRequestStage.values().length) {
             setStage(stage.next());

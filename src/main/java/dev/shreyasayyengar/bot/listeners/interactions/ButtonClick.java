@@ -32,7 +32,7 @@ public class ButtonClick extends ListenerAdapter {
         List<ActionRow> disabledButtons = event.getMessage().getActionRows().stream().map(ActionRow::asDisabled).toList();
 
         if (buttonID.equalsIgnoreCase("purge-channel")) {
-            Category parentCategory = event.getTextChannel().getParentCategory();
+            Category parentCategory = event.getChannel().asTextChannel().getParentCategory();
             parentCategory.getChannels().forEach(channel -> channel.delete().queue());
             parentCategory.delete().queue();
         }
@@ -40,7 +40,7 @@ public class ButtonClick extends ListenerAdapter {
         // ------------------------- Initial `/commission` buttons -------------------- //
         if (buttonID.startsWith("commission-info.")) {
             String commissionID = buttonID.replace("commission-info.", "");
-            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel()).getCommission(commissionID);
+            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(commissionID);
             String pluginName = commission.getPluginName();
 
             List<Button> commissionInfoButtons = List.of(
@@ -68,7 +68,7 @@ public class ButtonClick extends ListenerAdapter {
 
         if (buttonID.startsWith("invoice-info.")) {
             String commissionID = buttonID.replace("invoice-info.", "");
-            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel()).getCommission(commissionID);
+            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(commissionID);
             String pluginName = commission.getPluginName();
 
             List<Button> invoiceInfoButtons = List.of(
@@ -84,7 +84,7 @@ public class ButtonClick extends ListenerAdapter {
             String pluginName = buttonID.split("\\.")[1];
             String action = buttonID.split("\\.")[2];
 
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
+            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
             ClientCommission commission = clientInfo.getCommission(pluginName);
 
             switch (action) {
@@ -160,7 +160,7 @@ public class ButtonClick extends ListenerAdapter {
             String pluginName = buttonID.split("\\.")[1];
             String action = buttonID.split("\\.")[2];
 
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
+            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
             ClientCommission commission = clientInfo.getCommission(pluginName);
 
             switch (action) {
@@ -206,7 +206,7 @@ public class ButtonClick extends ListenerAdapter {
             String value = buttonID.split("\\.")[1]; // This could be the commission name or the invoice ID
             String action = buttonID.split("\\.")[2];
 
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
+            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
 
             switch (action) {
                 case "yes" -> {
@@ -248,7 +248,7 @@ public class ButtonClick extends ListenerAdapter {
 
                 case "view-info" -> {
                     Invoice invoice = clientInfo.getInvoice(value);
-                    event.getTextChannel().retrieveMessageById(invoice.getMessageID()).queue(message -> event.replyEmbeds(message.getEmbeds().get(0)).setEphemeral(true).queue());
+                    event.getChannel().retrieveMessageById(invoice.getMessageID()).queue(message -> event.replyEmbeds(message.getEmbeds().get(0)).setEphemeral(true).queue());
                 }
 
                 case "nudge" -> {

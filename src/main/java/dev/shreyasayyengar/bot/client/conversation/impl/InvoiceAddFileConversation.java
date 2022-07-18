@@ -36,10 +36,10 @@ public class InvoiceAddFileConversation extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getChannelType() != ChannelType.PRIVATE) return;
-        if (!event.getPrivateChannel().getUser().getId().equalsIgnoreCase(Authentication.OWNER_ID.get()))
+        if (!event.getChannel().asPrivateChannel().getUser().getId().equalsIgnoreCase(Authentication.OWNER_ID.get()))
             return;
 
-        PrivateChannel privateChannel = event.getPrivateChannel();
+        PrivateChannel privateChannel = event.getChannel().asPrivateChannel();
         Message message = event.getMessage();
 
         if (message.getAuthor().isBot()) return;

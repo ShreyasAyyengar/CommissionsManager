@@ -17,7 +17,7 @@ public class ModalSubmit extends ListenerAdapter {
 
         if (event.getModalId().toLowerCase().startsWith("sub-invoice.")) {
 
-            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel()).getCommission(event.getModalId().split("\\.")[1]);
+            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(event.getModalId().split("\\.")[1]);
 
             String description = event.getValue("description").getAsString();
             int amount = Integer.parseInt(event.getValue("amount").getAsString());

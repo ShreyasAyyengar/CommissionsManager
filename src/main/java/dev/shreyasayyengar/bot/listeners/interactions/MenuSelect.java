@@ -21,7 +21,7 @@ public class MenuSelect extends ListenerAdapter {
         if (event.getComponentId().equalsIgnoreCase("menu:commissions")) {
 
             String pluginName = event.getValues().get(0).replace("commission.", "");
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
+            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
 
             ClientCommission commission = clientInfo.getCommission(pluginName);
 
@@ -36,7 +36,7 @@ public class MenuSelect extends ListenerAdapter {
         if (event.getComponentId().equalsIgnoreCase("menu:invoices")) {
 
             String invoiceID = event.getValues().get(0).replace("invoice.", "");
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getTextChannel());
+            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
 
 
             Invoice invoice = clientInfo.getInvoice(invoiceID);

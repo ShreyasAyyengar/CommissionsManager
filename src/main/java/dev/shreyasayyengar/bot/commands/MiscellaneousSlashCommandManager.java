@@ -1,7 +1,6 @@
 package dev.shreyasayyengar.bot.commands;
 
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -10,7 +9,6 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -31,11 +29,10 @@ public class MiscellaneousSlashCommandManager extends ListenerAdapter {
         }
 
         if (event.getName().equalsIgnoreCase("clear")) {
-
-            List<Message> amount = event.getTextChannel().getHistory().retrievePast(event.getOption("amount").getAsInt()).complete();
-            event.getTextChannel().deleteMessages(amount).queue();
-
-            event.reply("Cleared " + amount.size() + " messages!").setEphemeral(true).queue();
+            event.getChannel().getHistory().retrievePast(event.getOption("amount").getAsInt()).queue(messages -> {
+                event.getChannel().asTextChannel().deleteMessages(messages).queue();
+                event.reply("Cleared " + messages.size() + " messages!").setEphemeral(true).queue();
+            });
         }
 
         if (event.getName().equalsIgnoreCase("invite")) {

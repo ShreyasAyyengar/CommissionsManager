@@ -127,7 +127,7 @@ public class Invoice {
                 .addFile(this.QRCodeImg, "qr_code.png")
                 .complete();
         invoiceEmbed.pin().queue();
-        invoiceEmbed.getTextChannel().getHistory().retrievePast(1).completeAfter(1, TimeUnit.SECONDS).forEach(message -> message.delete().queue());
+        invoiceEmbed.getChannel().getHistory().retrievePast(1).completeAfter(1, TimeUnit.SECONDS).forEach(message -> message.delete().queue());
         this.messageID = invoiceEmbed.getId();
 
         this.commission.getInvoices().add(this);
