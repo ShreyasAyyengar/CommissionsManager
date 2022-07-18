@@ -17,7 +17,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.13</version>
+            <version>5.0.0-alpha.16</version>
         </dependency>
 
         <dependency>
@@ -75,7 +75,8 @@
                     <transformers>
                         <transformer
                                 implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>dev.shreyasayyengar.bot.Main</mainClass> <!-- You have to replace this with a path to your main class like my.path.Main -->
+                            <mainClass>dev.shreyasayyengar.bot.Main
+                            </mainClass> <!-- You have to replace this with a path to your main class like my.path.Main -->
                         </transformer>
                     </transformers>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
