@@ -125,7 +125,7 @@ public class ButtonClick extends ListenerAdapter {
                     event.replyEmbeds(EmbedUtil.commissionComplete(commission))
                             .addActionRow(
                                     Button.success("vouch", "Write a Vouch!").withEmoji(Emoji.fromUnicode("✍️")),
-                                    Button.link("https://tinyurl.com/mpmk7fy2", "Vouch on SpigotMC").withEmoji(Emoji.fromUnicode("<:spigot:933250194877849640>"))
+                                    Button.link("https://tinyurl.com/mpmk7fy2", "Vouch on SpigotMC").withEmoji(Emoji.fromFormatted("<:spigot:933250194877849640>"))
                             ).queue();
                     event.getChannel().sendMessage(clientInfo.getHolder().getAsMention()).queue(message -> message.delete().queue());
                     clientInfo.closeCommission(commission);

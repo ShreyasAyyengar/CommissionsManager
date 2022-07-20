@@ -121,7 +121,7 @@ public class Invoice {
 
         setQRCode();
 
-        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromUnicode("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
+        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
         Message invoiceEmbed = interactionHook.editOriginalEmbeds(getInvoiceEmbed().build())
                 .setActionRow(paypalButton)
                 .addFile(this.QRCodeImg, "qr_code.png")
@@ -174,7 +174,7 @@ public class Invoice {
         if (jsonObject.getString("status").equalsIgnoreCase("paid")) {
             this.status = "PAID";
 
-            Button viewInvoiceButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromUnicode("<:PayPal:933225559343923250>")).withLabel("View Invoice via PayPal");
+            Button viewInvoiceButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("View Invoice via PayPal");
             clientInfo.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).setActionRow(viewInvoiceButton).clearFiles().queue();
 
             MessageEmbed embed = new EmbedBuilder(EmbedUtil.invoicePaid())
