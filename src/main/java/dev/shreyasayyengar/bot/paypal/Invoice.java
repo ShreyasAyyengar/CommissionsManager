@@ -353,6 +353,8 @@ public class Invoice {
                 clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
                 clientInfo.getTextChannel().deleteMessageById(messageID).queue();
             }
+
+            response.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

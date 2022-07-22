@@ -110,7 +110,8 @@ public class InvoiceDraft {
                 .addHeader("Authorization", "Bearer " + DiscordBot.get().getPaypalAccessToken())
                 .build();
 
-        String draftRequestResponse = client.newCall(pushDraftRequest).execute().body().string();
+        Response response = client.newCall(pushDraftRequest).execute();
+        String draftRequestResponse = response.body().string();
 
         JSONObject responseObject = new JSONObject(draftRequestResponse);
         String draftInvoiceID = responseObject.getString("id"); // gets the PayPal api invoice ID
@@ -124,11 +125,12 @@ public class InvoiceDraft {
                 .post(body)
                 .build();
 
-        Response response = client.newCall(submitRequest).execute();
+        Response submitResponse = client.newCall(submitRequest).execute();
 
-        if ((response.code() + "").startsWith("2")) {
+        if ((submitResponse.code() + "").startsWith("2")) {
             success();
         }
+        submitResponse.close();
         response.close();
         //endregion
     }
@@ -148,9 +150,12 @@ public class InvoiceDraft {
                 .addHeader("Authorization", "Bearer " + DiscordBot.get().getPaypalAccessToken())
                 .build();
 
-        JSONObject invoiceDataObject = new JSONObject(client.newCall(request).execute().body().string());
+        Response execute = client.newCall(request).execute();
+        JSONObject invoiceDataObject = new JSONObject(execute.body().string());
 
         new Invoice(commission, invoiceDataObject, interactionHook);
+
+        execute.close();
     }
 
     /**
