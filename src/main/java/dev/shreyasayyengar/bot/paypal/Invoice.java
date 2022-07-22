@@ -181,8 +181,8 @@ public class Invoice {
                     .setDescription("{name}'s invoice has been paid!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
                     .build();
             clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
-            closeInvoice();
 
+            closeInvoice();
             releaseFiles();
         }
 
@@ -351,6 +351,7 @@ public class Invoice {
                         .build();
 
                 clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
+                clientInfo.getTextChannel().deleteMessageById(messageID).queue();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
