@@ -1,1 +1,1 @@
-worker: java -jar commissionsmanager.jar
+web: java -jar commissionsmanager.jar
