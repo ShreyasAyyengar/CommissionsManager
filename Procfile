@@ -1,1 +1,1 @@
-worker: java -jar commissionsmanager.jar
+worker: java -jar commissionsmanager-1.0-SNAPSHOT.jar
