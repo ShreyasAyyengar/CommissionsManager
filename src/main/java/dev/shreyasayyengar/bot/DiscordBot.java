@@ -5,9 +5,10 @@ import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
 import dev.shreyasayyengar.bot.database.MySQL;
+import dev.shreyasayyengar.bot.listeners.MemberUpdateName;
 import dev.shreyasayyengar.bot.listeners.JDAException;
 import dev.shreyasayyengar.bot.listeners.MemberRemove;
-import dev.shreyasayyengar.bot.listeners.MemberUpdatePending;
+import dev.shreyasayyengar.bot.listeners.MemberScreeningPass;
 import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
 import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
 import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
@@ -204,13 +205,14 @@ public class DiscordBot {
 
     private Stream<EventListener> getListeners() {
         return Stream.of(
-                new MemberUpdatePending(),
+                new MemberScreeningPass(),
                 new MemberRemove(),
-                new PrivateChannelCommandManager(),
-                new MiscellaneousSlashCommandManager(),
+                new MemberUpdateName(),
                 new ButtonClick(),
                 new MenuSelect(),
                 new ModalSubmit(),
+                new PrivateChannelCommandManager(),
+                new MiscellaneousSlashCommandManager(),
                 new MiscellaneousCommandManager(),
                 new JDAException()
         );

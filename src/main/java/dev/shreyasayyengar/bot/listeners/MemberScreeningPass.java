@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 
-public class MemberUpdatePending extends ListenerAdapter {
+public class MemberScreeningPass extends ListenerAdapter {
 
     @Override
     public void onGuildMemberUpdatePending(@NotNull GuildMemberUpdatePendingEvent event) {
