@@ -16,6 +16,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
@@ -137,12 +138,19 @@ public class ClientRequestConversation extends ListenerAdapter {
         if (!event.getChannel().getId().equalsIgnoreCase(client.getTextChannel().getId())) return;
         if (!event.getAuthor().getId().equals(client.getHolder().getId())) return;
 
-        if (event.getMessage().getContentRaw().contains("!stoprequest")) {
+        String contentRaw = event.getMessage().getContentRaw();
+
+        if (contentRaw.contains("!stoprequest")) {
             cancel();
             return;
         }
 
-        responses.add(event.getMessage().getContentRaw());
+        if (stage == ClientRequestStage.NAME && contentRaw.length() > 30) {
+            client.getTextChannel().sendMessage("The plugin name requested is far too long! Please keep it within 30 characters.").queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+            return;
+        }
+
+        responses.add(contentRaw);
 
         event.getChannel().asTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
 
