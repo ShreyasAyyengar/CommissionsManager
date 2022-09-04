@@ -9,6 +9,7 @@ public enum Authentication {
     MYSQL_PASSWORD,
     MYSQL_DATABASE,
     MYSQL_HOST,
+    MYSQL_PORT,
     PAYPAL_CLIENT_ID,
     PAYPAL_CLIENT_SECRET;
 

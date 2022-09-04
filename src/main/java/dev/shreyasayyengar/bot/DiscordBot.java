@@ -105,7 +105,7 @@ public class DiscordBot {
                     Authentication.MYSQL_PASSWORD.get(),
                     Authentication.MYSQL_DATABASE.get(),
                     Authentication.MYSQL_HOST.get(),
-                    3306
+                    Integer.parseInt(Authentication.MYSQL_PORT.get())
             );
 
             log(Department.MySQL, "Loading Tables...");
