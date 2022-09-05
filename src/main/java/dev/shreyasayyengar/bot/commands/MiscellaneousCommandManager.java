@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -57,7 +58,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .setFooter("Shreyas Ayyengar", event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
                             .build();
 
-                    event.getChannel().sendMessageEmbeds(aboutEmbed).addFile(file, "shreyasayyengar.png").queue();
+                    event.getChannel().sendMessageEmbeds(aboutEmbed).addFiles(FileUpload.fromData(file, "shreyasayyengar.png")).queue();
 
                 }
 

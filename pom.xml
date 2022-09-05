@@ -17,7 +17,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.17</version>
+            <version>5.0.0-alpha.18</version>
         </dependency>
 
         <dependency>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
-            <version>4.10.0</version>
+            <version>5.0.0-alpha.10</version>
         </dependency>
 
         <dependency>

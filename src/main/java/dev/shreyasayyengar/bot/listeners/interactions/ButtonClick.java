@@ -63,7 +63,7 @@ public class ButtonClick extends ListenerAdapter {
                             .withEmoji(Emoji.fromUnicode("⛔"))
             );
 
-            event.getInteraction().editMessageEmbeds(EmbedUtil.commissionInformation(pluginName)).setActionRows(ActionRow.of(finalCommissionButtons), ActionRow.of(commissionInfoButtons)).queue();
+            event.getInteraction().editMessageEmbeds(EmbedUtil.commissionInformation(pluginName)).setComponents(ActionRow.of(finalCommissionButtons), ActionRow.of(commissionInfoButtons)).queue();
         }
 
         if (buttonID.startsWith("invoice-info.")) {
@@ -76,7 +76,7 @@ public class ButtonClick extends ListenerAdapter {
                     Button.secondary("invoice." + pluginName + ".view-invoices", "View Outstanding Invoices").withEmoji(Emoji.fromUnicode("\uD83E\uDDFE"))
             );
 
-            event.getInteraction().editMessageEmbeds(EmbedUtil.invoiceInformation(pluginName)).setActionRows(ActionRow.of(invoiceInfoButtons)).queue();
+            event.getInteraction().editMessageEmbeds(EmbedUtil.invoiceInformation(pluginName)).setComponents(ActionRow.of(invoiceInfoButtons)).queue();
         }
 
         // ------------------------- Commission Info Buttons ------------------------ //
@@ -177,7 +177,7 @@ public class ButtonClick extends ListenerAdapter {
                             Button.danger("invoice-management." + pluginName + ".no", "No").withEmoji(Emoji.fromUnicode("⛔"))
                     );
 
-                    event.getInteraction().editMessageEmbeds(EmbedUtil.askPurpose(commission)).setActionRows(ActionRow.of(checkButtons)).queue();
+                    event.getInteraction().editMessageEmbeds(EmbedUtil.askPurpose(commission)).setComponents(ActionRow.of(checkButtons)).queue();
                     return;
                 }
 
@@ -243,7 +243,7 @@ public class ButtonClick extends ListenerAdapter {
                     Invoice invoice = clientInfo.getInvoice(value);
 
                     new InvoiceAddFileConversation(invoice);
-                    event.getInteraction().editMessageEmbeds(EmbedUtil.checkDMForMore()).setActionRows().queue();
+                    event.getInteraction().editMessageEmbeds(EmbedUtil.checkDMForMore()).setComponents().queue();
                 }
 
                 case "view-info" -> {

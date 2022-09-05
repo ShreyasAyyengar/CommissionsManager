@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.utils.FileUpload;
 import okhttp3.*;
 import org.json.JSONObject;
 
@@ -124,7 +125,7 @@ public class Invoice {
         Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
         Message invoiceEmbed = interactionHook.editOriginalEmbeds(getInvoiceEmbed().build())
                 .setActionRow(paypalButton)
-                .addFile(this.QRCodeImg, "qr_code.png")
+                .setFiles(FileUpload.fromData(this.QRCodeImg, "qr_code.png"))
                 .complete();
         invoiceEmbed.pin().queue();
         invoiceEmbed.getChannel().getHistory().retrievePast(1).completeAfter(1, TimeUnit.SECONDS).forEach(message -> message.delete().queue());
@@ -175,12 +176,12 @@ public class Invoice {
             this.status = "PAID";
 
             Button viewInvoiceButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("View Invoice via PayPal");
-            clientInfo.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).setActionRow(viewInvoiceButton).clearFiles().queue();
+            clientInfo.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).setActionRow(viewInvoiceButton).setFiles().queue();
 
             MessageEmbed embed = new EmbedBuilder(EmbedUtil.invoicePaid())
                     .setDescription("{name}'s invoice has been paid!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
                     .build();
-            clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
+            clientInfo.getTextChannel().sendMessageEmbeds(embed).setContent("@here").queue();
 
             closeInvoice();
             releaseFiles();
@@ -311,8 +312,8 @@ public class Invoice {
         files.stream()
                 .skip(1)
                 .reduce(
-                        clientInfo.getTextChannel().sendFile(files.get(0)),
-                        (action, file) -> action.addFile(file, file.getName()),
+                        clientInfo.getTextChannel().sendFiles(FileUpload.fromData(files.get(0))),
+                        (action, file) -> action.addFiles(FileUpload.fromData(file, file.getName())),
                         (a, b) -> a
                 )
                 .queue();
@@ -350,7 +351,7 @@ public class Invoice {
                         .setTimestamp(new Date().toInstant())
                         .build();
 
-                clientInfo.getTextChannel().sendMessageEmbeds(embed).content("@here").queue();
+                clientInfo.getTextChannel().sendMessageEmbeds(embed).setContent("@here").queue();
                 clientInfo.getTextChannel().deleteMessageById(messageID).queue();
             }
 

@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.managers.AudioManager;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -90,7 +91,7 @@ public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHa
 
             TextChannel textChannel = Util.getClientInfoByChannelId(channel).getTextChannel();
             textChannel.sendMessageEmbeds(EmbedUtil.recordingFinished()).queue();
-            textChannel.sendFile(file).queue();
+            textChannel.sendFiles(FileUpload.fromData(file)).queue();
 
             file.delete();
 
