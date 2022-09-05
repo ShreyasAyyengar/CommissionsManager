@@ -45,22 +45,22 @@ public class ButtonClick extends ListenerAdapter {
 
             List<Button> commissionInfoButtons = List.of(
                     Button.primary("commission." + pluginName + ".confirm", "Gain Confirmation")
-                            .withEmoji(Emoji.fromUnicode("☑️")),
+                            .withEmoji(Emoji.fromUnicode("\u2611")),
                     Button.secondary("commission." + pluginName + ".source-code", "Toggle Source Code")
-                            .withEmoji(Emoji.fromUnicode("\uD83D\uDCDD")),
+                            .withEmoji(Emoji.fromUnicode("\uF4DD")),
                     Button.secondary("commission." + pluginName + ".change-quote", "Set Price")
-                            .withEmoji(Emoji.fromUnicode("\uD83E\uDE99")),
+                            .withEmoji(Emoji.fromUnicode("\uFA99")),
                     Button.secondary("commission." + pluginName + ".info", "Information")
-                            .withEmoji(Emoji.fromUnicode("\uD83D\uDCC4"))
+                            .withEmoji(Emoji.fromUnicode("\uF4C4"))
 
                     // TODO add progress feature!
             );
 
             List<Button> finalCommissionButtons = List.of(
                     Button.success("commission." + pluginName + ".complete", "Complete")
-                            .withEmoji(Emoji.fromUnicode("✅")),
+                            .withEmoji(Emoji.fromUnicode("\u2705")),
                     Button.danger("commission." + pluginName + ".cancel", "Cancel")
-                            .withEmoji(Emoji.fromUnicode("⛔"))
+                            .withEmoji(Emoji.fromUnicode("\u26D4"))
             );
 
             event.getInteraction().editMessageEmbeds(EmbedUtil.commissionInformation(pluginName)).setComponents(ActionRow.of(finalCommissionButtons), ActionRow.of(commissionInfoButtons)).queue();
