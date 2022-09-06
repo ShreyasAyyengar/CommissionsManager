@@ -26,8 +26,8 @@ public class MenuSelect extends ListenerAdapter {
             ClientCommission commission = clientInfo.getCommission(pluginName);
 
             List<Button> buttons = List.of(
-                    Button.primary("commission-info." + pluginName, "Commission Information").withEmoji(Emoji.fromUnicode("U+1F4DD")),
-                    Button.secondary("invoice-info." + pluginName, "Invoice Management").withEmoji(Emoji.fromUnicode("U+0024"))
+                    Button.primary("commission-info." + pluginName, "Commission Information").withEmoji(Emoji.fromUnicode("\uD83D\uDCDD")),
+                    Button.secondary("invoice-info." + pluginName, "Invoice Management").withEmoji(Emoji.fromUnicode("\uD83D\uDCB2"))
             );
 
             event.replyEmbeds(EmbedUtil.commissionInformation(commission.getPluginName())).addActionRow(buttons).setEphemeral(true).queue();
