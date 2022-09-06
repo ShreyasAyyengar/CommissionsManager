@@ -45,22 +45,22 @@ public class ButtonClick extends ListenerAdapter {
 
             List<Button> commissionInfoButtons = List.of(
                     Button.primary("commission." + pluginName + ".confirm", "Gain Confirmation")
-                            .withEmoji(Emoji.fromUnicode("\u2611")),
+                            .withEmoji(Emoji.fromUnicode("U+2611")),
                     Button.secondary("commission." + pluginName + ".source-code", "Toggle Source Code")
-                            .withEmoji(Emoji.fromUnicode("\uF4DD")),
+                            .withEmoji(Emoji.fromUnicode("U+1F4DD")),
                     Button.secondary("commission." + pluginName + ".change-quote", "Set Price")
-                            .withEmoji(Emoji.fromUnicode("\uFA99")),
+                            .withEmoji(Emoji.fromUnicode("U+1FA99")),
                     Button.secondary("commission." + pluginName + ".info", "Information")
-                            .withEmoji(Emoji.fromUnicode("\uF4C4"))
+                            .withEmoji(Emoji.fromUnicode("U+1F4C4"))
 
                     // TODO add progress feature!
             );
 
             List<Button> finalCommissionButtons = List.of(
                     Button.success("commission." + pluginName + ".complete", "Complete")
-                            .withEmoji(Emoji.fromUnicode("\u2705")),
+                            .withEmoji(Emoji.fromUnicode("U+2705")),
                     Button.danger("commission." + pluginName + ".cancel", "Cancel")
-                            .withEmoji(Emoji.fromUnicode("\u26D4"))
+                            .withEmoji(Emoji.fromUnicode("U+26D4"))
             );
 
             event.getInteraction().editMessageEmbeds(EmbedUtil.commissionInformation(pluginName)).setComponents(ActionRow.of(finalCommissionButtons), ActionRow.of(commissionInfoButtons)).queue();
@@ -72,8 +72,8 @@ public class ButtonClick extends ListenerAdapter {
             String pluginName = commission.getPluginName();
 
             List<Button> invoiceInfoButtons = List.of(
-                    Button.primary("invoice." + pluginName + ".generate", "Generate Invoice").withEmoji(Emoji.fromUnicode("\uD83D\uDCB3")),
-                    Button.secondary("invoice." + pluginName + ".view-invoices", "View Outstanding Invoices").withEmoji(Emoji.fromUnicode("\uD83E\uDDFE"))
+                    Button.primary("invoice." + pluginName + ".generate", "Generate Invoice").withEmoji(Emoji.fromUnicode("U+1F4B3")),
+                    Button.secondary("invoice." + pluginName + ".view-invoices", "View Outstanding Invoices").withEmoji(Emoji.fromUnicode("U+1F9FE"))
             );
 
             event.getInteraction().editMessageEmbeds(EmbedUtil.invoiceInformation(pluginName)).setComponents(ActionRow.of(invoiceInfoButtons)).queue();
@@ -104,8 +104,9 @@ public class ButtonClick extends ListenerAdapter {
 
                     event.replyEmbeds(EmbedUtil.confirmCommission(commission))
                             .addActionRow(
-                                    Button.success("commission." + pluginName + ".accept", "Accept Quote").withEmoji(Emoji.fromUnicode("✅")),
-                                    Button.danger("commission." + pluginName + ".reject", "Reject Quote").withEmoji(Emoji.fromUnicode("⛔")))
+                                    Button.success("commission." + pluginName + ".accept", "Accept Quote").withEmoji(Emoji.fromUnicode("U+2705")),
+                                    Button.danger("commission." + pluginName + ".reject", "Reject Quote").withEmoji(Emoji.fromUnicode("U+26D4"))
+                            )
                             .queue();
                 }
 
@@ -124,7 +125,7 @@ public class ButtonClick extends ListenerAdapter {
                 case "complete" -> {
                     event.replyEmbeds(EmbedUtil.commissionComplete(commission))
                             .addActionRow(
-                                    Button.success("vouch", "Write a Vouch!").withEmoji(Emoji.fromUnicode("✍️")),
+                                    Button.success("vouch", "Write a Vouch!").withEmoji(Emoji.fromUnicode("U+270D")),
                                     Button.link("https://tinyurl.com/mpmk7fy2", "Vouch on SpigotMC").withEmoji(Emoji.fromFormatted("<:spigot:933250194877849640>"))
                             ).queue();
                     event.getChannel().sendMessage(clientInfo.getHolder().getAsMention()).queue(message -> message.delete().queue());
@@ -173,8 +174,8 @@ public class ButtonClick extends ListenerAdapter {
                     }
 
                     List<Button> checkButtons = List.of(
-                            Button.success("invoice-management." + pluginName + ".yes", "Yes").withEmoji(Emoji.fromUnicode("✅")),
-                            Button.danger("invoice-management." + pluginName + ".no", "No").withEmoji(Emoji.fromUnicode("⛔"))
+                            Button.success("invoice-management." + pluginName + ".yes", "Yes").withEmoji(Emoji.fromUnicode("U+2705")),
+                            Button.danger("invoice-management." + pluginName + ".no", "No").withEmoji(Emoji.fromUnicode("U+26D4"))
                     );
 
                     event.getInteraction().editMessageEmbeds(EmbedUtil.askPurpose(commission)).setComponents(ActionRow.of(checkButtons)).queue();

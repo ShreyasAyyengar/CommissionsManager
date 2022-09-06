@@ -26,8 +26,8 @@ public class MenuSelect extends ListenerAdapter {
             ClientCommission commission = clientInfo.getCommission(pluginName);
 
             List<Button> buttons = List.of(
-                    Button.primary("commission-info." + pluginName, "Commission Information").withEmoji(Emoji.fromUnicode("\uD83D\uDCDD")),
-                    Button.secondary("invoice-info." + pluginName, "Invoice Management").withEmoji(Emoji.fromUnicode("\uD83D\uDCB2"))
+                    Button.primary("commission-info." + pluginName, "Commission Information").withEmoji(Emoji.fromUnicode("U+1F4DD")),
+                    Button.secondary("invoice-info." + pluginName, "Invoice Management").withEmoji(Emoji.fromUnicode("U+0024"))
             );
 
             event.replyEmbeds(EmbedUtil.commissionInformation(commission.getPluginName())).addActionRow(buttons).setEphemeral(true).queue();
@@ -42,10 +42,10 @@ public class MenuSelect extends ListenerAdapter {
             Invoice invoice = clientInfo.getInvoice(invoiceID);
 
             List<Button> invoiceButtons = List.of(
-                    Button.secondary("invoice-management." + invoice.getID() + ".nudge", "Nudge Payment").withEmoji(Emoji.fromUnicode("\uD83D\uDDE3")),
-                    Button.secondary("invoice-management." + invoice.getID() + ".view-info", "View Invoice Information").withEmoji(Emoji.fromUnicode("\uD83E\uDDFE")),
-                    Button.secondary("invoice-management." + invoice.getID() + ".file-holding", "Add files to Holding").withEmoji(Emoji.fromUnicode("\uD83D\uDCC1")),
-                    Button.danger("invoice-management." + invoice.getID() + ".cancel", "Cancel Invoice").withEmoji(Emoji.fromUnicode("⛔"))
+                    Button.secondary("invoice-management." + invoice.getID() + ".nudge", "Nudge Payment").withEmoji(Emoji.fromUnicode("U+1F64B")),
+                    Button.secondary("invoice-management." + invoice.getID() + ".view-info", "View Invoice Information").withEmoji(Emoji.fromUnicode("U+2139")),
+                    Button.secondary("invoice-management." + invoice.getID() + ".file-holding", "Add files to Holding").withEmoji(Emoji.fromUnicode("U+1F4C2")),
+                    Button.danger("invoice-management." + invoice.getID() + ".cancel", "Cancel Invoice").withEmoji(Emoji.fromUnicode("U+26D4"))
             );
 
             event.getInteraction().editMessageEmbeds(EmbedUtil.invoiceInformation(invoiceID)).setActionRow(invoiceButtons).queue();
