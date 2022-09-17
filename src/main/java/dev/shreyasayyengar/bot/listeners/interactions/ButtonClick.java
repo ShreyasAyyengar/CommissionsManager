@@ -8,8 +8,8 @@ import dev.shreyasayyengar.bot.client.conversation.impl.InvoiceAddFileConversati
 import dev.shreyasayyengar.bot.client.conversation.impl.QuoteChangeConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.Invoice;
-import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;

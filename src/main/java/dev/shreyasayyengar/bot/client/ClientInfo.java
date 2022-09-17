@@ -4,7 +4,13 @@ import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.attribute.ICopyableChannel;
+import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -19,6 +25,7 @@ import java.util.stream.Stream;
  * the client's private TextChannels, VoiceChannels, and Category to manage sending messages and conversations.
  * The ClientInfo class also stores active {@link ClientCommission}s.
  * <p></p>
+ *
  * @author Shreyas Ayyengar
  */
 public class ClientInfo {
@@ -120,35 +127,34 @@ public class ClientInfo {
      * Serialise the ClientInfo object to the MySQL server.
      */
     public void serialise() {
-        try {
-            // Does the client exist?
-            ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_client_info WHERE member_id = ?")
-                    .setString(holder.getId())
-                    .build().executeQuery();
+        // Does the client exist?
+        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_client_info WHERE member_id = '" + holder.getId() + "'").executeQuery(resultSet -> {
+            try {
 
-            if (resultSet.next()) {
-                // Update the client info
-                DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_client_info SET voice_id = ?, text_id = ?, category_id = ?, paypal_email = ? WHERE member_id = ?")
-                        .setString(voiceChannel.getId())
-                        .setString(textChannel.getId())
-                        .setString(category.getId())
-                        .setString(paypalEmail)
-                        .setString(holder.getId())
-                        .build().executeUpdate();
-            } else {
-                // Create client info
-                DiscordBot.get().database.preparedStatementBuilder("insert into CM_client_info (member_id, text_id, voice_id, category_id, paypal_email) values (?, ?, ?, ?, ?)")
-                        .setString(holder.getId())
-                        .setString(textChannel.getId())
-                        .setString(voiceChannel.getId())
-                        .setString(category.getId())
-                        .setString(paypalEmail == null ? null : paypalEmail)
-                        .build().executeUpdate();
+                if (resultSet.next()) {
+                    // Update the client info
+                    DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_client_info SET voice_id = ?, text_id = ?, category_id = ?, paypal_email = ? WHERE member_id = ?")
+                            .setString(voiceChannel.getId())
+                            .setString(textChannel.getId())
+                            .setString(category.getId())
+                            .setString(paypalEmail)
+                            .setString(holder.getId())
+                            .build().executeUpdate();
+                } else {
+                    // Create client info
+                    DiscordBot.get().database.preparedStatementBuilder("insert into CM_client_info (member_id, text_id, voice_id, category_id, paypal_email) values (?, ?, ?, ?, ?)")
+                            .setString(holder.getId())
+                            .setString(textChannel.getId())
+                            .setString(voiceChannel.getId())
+                            .setString(category.getId())
+                            .setString(paypalEmail == null ? null : paypalEmail)
+                            .build().executeUpdate();
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     /**

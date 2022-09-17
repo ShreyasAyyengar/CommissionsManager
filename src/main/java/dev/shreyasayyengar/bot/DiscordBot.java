@@ -5,10 +5,10 @@ import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
 import dev.shreyasayyengar.bot.database.MySQL;
-import dev.shreyasayyengar.bot.listeners.MemberUpdateName;
 import dev.shreyasayyengar.bot.listeners.JDAException;
 import dev.shreyasayyengar.bot.listeners.MemberRemove;
 import dev.shreyasayyengar.bot.listeners.MemberScreeningPass;
+import dev.shreyasayyengar.bot.listeners.MemberUpdateName;
 import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
 import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
 import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
@@ -26,9 +26,7 @@ import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -60,7 +58,7 @@ public class DiscordBot {
         System.out.println("[CommissionsManager - " + department.name() + "] " + message);
     }
 
-    public DiscordBot() throws LoginException, InterruptedException {
+    public DiscordBot() throws InterruptedException {
         instance = this;
         maintainAccessToken();
 
@@ -70,7 +68,7 @@ public class DiscordBot {
         deserialiseMySQLData();
         initThreadHandler();
 
-        log(Department.Main, "*** CommissionsManager Ready! ***");
+        log(Department.Main, "*** CommissionsManager Ready! *** (PRODUCTION-63)");
         System.gc();
     }
 
@@ -109,7 +107,7 @@ public class DiscordBot {
             );
 
             log(Department.MySQL, "Loading Tables...");
-            database.preparedStatement("create table if not exists CM_client_info(" +
+            database.preparedStatementBuilder("create table if not exists CM_client_info(" +
                     "    member_id    tinytext     null," +
                     "    text_id      tinytext     null," +
                     "    voice_id     tinytext     null," +
@@ -117,14 +115,14 @@ public class DiscordBot {
                     "    paypal_email tinytext null" +
                     ");").executeUpdate();
 
-            database.preparedStatement("create table if not exists CM_invoice_info(" +
+            database.preparedStatementBuilder("create table if not exists CM_invoice_info(" +
                     "    invoice_id tinytext null," +
                     "    message_id tinytext null," +
                     "    client_id  tinytext null" +
 
                     ");").executeUpdate();
 
-            database.preparedStatement("create table if not exists CM_commission_info(" +
+            database.preparedStatementBuilder("create table if not exists CM_commission_info(" +
                     "    holder_id   tinytext null," +
                     "    plugin_name tinytext null," +
                     "    source_code boolean  null," +
@@ -133,13 +131,8 @@ public class DiscordBot {
                     "    info_embed  tinytext null" +
                     ");").executeUpdate();
 
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-                try {
-                    database.preparedStatementBuilder("select 1;").executeQuery();
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }, 5, 30, TimeUnit.SECONDS);
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> database.preparedStatementBuilder("select 1;").executeQuery(resultSet -> {
+            }), 5, 30, TimeUnit.SECONDS);
 
         } catch (Exception e) {
             log(Department.MySQL, "FATAL ERROR WHEN initMySQL: " + e.getMessage());
@@ -152,7 +145,7 @@ public class DiscordBot {
     /**
      * This method initializes the JDA object, and sets the required data.
      */
-    private void createBot() throws LoginException, InterruptedException {
+    private void createBot() throws InterruptedException {
         this.discordBot = JDABuilder.createDefault(Authentication.BOT_TOKEN.get())
                 .setActivity(Activity.watching("shreyasayyengar.dev"))
                 .addEventListeners(getListeners().toArray())

@@ -64,21 +64,20 @@ public class Invoice {
      * This is only called once, when the program is started via {@link DiscordBot#deserialiseMySQLData()}.
      */
     public static void registerInvoices() {
-        try {
-            ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info").build().executeQuery();
+        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info").executeQuery(resultSet -> {
+            try {
+                while (resultSet.next()) {
+                    String clientInfoId = resultSet.getString("client_id");
+                    String invoiceId = resultSet.getString("invoice_id");
+                    String messageId = resultSet.getString("message_id");
+                    String commissionName = resultSet.getString("commission_name");
 
-            while (resultSet.next()) {
-                String clientInfoId = resultSet.getString("client_id");
-                String invoiceId = resultSet.getString("invoice_id");
-                String messageId = resultSet.getString("message_id");
-                String commissionName = resultSet.getString("commission_name");
-
-                new Invoice(clientInfoId, commissionName, messageId, invoiceId);
+                    new Invoice(clientInfoId, commissionName, messageId, invoiceId);
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
+        });
         cycleChecks();
     }
 
@@ -201,8 +200,7 @@ public class Invoice {
 
         try {
             DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_invoice_info WHERE invoice_id = ?")
-                    .setString(invoiceID)
-                    .build().executeUpdate();
+                    .setString(invoiceID).executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
         }

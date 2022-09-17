@@ -3,10 +3,9 @@ package dev.shreyasayyengar.bot.misc.managers;
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.client.ClientCommission;
 import dev.shreyasayyengar.bot.client.ClientInfo;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
-import java.sql.ResultSet;
 import java.util.HashMap;
 
 /**
@@ -25,24 +24,26 @@ public class ClientInfoManager {
      * and reconstruct the ClientInfo objects using {@link ClientInfo#ClientInfo(String, String, String, String)}
      */
     public void registerExistingClients() {
-        try {
-            ResultSet resultSet = DiscordBot.get().database.preparedStatement("select * from CM_client_info;").executeQuery();
-            while (resultSet.next()) {
+        DiscordBot.get().database.preparedStatementBuilder("select * from CM_client_info;").executeQuery(resultSet -> {
+            try {
 
-                String member_id = resultSet.getString("member_id");
-                String text_id = resultSet.getString("text_id");
-                String voice_id = resultSet.getString("voice_id");
-                String category_id = resultSet.getString("category_id");
-                String paypal_email = resultSet.getString("paypal_email");
+                while (resultSet.next()) {
 
-                if (DiscordBot.get().workingGuild.getMemberById(member_id) != null) {
-                    new ClientInfo(member_id, voice_id, text_id, category_id).setPaypalEmail(paypal_email);
+                    String member_id = resultSet.getString("member_id");
+                    String text_id = resultSet.getString("text_id");
+                    String voice_id = resultSet.getString("voice_id");
+                    String category_id = resultSet.getString("category_id");
+                    String paypal_email = resultSet.getString("paypal_email");
+
+                    if (DiscordBot.get().workingGuild.getMemberById(member_id) != null) {
+                        new ClientInfo(member_id, voice_id, text_id, category_id).setPaypalEmail(paypal_email);
+                    }
                 }
-            }
 
-        } catch (Exception err) {
-            err.printStackTrace();
-        }
+            } catch (Exception err) {
+                err.printStackTrace();
+            }
+        });
     }
 
     /**

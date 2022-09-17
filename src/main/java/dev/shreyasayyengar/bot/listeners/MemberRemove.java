@@ -21,7 +21,7 @@ public class MemberRemove extends ListenerAdapter {
         DiscordBot.get().getClientManger().purgeMemberSQL(user);
 
         clientInfo.getTextChannel().sendMessageEmbeds(EmbedUtil.requestPurge(user))
-                .setActionRow(Button.danger("purge-channel", "Purge Channels").withEmoji(Emoji.fromUnicode("\uD83D\uDDD1️")))
+                .setActionRow(Button.danger("purge-channel", "Purge Channels").withEmoji(Emoji.fromUnicode("U+1F5D1")))
                 .queue();
     }
 }
