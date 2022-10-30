@@ -1,5 +1,6 @@
 package dev.shreyasayyengar.bot.commands;
 
+import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
@@ -116,7 +117,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
 
                 if (event.getMessage().getContentRaw().contains("!filestatus")) {
                     File templateFile = new File("invoice_template.yml");
-                    InputStream inputStream = getClass().getResourceAsStream("/invoice_template.yml");
+                    InputStream inputStream = DiscordBot.get().getClass().getResourceAsStream("/invoice_template.yml");
 
                     if (templateFile.exists()) {
                         event.getMessage().reply("File exists! (with slash)").queue();
@@ -127,21 +128,6 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                         event.getMessage().reply("Input stream exists! (with slash)").queue();
                     } else {
                         event.getMessage().reply("Input stream does not exist! (with slash)").queue();
-                    }
-
-                    File unSlashedFile = new File("invoice_template.yml");
-                    InputStream unSlashedStream = getClass().getResourceAsStream("invoice_template.yml");
-
-                    if (unSlashedFile.exists()) {
-                        event.getMessage().reply("File exists! (without slash)").queue();
-                    } else {
-                        event.getMessage().reply("File does not exist! (without slash)").queue();
-                    }
-
-                    if (unSlashedStream != null) {
-                        event.getMessage().reply("Input stream exists! (without slash)").queue();
-                    } else {
-                        event.getMessage().reply("Input stream does not exist! (without slash)").queue();
                     }
                 }
             }
