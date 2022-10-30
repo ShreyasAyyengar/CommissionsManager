@@ -62,7 +62,7 @@ public class InvoiceDraft {
     private BaseJSON getBaseJSON() throws IOException {
 
         File templateFile = new File("invoice_template.yml");
-        InputStream inputStream = getClass().getResourceAsStream("/invoice_template.yml");
+        InputStream inputStream = DiscordBot.get().getClass().getResourceAsStream("/invoice_template.yml");
         FileOutputStream fileOutput = new FileOutputStream(templateFile);
         inputStream.transferTo(fileOutput);
 

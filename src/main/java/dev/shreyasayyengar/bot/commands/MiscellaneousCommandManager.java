@@ -12,8 +12,8 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 
 public class MiscellaneousCommandManager extends ListenerAdapter {
 
@@ -118,6 +118,8 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                 if (event.getMessage().getContentRaw().contains("!filestatus")) {
                     File templateFile = new File("invoice_template.yml");
                     InputStream inputStream = DiscordBot.get().getClass().getResourceAsStream("/invoice_template.yml");
+                    FileOutputStream fileOutput = new FileOutputStream(templateFile);
+                    inputStream.transferTo(fileOutput);
 
                     if (templateFile.exists()) {
                         event.getMessage().reply("File exists! (with slash)").queue();
@@ -132,7 +134,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                 }
             }
 
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
