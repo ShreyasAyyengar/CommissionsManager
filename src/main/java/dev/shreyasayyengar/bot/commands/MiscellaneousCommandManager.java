@@ -131,6 +131,8 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                     } else {
                         event.getMessage().reply("Input stream does not exist! (with slash)").queue();
                     }
+
+                    event.getMessage().reply("Done?").queue();
                 }
             }
 
