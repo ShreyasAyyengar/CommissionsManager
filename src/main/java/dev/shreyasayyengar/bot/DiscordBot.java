@@ -68,7 +68,7 @@ public class DiscordBot {
         deserialiseMySQLData();
         initThreadHandler();
 
-        log(Department.Main, "*** CommissionsManager Ready! *** (PRODUCTION-63)");
+        log(Department.Main, "*** CommissionsManager Ready! *** (PRODUCTION-64)");
         System.gc();
     }
 
