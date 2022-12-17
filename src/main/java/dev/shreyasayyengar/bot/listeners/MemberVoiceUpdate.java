@@ -1,17 +1,12 @@
 package dev.shreyasayyengar.bot.listeners;
 
-import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.CombinedAudio;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent;
-import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.managers.AudioManager;
 import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,33 +25,34 @@ public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHa
 
     private final List<byte[]> audioData = new ArrayList<>();
 
-    @Override
-    public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
-        if (event.getMember().getId().equalsIgnoreCase(Authentication.OWNER_ID.get())) {
-
-            if (Util.privateChannel(event.getChannelJoined())) return;
-
-            AudioManager audioManager = DiscordBot.get().workingGuild.getAudioManager();
-            audioManager.setReceivingHandler(this);
-
-            event.getGuild().getAudioManager().openAudioConnection(event.getChannelJoined());
-        }
-    }
-
-    @Override
-    public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
-        if (event.getMember().getId().equalsIgnoreCase(Authentication.OWNER_ID.get())) {
-
-            if (Util.privateChannel(event.getChannelLeft())) return;
-
-            AudioManager audioManager = DiscordBot.get().workingGuild.getAudioManager();
-            audioManager.setReceivingHandler(null);
-
-            event.getGuild().getAudioManager().closeAudioConnection();
-
-            createRecording(event.getChannelLeft());
-        }
-    }
+    // TODO: Disabled for now, will be re-enabled when I have time to work on it if ever.
+//    @Override
+//    public void onGuildVoiceJoin(@NotNull GuildVoiceJoinEvent event) {
+//        if (event.getMember().getId().equalsIgnoreCase(Authentication.OWNER_ID.get())) {
+//
+//            if (Util.privateChannel(event.getChannelJoined())) return;
+//
+//            AudioManager audioManager = DiscordBot.get().workingGuild.getAudioManager();
+//            audioManager.setReceivingHandler(this);
+//
+//            event.getGuild().getAudioManager().openAudioConnection(event.getChannelJoined());
+//        }
+//    }
+//
+//    @Override
+//    public void onGuildVoiceLeave(@NotNull GuildVoiceLeaveEvent event) {
+//        if (event.getMember().getId().equalsIgnoreCase(Authentication.OWNER_ID.get())) {
+//
+//            if (Util.privateChannel(event.getChannelLeft())) return;
+//
+//            AudioManager audioManager = DiscordBot.get().workingGuild.getAudioManager();
+//            audioManager.setReceivingHandler(null);
+//
+//            event.getGuild().getAudioManager().closeAudioConnection();
+//
+//            createRecording(event.getChannelLeft());
+//        }
+//    }
 
     @Override
     public boolean canReceiveCombined() {

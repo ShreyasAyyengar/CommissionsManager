@@ -4,9 +4,9 @@ import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Executors;
@@ -36,7 +36,6 @@ public class MiscellaneousSlashCommandManager extends ListenerAdapter {
         }
 
         if (event.getName().equalsIgnoreCase("invite")) {
-
             event.replyEmbeds(EmbedUtil.inviteEmbed()).queue();
         }
 

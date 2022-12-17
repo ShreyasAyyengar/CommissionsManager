@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -80,7 +81,7 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
                     return;
                 }
 
-                SelectMenu.Builder builder = SelectMenu.create("menu:commissions")
+                StringSelectMenu.Builder builder = StringSelectMenu.create("menu:commissions")
                         .setPlaceholder("Select a commission...")
                         .setRequiredRange(1, 1);
 

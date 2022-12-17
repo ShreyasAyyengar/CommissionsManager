@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
+@SuppressWarnings("all")
 public class MiscellaneousCommandManager extends ListenerAdapter {
 
     @Override

@@ -14,11 +14,11 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -188,7 +188,7 @@ public class ButtonClick extends ListenerAdapter {
                         return;
                     }
 
-                    SelectMenu.Builder menuBuilder = SelectMenu.create("menu:invoices");
+                    StringSelectMenu.Builder menuBuilder = StringSelectMenu.create("menu:invoices");
 
                     menuBuilder.setPlaceholder("Select an outstanding Invoice");
                     menuBuilder.setRequiredRange(1, 1);

@@ -101,7 +101,7 @@ public class Invoice {
     }
 
     /**
-     * This is the main constructor for this object, and is used to create an final Invoice object from an {@link InvoiceDraft} object.
+     * This is the main constructor for this object, and is used to create a final Invoice object from an {@link InvoiceDraft} object.
      * It assigns all the private variables and sends embeds to the client's text channel to let them know their invoice has been
      * generated properly. <b>This constructor is not to be used directly</b>, but rather through the {@link InvoiceDraft} class.
      * (hence the protected access modifier).

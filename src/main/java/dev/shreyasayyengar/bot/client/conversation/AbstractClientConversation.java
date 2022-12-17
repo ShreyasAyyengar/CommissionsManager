@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 // TODO
+@SuppressWarnings("all")
 public abstract class AbstractClientConversation extends ListenerAdapter {
 
     private final ClientInfo clientInfo;

@@ -75,7 +75,7 @@ public class InvoiceDraft {
     /**
      * This method makes an HTTP request to the PayPal REST API endpoint, and returns
      * the Invoice data as a String response. This is used to obtain the final URL
-     * to push the invoice from a Draft Invoice to a Sent Invoice.
+     * to push the invoice from a Draft Invoice to a pushed/sent Invoice.
      */
     private String getInvoiceDraftURL(String invoiceData) throws IOException {
         OkHttpClient client = new OkHttpClient();

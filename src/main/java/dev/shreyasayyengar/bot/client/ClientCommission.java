@@ -62,7 +62,7 @@ public class ClientCommission {
 
     /**
      * Constructs a new ClientCommission object during Runtime. <b>This method should not be called
-     * if the Commission is not being generated live.</b> i.e only when created via the <code>/request</code>
+     * if the Commission is not being generated live.</b> i.e. only when created via the <code>/request</code>
      * command used by users in the Discord server.
      * <p></p>
      *
@@ -107,12 +107,11 @@ public class ClientCommission {
 
     /**
      * Generates a PayPal {@link InvoiceDraft} which is later pushed and converted to a final {@link Invoice},
-     * which is also stored in {@link #invoices} once pushed to it's final state.
+     * which is also stored in {@link #invoices} once pushed to its final state.
      * <p></p>
      *
      * @param event The {@link ButtonInteractionEvent} that triggered this invoice generation request. (The Interaction
-     *              WebHook will update the Embeds with the status of the invoice.
-     *              the m
+     *              WebHook will update the Embeds with the status of the invoice.)
      * @see InvoiceDraft
      * @see Invoice
      */
