@@ -203,6 +203,13 @@ public class ClientCommission {
         return price;
     }
 
+    public double getFinalPrice() {
+        double rebasedPrice = price + 0.30 + (requestedSourceCode ? 5 : 0);
+        double tax = rebasedPrice * 0.0725;
+
+        return rebasedPrice + tax;
+    }
+
     public boolean hasRequestedSourceCode() {
         return requestedSourceCode;
     }

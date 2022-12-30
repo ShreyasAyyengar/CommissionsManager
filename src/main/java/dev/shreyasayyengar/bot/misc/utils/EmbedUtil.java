@@ -192,10 +192,10 @@ public class EmbedUtil {
 
     public static MessageEmbed confirmCommission(ClientCommission commission) {
         return new EmbedBuilder()
-                .setTitle("Confirm Commission: " + commission.getPluginName())
-                .setDescription("The price/quote for this commission will be `$" + commission.getPrice() + "` (Exclusive of Tax and SRC if requested).")
-                .addField(":warning:️ This may not be the final price! :warning:", "As more work is completed and progress continues, this quote may increase or decrease. " +
-                        "The price given above should be taken as an estimation and **NOT** a final price. (If this is the last message regarding prices, then please take this as the final price)", false)
+                .setTitle("Confirm Commission Price: " + commission.getPluginName())
+                .setDescription("The price/quote for this commission is set for `$" + commission.getFinalPrice() + "` (**Inclusive** of Tax and SRC if requested).")
+                .addField(":warning: This may not be the final price! :warning:", "As more work is completed and process continues, the price **may or may not** increase or decrease. " +
+                        "If this happens to be the case **you will see a message just like this one** alerting you of a price change. ", false)
                 .setFooter("Should there ever be a change in the price, I will always require your confirmation again, before generating any related invoices.", DiscordBot.get().workingGuild.getOwner().getEffectiveAvatarUrl())
                 .setColor(Util.getColor())
                 .build();
