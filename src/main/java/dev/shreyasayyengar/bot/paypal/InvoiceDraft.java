@@ -185,8 +185,6 @@ public class InvoiceDraft {
         public String fixJSON() {
             rawJSON = this.rawJSON
                     .replace("{client_email}", InvoiceDraft.this.commission.getClient().getPaypalEmail())
-                    .replace("{email}", "shreyas.ayyengar@gmail.com")
-                    .replace("{website}", "https://shreyasayyengar.dev")
                     .replace("{invoice_name}", InvoiceDraft.this.invoiceName)
                     .replace("{invoice_description}", InvoiceDraft.this.productName + " (Plugin Service)")
                     .replace("{invoice_amount}", InvoiceDraft.this.price + "");

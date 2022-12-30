@@ -5,8 +5,8 @@ invoicer:
   name:
     given_name: "Shreyas"
     surname: "Ayyengar"
-  email_address: "{email}"
-  website: "{website}"
+  email_address: "shreyas.ayyengar@gmail.com"
+  website: "https://shreyasayyengar.dev"
 primary_recipients:
   - billing_info:
       email_address: "{client_email}"
