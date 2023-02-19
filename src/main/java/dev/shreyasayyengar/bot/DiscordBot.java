@@ -192,6 +192,8 @@ public class DiscordBot {
         ThreadHandler handler = new ThreadHandler();
         Runtime.getRuntime().addShutdownHook(handler);
         Thread.currentThread().setUncaughtExceptionHandler(handler.getUncaughtExceptionHandler());
+
+        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(System::gc, 0, 30, TimeUnit.MINUTES);
     }
 
     // ----------------------------- GETTERS --------------------------------- //

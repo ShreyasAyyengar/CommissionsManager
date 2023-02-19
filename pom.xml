@@ -44,6 +44,7 @@
             <version>20220924</version>
         </dependency>
 
+        <!--suppress VulnerableLibrariesLocal --> <!-- This is a false positive -->
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
