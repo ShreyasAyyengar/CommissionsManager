@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 
 /**
  * The ClientInfo class is used to store all data that oversees a client in the Discord Server. This class stores
- * the client's private TextChannels, VoiceChannels, and Category to manage sending messages and conversations.
+ * the client's private TextChannels and VoiceChannels to manage sending messages and conversations.
  * The ClientInfo class also stores active {@link ClientCommission}s.
  * <p></p>
  *
@@ -30,21 +30,23 @@ import java.util.stream.Stream;
  */
 public class ClientInfo {
 
+    private static final Category CLIENT_CHATS = DiscordBot.get().workingGuild.getCategoryById("1091671476752613396");
+    private static final Category CLIENT_VOICE = DiscordBot.get().workingGuild.getCategoryById("1091671511569551371");
+
     private final Collection<ClientCommission> commissions = new HashSet<>();
 
     private final Member holder;
     private final VoiceChannel voiceChannel;
     private final TextChannel textChannel;
-    private final Category category;
 
     private String paypalEmail;
 
     /**
      * This creates a new ClientInfo object, given the JDA Member object of the user. <b>This constructor should
      * only be used when a new Member has joined a server.</b> If ran outside this context, the ClientInfo object will generate
-     * duplicate channels and categories.
+     * duplicate channels.
      * <p></p>
-     * To <b>load</b> an existing ClientInfo object via a ResultSet use the {@link #ClientInfo(String, String, String, String)} constructor.
+     * To <b>load</b> an existing ClientInfo object via a ResultSet use the {@link #ClientInfo(String, String, String)} constructor.
      *
      * <p></p>
      *
@@ -56,20 +58,16 @@ public class ClientInfo {
 
         Guild workingGuild = DiscordBot.get().workingGuild;
 
-        // region Categories
-        ChannelAction<Category> draftCategory = workingGuild.createCategory("~~~ " + holder.getEffectiveName() + " ~~~");
-        this.category = draftCategory.complete(); // endregion
-
         // region Voice and Text Channels
-        ChannelAction<VoiceChannel> voiceChannelAction = workingGuild.createVoiceChannel(holder.getEffectiveName() + "-vc").setParent(category);
-        voiceChannelAction.setBitrate(64000);
+        ChannelAction<VoiceChannel> voiceChannelAction = workingGuild.createVoiceChannel(holder.getEffectiveName() + "-vc").setParent(CLIENT_VOICE)
+                .setBitrate(64000);
 
-        ChannelAction<TextChannel> textChannelAction = workingGuild.createTextChannel(holder.getEffectiveName() + "-text").setParent(category);
-        textChannelAction.setTopic("Discussions relating to " + holder.getEffectiveName() + "'s commissions & work");
+        ChannelAction<TextChannel> textChannelAction = workingGuild.createTextChannel(holder.getEffectiveName() + "-text").setParent(CLIENT_CHATS)
+                .setTopic("Discussions relating to " + holder.getEffectiveName() + "'s commissions & work");
         // endregion
 
         // region Permissions
-        Stream<? extends ChannelAction<? extends ICopyableChannel>> channels = Stream.of(draftCategory, voiceChannelAction, textChannelAction);
+        Stream<? extends ChannelAction<? extends ICopyableChannel>> channels = Stream.of(voiceChannelAction, textChannelAction);
         channels.forEach(channel -> {
             channel.addMemberPermissionOverride(holder.getIdLong(), getAllowedPermissions(), getDeniedPermissions());
             channel.addPermissionOverride(workingGuild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL));
@@ -85,19 +83,17 @@ public class ClientInfo {
 
     /**
      * This constructor is used to load an existing ClientInfo object from a {@link ResultSet}. This constructor will
-     * initialise the object and keep it in the ClientManager, to be used for later. This <b>will not generate categories</b>
-     * and run any other setup actions, this meerly loads the ClientInfo object to be recognised and visible.
+     * initialise the object and keep it in the ClientManager, to be used for later. This <b>will not generate any new channels</b>
+     * or run any other setup actions, this merely loads the ClientInfo object to be recognised and visible.
      *
      * @param holderId       The Discord ID of the holder of the ClientInfo object.
      * @param voiceChannelId The Discord ID of the VoiceChannel of the ClientInfo object.
      * @param textChannelId  The Discord ID of the TextChannel of the ClientInfo object.
-     * @param categoryId     The Discord ID of the Channel Categoryw of the ClientInfo object.
      */
-    public ClientInfo(String holderId, String voiceChannelId, String textChannelId, String categoryId) {
+    public ClientInfo(String holderId, String voiceChannelId, String textChannelId) {
         this.holder = DiscordBot.get().workingGuild.getMemberById(holderId);
         this.voiceChannel = DiscordBot.get().workingGuild.getVoiceChannelById(voiceChannelId);
         this.textChannel = DiscordBot.get().workingGuild.getTextChannelById(textChannelId);
-        this.category = DiscordBot.get().workingGuild.getCategoryById(categoryId);
 
         DiscordBot.get().getClientManger().add(holder.getId(), this);
     }
@@ -106,7 +102,7 @@ public class ClientInfo {
      * Add a Member to the client's {@link #textChannel}. This enables the member to see the channel and its messages.
      */
     public void addCollaborator(Member member) {
-        Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel, voiceChannel, category);
+        Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel, voiceChannel);
         channelGroups.forEach(channel -> channel.upsertPermissionOverride(member).setPermissions(getAllowedPermissions(), getDeniedPermissions()).queue());
 
         textChannel.sendMessage(member.getAsMention()).queue(message -> message.delete().queue());
@@ -117,7 +113,7 @@ public class ClientInfo {
      * Remove a Member from the client's {@link #textChannel}. This disables the member from seeing the channel and its messages.
      */
     public void removeCollaborator(Member member) {
-        Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel, voiceChannel, category);
+        Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel, voiceChannel);
         channelGroups.forEach(channel -> channel.upsertPermissionOverride(member).setPermissions(new HashSet<>(), Arrays.stream(Permission.values()).toList()).queue());
 
         textChannel.sendMessageEmbeds(EmbedUtil.leftAsCollaborator(member)).queue();
@@ -133,20 +129,18 @@ public class ClientInfo {
 
                 if (resultSet.next()) {
                     // Update the client info
-                    DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_client_info SET voice_id = ?, text_id = ?, category_id = ?, paypal_email = ? WHERE member_id = ?")
+                    DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_client_info SET voice_id = ?, text_id = ?, paypal_email = ? WHERE member_id = ?")
                             .setString(voiceChannel.getId())
                             .setString(textChannel.getId())
-                            .setString(category.getId())
                             .setString(paypalEmail)
                             .setString(holder.getId())
                             .build().executeUpdate();
                 } else {
                     // Create client info
-                    DiscordBot.get().database.preparedStatementBuilder("insert into CM_client_info (member_id, text_id, voice_id, category_id, paypal_email) values (?, ?, ?, ?, ?)")
+                    DiscordBot.get().database.preparedStatementBuilder("insert into CM_client_info (member_id, text_id, voice_id, paypal_email) values (?, ?, ?, ?)")
                             .setString(holder.getId())
                             .setString(textChannel.getId())
                             .setString(voiceChannel.getId())
-                            .setString(category.getId())
                             .setString(paypalEmail == null ? null : paypalEmail)
                             .build().executeUpdate();
                 }

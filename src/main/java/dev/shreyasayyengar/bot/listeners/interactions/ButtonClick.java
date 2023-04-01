@@ -7,9 +7,9 @@ import dev.shreyasayyengar.bot.client.conversation.impl.ClientEmailConversation;
 import dev.shreyasayyengar.bot.client.conversation.impl.InvoiceAddFileConversation;
 import dev.shreyasayyengar.bot.client.conversation.impl.QuoteChangeConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.misc.utils.Util;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -29,12 +29,14 @@ public class ButtonClick extends ListenerAdapter {
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
 
         String buttonID = event.getButton().getId().toLowerCase();
-        List<ActionRow> disabledButtons = event.getMessage().getActionRows().stream().map(ActionRow::asDisabled).toList();
 
         if (buttonID.equalsIgnoreCase("purge-channel")) {
-            Category parentCategory = event.getChannel().asTextChannel().getParentCategory();
-            parentCategory.getChannels().forEach(channel -> channel.delete().queue());
-            parentCategory.delete().queue();
+            ClientInfo clientInfoToDelete = Util.getClientInfoByChannelId(event.getChannel().asTextChannel());
+
+            clientInfoToDelete.getTextChannel().delete().queue();
+            clientInfoToDelete.getVoiceChannel().delete().queue();
+
+            DiscordBot.get().getClientManger().getMap().remove(clientInfoToDelete.getHolder().getId());
         }
 
         // ------------------------- Initial `/commission` buttons -------------------- //
@@ -144,13 +146,13 @@ public class ButtonClick extends ListenerAdapter {
 
                 // -------------------- Quote Confirmation Buttons (Accept/Reject) -------------------- //
                 case "accept" -> {
-                    event.editComponents(disabledButtons).queue();
+                    event.editComponents(event.getMessage().getActionRows().stream().map(ActionRow::asDisabled).toList()).queue();
                     event.getHook().sendMessageEmbeds(EmbedUtil.acceptedQuote()).queue();
                     commission.setConfirmed(true);
                 }
 
                 case "reject" -> {
-                    event.editComponents(disabledButtons).queue();
+                    event.editComponents(event.getMessage().getActionRows().stream().map(ActionRow::asDisabled).toList()).queue();
                     event.getHook().sendMessageEmbeds(EmbedUtil.rejectedQuote()).queue();
                 }
             }

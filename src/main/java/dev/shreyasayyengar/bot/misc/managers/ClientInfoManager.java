@@ -21,7 +21,7 @@ public class ClientInfoManager {
 
     /**
      * The registerExistingClients is used to pull data from the provided MySQL database
-     * and reconstruct the ClientInfo objects using {@link ClientInfo#ClientInfo(String, String, String, String)}
+     * and reconstruct the ClientInfo objects using {@link ClientInfo#ClientInfo(String, String, String)}
      */
     public void registerExistingClients() {
         DiscordBot.get().database.preparedStatementBuilder("select * from CM_client_info;").executeQuery(resultSet -> {
@@ -32,11 +32,10 @@ public class ClientInfoManager {
                     String member_id = resultSet.getString("member_id");
                     String text_id = resultSet.getString("text_id");
                     String voice_id = resultSet.getString("voice_id");
-                    String category_id = resultSet.getString("category_id");
                     String paypal_email = resultSet.getString("paypal_email");
 
                     if (DiscordBot.get().workingGuild.getMemberById(member_id) != null) {
-                        new ClientInfo(member_id, voice_id, text_id, category_id).setPaypalEmail(paypal_email);
+                        new ClientInfo(member_id, voice_id, text_id).setPaypalEmail(paypal_email);
                     }
                 }
 

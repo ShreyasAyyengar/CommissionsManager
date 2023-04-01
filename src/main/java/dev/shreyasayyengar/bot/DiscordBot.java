@@ -111,7 +111,6 @@ public class DiscordBot {
                     "    member_id    tinytext     null," +
                     "    text_id      tinytext     null," +
                     "    voice_id     tinytext     null," +
-                    "    category_id  tinytext     null," +
                     "    paypal_email tinytext null" +
                     ");").executeUpdate();
 

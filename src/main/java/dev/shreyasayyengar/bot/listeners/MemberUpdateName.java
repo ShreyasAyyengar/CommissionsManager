@@ -22,10 +22,11 @@ public class MemberUpdateName extends ListenerAdapter {
             ClientInfo client = DiscordBot.get().getClientManger().get(user.getId());
 
             Stream.<IPermissionContainer>of(
-                    client.getTextChannel().getParentCategory(),
                     client.getTextChannel(),
                     client.getVoiceChannel()
             ).forEach(channel -> channel.getManager().setName(channel.getName().replace(oldName, newName)).queue());
+
+            client.getTextChannel().getManager().setTopic(client.getTextChannel().getTopic().replace(oldName, newName)).queue();
         }
     }
 }

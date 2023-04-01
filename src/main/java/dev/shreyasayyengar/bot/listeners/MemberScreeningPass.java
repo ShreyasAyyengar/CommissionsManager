@@ -40,7 +40,7 @@ public class MemberScreeningPass extends ListenerAdapter {
                 .setTitle("Welcome to the server!")
                 .setDescription("Welcome to the server, " + member.getAsMention() + "!")
                 .addField("How to get started:", "If you would like to **request a plugin commission**, you can run the command `/request`, and fill in the details that follows.\n", false)
-                .addField("What is this?", "These are your private channels! It is under your **own** category and comes with a:\n\n `-` Text channel (" + textChanelMention + ");\n `-` Voice channel (" + voiceChannelMention + "); " +
+                .addField("What is this?", "These are your private channels! It comes with a:\n\n `-` Text channel (" + textChanelMention + ");\n `-` Voice channel (" + voiceChannelMention + "); " +
                         "\n\nFeel free to use them however you'd like, and please **do not** hesitate to ping <@690755476555563019> whenever necessary.", false)
                 .setColor(Util.getColor())
                 .setThumbnail(member.getUser().getAvatarUrl())
@@ -50,7 +50,6 @@ public class MemberScreeningPass extends ListenerAdapter {
 
         clientInfo.getTextChannel().sendMessage(clientInfo.getHolder().getAsMention()).queue(message -> message.delete().queue());
         clientInfo.getTextChannel().sendMessageEmbeds(embed).queue();
-
     }
 
     private static void sendWelcomeMessage(Member member) {
