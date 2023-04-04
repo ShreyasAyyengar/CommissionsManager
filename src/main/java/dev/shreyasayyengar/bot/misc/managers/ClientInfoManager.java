@@ -51,8 +51,8 @@ public class ClientInfoManager {
      */
     public void purgeMemberSQL(User user) {
         try {
-            ClientInfo remove = DiscordBot.get().getClientManger().getMap().remove(user.getId());
-            remove.getCommissions().forEach(ClientCommission::close);
+            ClientInfo toPurge = DiscordBot.get().getClientManger().getMap().get(user.getId());
+            toPurge.getCommissions().forEach(ClientCommission::close);
 
             DiscordBot.get().database.preparedStatementBuilder("delete from CM_client_info where member_id = ?;").setString(1, user.getId()).executeUpdate();
         } catch (Exception err) {

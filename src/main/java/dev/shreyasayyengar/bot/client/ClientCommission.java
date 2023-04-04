@@ -168,7 +168,8 @@ public class ClientCommission {
      */
     public void close() {
         COMMISSIONS.remove(this);
-        client.getCommissions().remove(this);
+        this.client.getCommissions().remove(this);
+        this.invoices.forEach(Invoice::cancel);
 
         try {
             DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_commission_info WHERE holder_id = ?")
