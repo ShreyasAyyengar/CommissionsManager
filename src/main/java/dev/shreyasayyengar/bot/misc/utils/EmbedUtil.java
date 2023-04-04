@@ -413,7 +413,7 @@ public class EmbedUtil {
 
     public static MessageEmbed checkDMForMore() {
         return new EmbedBuilder()
-                .setTitle("Check your DM's for more instructions")
+                .setTitle("Check your DMs for more instructions")
                 .setDescription("You can upload files to holding from there.")
                 .setColor(Util.getColor())
                 .setTimestamp(new Date().toInstant())

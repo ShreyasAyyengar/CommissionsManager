@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHandler {
+@SuppressWarnings("unused")
+public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHandler { // TODO
 
     private final List<byte[]> audioData = new ArrayList<>();
 

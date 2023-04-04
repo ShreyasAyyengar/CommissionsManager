@@ -123,7 +123,7 @@ public class ClientCommission {
     }
 
     /**
-     * Seralises the Commission and vital data to the MySQL database.
+     * Serialises the Commission and vital data to the MySQL database.
      */
     public void serialise() {
         try {

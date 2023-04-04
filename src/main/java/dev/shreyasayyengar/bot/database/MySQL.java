@@ -95,11 +95,10 @@ public class MySQL {
             executeQuery(resultSetConsumer, false);
         }
 
-        public int executeUpdate() {
+        public void executeUpdate() {
             try {
                 int update = this.theStatement.executeUpdate();
                 close();
-                return update;
             } catch (SQLException x) {
                 throw new RuntimeException(x);
             }

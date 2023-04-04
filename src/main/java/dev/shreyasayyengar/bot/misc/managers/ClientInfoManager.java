@@ -47,7 +47,7 @@ public class ClientInfoManager {
 
     /**
      * This method purges all information tied to a {@link ClientInfo} (if any) from the {@link User}
-     * passed in. This also removed any information from the MySQL databse.
+     * passed in. This also removed any information from the MySQL database.
      */
     public void purgeMemberSQL(User user) {
         try {

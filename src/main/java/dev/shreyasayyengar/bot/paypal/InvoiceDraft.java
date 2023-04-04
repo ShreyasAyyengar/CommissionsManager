@@ -62,9 +62,10 @@ public class InvoiceDraft {
     private BaseJSON getBaseJSON() throws IOException {
 
         File templateFile = new File("invoice_template.yml");
-        InputStream inputStream = DiscordBot.get().getClass().getResourceAsStream("/invoice_template.yml");
-        FileOutputStream fileOutput = new FileOutputStream(templateFile);
-        inputStream.transferTo(fileOutput);
+        try (InputStream inputStream = DiscordBot.get().getClass().getResourceAsStream("/invoice_template.yml")) {
+            FileOutputStream fileOutput = new FileOutputStream(templateFile);
+            inputStream.transferTo(fileOutput);
+        }
 
         Yaml yaml = new Yaml();
         Object loadedYaml = yaml.load(new FileReader(templateFile));
@@ -116,7 +117,7 @@ public class InvoiceDraft {
         JSONObject responseObject = new JSONObject(draftRequestResponse);
         String draftInvoiceID = responseObject.getString("id"); // gets the PayPal api invoice ID
 
-        // region Attempt to Submit to PayPal as a Sent Invoice
+        // region Attempt to Submit to PayPal as an Invoice
         RequestBody body = RequestBody.create(new JSONObject().put("send_to_invoicer", true).toString(), JSON);
         Request submitRequest = new Request.Builder()
                 .url("https://api-m.paypal.com/v2/invoicing/invoices/" + draftInvoiceID + "/send")

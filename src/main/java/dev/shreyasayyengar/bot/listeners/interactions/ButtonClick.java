@@ -275,7 +275,7 @@ public class ButtonClick extends ListenerAdapter {
             TextInput spigotBox = TextInput.create("spigotmc", "Have a SpigotMC account? Tag it here", TextInputStyle.SHORT).setRequired(false).build();
 
             Modal vouchModal = Modal.create("vouch", "Write your vouch!")
-                    .addActionRows(ActionRow.of(vouchBox), ActionRow.of(spigotBox))
+                    .addComponents(ActionRow.of(vouchBox), ActionRow.of(spigotBox))
                     .build();
             event.replyModal(vouchModal).queue();
         }

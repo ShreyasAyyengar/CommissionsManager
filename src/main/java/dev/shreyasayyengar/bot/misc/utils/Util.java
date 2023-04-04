@@ -5,7 +5,6 @@ import dev.shreyasayyengar.bot.client.ClientInfo;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 
 import java.awt.*;
 
@@ -24,24 +23,10 @@ public class Util {
     }
 
     public static boolean privateChannel(TextChannel textChannel) {
-
         boolean isPrivate = false;
 
         for (ClientInfo clientInfo : DiscordBot.get().getClientManger().getMap().values()) {
             if (clientInfo.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) {
-                isPrivate = true;
-            }
-        }
-
-        return !isPrivate;
-    }
-
-    public static boolean privateChannel(AudioChannel voiceChannel) {
-
-        boolean isPrivate = false;
-
-        for (ClientInfo clientInfo : DiscordBot.get().getClientManger().getMap().values()) {
-            if (clientInfo.getVoiceChannel().getId().equalsIgnoreCase(voiceChannel.getId())) {
                 isPrivate = true;
             }
         }

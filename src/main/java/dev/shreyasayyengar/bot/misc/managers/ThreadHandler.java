@@ -12,12 +12,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
- * The ThreadHandler is crucial to the programs' functionality. It is used to
+ * The ThreadHandler is crucial to the programs' shutdown functionality. It is used to
  * shut down the bot and save all data to the database. Without the ThreadHandler,
  * the bot will not be able to save data to the database, and will be reset to its
- * default state upon restart. Simple serialisation is called via {@link #serialise()} methods
+ * default state upon restart. Simple serialisation is called via {@link #serialise} methods
  * from {@link ClientInfo} & {@link Invoice} classes. The ThreadHandler is also responsible for
- * printing stacktraces and error messages to a designated {@link net.dv8tion.jda.api.entities.TextChannel}.
+ * printing stacktraces and error messages to a designated {@link net.dv8tion.jda.api.entities.channel.concrete.TextChannel}.
  * <p></p>
  *
  * @author Shreyas Ayyengar
