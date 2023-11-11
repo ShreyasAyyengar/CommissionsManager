@@ -1,7 +1,7 @@
 package dev.shreyasayyengar.bot.misc.utils;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -190,7 +190,7 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed confirmCommission(ClientCommission commission) {
+    public static MessageEmbed confirmCommission(CustomerCommission commission) {
         return new EmbedBuilder()
                 .setTitle("Confirm Commission Price: " + commission.getPluginName())
                 .setDescription("The price/quote for this commission is set for `$" + String.format("%.2f", commission.getFinalPrice()) + "` (**Inclusive** of Tax and SRC if requested).")
@@ -201,7 +201,7 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed sourceCodeUpdate(ClientCommission commission) {
+    public static MessageEmbed sourceCodeUpdate(CustomerCommission commission) {
         return new EmbedBuilder()
                 .setTitle("Source Code Update: " + commission.getPluginName())
                 .setDescription(commission.hasRequestedSourceCode() ? "The client has requested the source code for this plugin." : "The client has removed the request for the source code for this plugin.")
@@ -209,7 +209,7 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed priceUpdated(ClientCommission commission) {
+    public static MessageEmbed priceUpdated(CustomerCommission commission) {
         return new EmbedBuilder()
                 .setTitle("Price Updated: " + commission.getPluginName())
                 .setDescription("The price for this commission has been updated to `$" + commission.getPrice() + "`.")
@@ -217,7 +217,7 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed cancelCommission(ClientCommission commission) {
+    public static MessageEmbed cancelCommission(CustomerCommission commission) {
         return new EmbedBuilder()
                 .setTitle("Cancelled Commission: " + commission.getPluginName())
                 .setDescription("This commission has been cancelled and all relevant information has been discarded.")
@@ -226,7 +226,7 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed commissionComplete(ClientCommission commission) {
+    public static MessageEmbed commissionComplete(CustomerCommission commission) {
         return new EmbedBuilder()
                 .setTitle("Commission Complete: " + commission.getPluginName())
                 .setDescription("This commission has been completed and all relevant information has been discarded.")
@@ -374,7 +374,7 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed askPurpose(ClientCommission commission) {
+    public static MessageEmbed askPurpose(CustomerCommission commission) {
         return new EmbedBuilder()
                 .setTitle("Before generating an invoice:")
                 .setDescription("Is this invoice for the main product of the commission: `" + commission.getPluginName() + "`?")

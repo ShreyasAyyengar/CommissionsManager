@@ -1,6 +1,6 @@
 package dev.shreyasayyengar.bot;
 
-import dev.shreyasayyengar.bot.client.ClientCommission;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
@@ -12,7 +12,7 @@ import dev.shreyasayyengar.bot.listeners.MemberUpdateName;
 import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
 import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
 import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
-import dev.shreyasayyengar.bot.misc.managers.ClientInfoManager;
+import dev.shreyasayyengar.bot.misc.managers.CustomerManager;
 import dev.shreyasayyengar.bot.misc.managers.ThreadHandler;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.Department;
@@ -44,7 +44,7 @@ public class DiscordBot {
     private static DiscordBot instance; // Ths instance of this class. (Singleton)
 
     private JDA discordBot;
-    private ClientInfoManager clientInfoManager;
+    private CustomerManager customerManager;
     private String paypalAccessToken;
 
     public Guild workingGuild;
@@ -157,24 +157,24 @@ public class DiscordBot {
      * The fixData method assigns the all private variables of this class
      * such as the Working Discord JDA Guild, and the ClientInfoManager.
      *
-     * @see ClientInfoManager
+     * @see CustomerManager
      */
     private void fixData() {
         this.workingGuild = discordBot.getGuildById(Authentication.GUILD_ID.get());
         this.workingGuild.loadMembers().get();
-        this.clientInfoManager = new ClientInfoManager();
-        this.clientInfoManager.registerExistingClients();
+        this.customerManager = new CustomerManager();
+        this.customerManager.registerExistingCustomers();
     }
 
     /**
      * This method deserialises the data from the MySQL database and stores
      * them in respective objects and lists.
      *
-     * @see ClientInfoManager
+     * @see CustomerManager
      * @see Invoice#registerInvoices()
      */
     private void deserialiseMySQLData() {
-        ClientCommission.registerCommissions();
+        CustomerCommission.registerCommissions();
         Invoice.registerInvoices();
     }
 
@@ -216,8 +216,8 @@ public class DiscordBot {
         return discordBot;
     }
 
-    public ClientInfoManager getClientManger() {
-        return clientInfoManager;
+    public CustomerManager getCustomerManger() {
+        return customerManager;
     }
 
     public String getPaypalAccessToken() {

@@ -1,8 +1,8 @@
 package dev.shreyasayyengar.bot.paypal;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
+import dev.shreyasayyengar.bot.customer.Customer;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -47,8 +47,8 @@ public class Invoice {
     public static final Collection<Invoice> INVOICES = new HashSet<>();
 
     private final Collection<File> filesHolding = new HashSet<>();
-    private final ClientInfo clientInfo;
-    private final ClientCommission commission;
+    private final Customer customer;
+    private final CustomerCommission commission;
     private final String invoiceID;
     private final String messageID;
     private String status;
@@ -67,12 +67,12 @@ public class Invoice {
         DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info").executeQuery(resultSet -> {
             try {
                 while (resultSet.next()) {
-                    String clientInfoId = resultSet.getString("client_id");
+                    String customerId = resultSet.getString("client_id");
                     String invoiceId = resultSet.getString("invoice_id");
                     String messageId = resultSet.getString("message_id");
                     String commissionName = resultSet.getString("commission_name");
 
-                    new Invoice(clientInfoId, commissionName, messageId, invoiceId);
+                    new Invoice(customerId, commissionName, messageId, invoiceId);
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -106,9 +106,9 @@ public class Invoice {
      * generated properly. <b>This constructor is not to be used directly</b>, but rather through the {@link InvoiceDraft} class.
      * (hence the protected access modifier).
      */
-    protected Invoice(ClientCommission commission, JSONObject invoiceData, InteractionHook interactionHook) throws IOException {
+    protected Invoice(CustomerCommission commission, JSONObject invoiceData, InteractionHook interactionHook) throws IOException {
 
-        this.clientInfo = commission.getClient();
+        this.customer = commission.getCustomer();
         this.commission = commission;
 
         this.invoiceID = invoiceData.getString("id");
@@ -139,10 +139,10 @@ public class Invoice {
      * database during a restart/reload of the discord bot. <b>This method cannot be used anywhere else other than this class</b>
      * hence the private access modifier.
      */
-    private Invoice(String clientInfoID, String commissionName, String messageID, String invoiceID) {
+    private Invoice(String customerID, String commissionName, String messageID, String invoiceID) {
 
-        this.clientInfo = DiscordBot.get().getClientManger().get(clientInfoID);
-        this.commission = clientInfo.getCommission(commissionName);
+        this.customer = DiscordBot.get().getCustomerManger().get(customerID);
+        this.commission = customer.getCommission(commissionName);
 
         this.messageID = messageID;
         this.invoiceID = invoiceID;
@@ -175,12 +175,12 @@ public class Invoice {
             this.status = "PAID";
 
             Button viewInvoiceButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("View Invoice via PayPal");
-            clientInfo.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).setActionRow(viewInvoiceButton).setFiles().queue();
+            customer.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).setActionRow(viewInvoiceButton).setFiles().queue();
 
             MessageEmbed embed = new EmbedBuilder(EmbedUtil.invoicePaid())
-                    .setDescription("{name}'s invoice has been paid!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
+                    .setDescription("{name}'s invoice has been paid!".replace("{name}", customer.getHolder().getEffectiveName()))
                     .build();
-            clientInfo.getTextChannel().sendMessageEmbeds(embed).setContent("@here").queue();
+            customer.getTextChannel().sendMessageEmbeds(embed).setContent("@here").queue();
 
             closeInvoice();
             releaseFiles();
@@ -243,7 +243,7 @@ public class Invoice {
 
     private EmbedBuilder getInvoiceEmbed() {
         return new EmbedBuilder()
-                .setAuthor("Invoice: " + this.invoiceID, null, clientInfo.getHolder().getEffectiveAvatarUrl())
+                .setAuthor("Invoice: " + this.invoiceID, null, customer.getHolder().getEffectiveAvatarUrl())
                 .setTitle("Important Information regarding your invoice:")
                 .addField("**Status:** `" + this.status + "` ❌", "", false)
                 .addField("**Billed to:**", "`" + this.clientEmail + "`\n\n", false)
@@ -260,7 +260,7 @@ public class Invoice {
     }
 
     private MessageEmbed getPaidInvoiceEmbed() {
-        MessageEmbed previousInvoiceEmbed = clientInfo.getTextChannel().retrieveMessageById(messageID).complete().getEmbeds().get(0);
+        MessageEmbed previousInvoiceEmbed = customer.getTextChannel().retrieveMessageById(messageID).complete().getEmbeds().get(0);
         EmbedBuilder invoiceEmbed = new EmbedBuilder(previousInvoiceEmbed);
         invoiceEmbed.getFields().set(0, new MessageEmbed.Field("**Status:** `" + this.status + "` ✅", "", false));
         invoiceEmbed.setThumbnail("attachment://qr_code.png");
@@ -271,16 +271,16 @@ public class Invoice {
     }
 
     /**
-     * Nudges and prompts the {@link ClientInfo}s holder to pay the invoice.
+     * Nudges and prompts the {@link Customer}s holder to pay the invoice.
      */
     public void nudgePayment(ButtonInteractionEvent event) {
         Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + this.getID(), Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
-        event.getInteraction().replyEmbeds(EmbedUtil.nudge(this)).addActionRow(paypalButton).setContent(clientInfo.getHolder().getAsMention()).queue();
+        event.getInteraction().replyEmbeds(EmbedUtil.nudge(this)).addActionRow(paypalButton).setContent(customer.getHolder().getAsMention()).queue();
     }
 
     /**
      * Adds a file to the invoices holding files. ({@link #filesHolding})
-     * This method is directly called via {@link dev.shreyasayyengar.bot.client.conversation.impl.InvoiceAddFileConversation}
+     * This method is directly called via {@link dev.shreyasayyengar.bot.customer.conversation.impl.InvoiceAddFileConversation}
      */
     public void addFileToHolding(File file) {
         this.filesHolding.add(file);
@@ -289,7 +289,7 @@ public class Invoice {
     /**
      * This method releases all files contains in the {@link #filesHolding} list.
      * This enables automatic file release when the invoice is paid, therefore eliminating
-     * the need for a human to send the files to the {@link ClientInfo}'s text channel.
+     * the need for a human to send the files to the {@link Customer}'s text channel.
      */
     public void releaseFiles() {
 
@@ -303,14 +303,14 @@ public class Invoice {
                 .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
                 .build();
 
-        clientInfo.getTextChannel().sendMessageEmbeds(builder).queue();
+        customer.getTextChannel().sendMessageEmbeds(builder).queue();
 
         List<File> files = filesHolding.stream().toList();
 
         files.stream()
                 .skip(1)
                 .reduce(
-                        clientInfo.getTextChannel().sendFiles(FileUpload.fromData(files.get(0))),
+                        customer.getTextChannel().sendFiles(FileUpload.fromData(files.get(0))),
                         (action, file) -> action.addFiles(FileUpload.fromData(file, file.getName())),
                         (a, b) -> a
                 )
@@ -343,14 +343,14 @@ public class Invoice {
             if (String.valueOf(response.code()).startsWith("2")) {
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("Invoice Cancelled")
-                        .setDescription("{name}'s invoice has been cancelled!".replace("{name}", clientInfo.getHolder().getEffectiveName()))
+                        .setDescription("{name}'s invoice has been cancelled!".replace("{name}", customer.getHolder().getEffectiveName()))
                         .setColor(Color.RED)
                         .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
                         .setTimestamp(new Date().toInstant())
                         .build();
 
-                clientInfo.getTextChannel().sendMessageEmbeds(embed).setContent("@here").queue();
-                clientInfo.getTextChannel().deleteMessageById(messageID).queue();
+                customer.getTextChannel().sendMessageEmbeds(embed).setContent("@here").queue();
+                customer.getTextChannel().deleteMessageById(messageID).queue();
             }
 
             response.close();
@@ -372,7 +372,7 @@ public class Invoice {
                 DiscordBot.get().database.preparedStatementBuilder("insert into CM_invoice_info (invoice_id, message_id, client_id, commission_name) values (?, ?, ?, ?);")
                         .setString(this.invoiceID)
                         .setString(this.messageID)
-                        .setString(this.clientInfo.getHolder().getId())
+                        .setString(this.customer.getHolder().getId())
                         .setString(this.commission.getPluginName())
                         .build().executeUpdate();
             }

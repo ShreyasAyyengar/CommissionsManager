@@ -1,7 +1,7 @@
 package dev.shreyasayyengar.bot.listeners;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.customer.Customer;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
@@ -18,8 +18,8 @@ public class MemberUpdateName extends ListenerAdapter {
         String oldName = event.getOldName();
         String newName = event.getNewName();
 
-        if (DiscordBot.get().getClientManger().containsInfoOf(user.getId())) {
-            ClientInfo client = DiscordBot.get().getClientManger().get(user.getId());
+        if (DiscordBot.get().getCustomerManger().containsInfoOf(user.getId())) {
+            Customer client = DiscordBot.get().getCustomerManger().get(user.getId());
 
             Stream.<IPermissionContainer>of(
                     client.getTextChannel(),

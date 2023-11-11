@@ -1,7 +1,7 @@
 package dev.shreyasayyengar.bot.misc.utils;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.customer.Customer;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -25,8 +25,8 @@ public class Util {
     public static boolean privateChannel(TextChannel textChannel) {
         boolean isPrivate = false;
 
-        for (ClientInfo clientInfo : DiscordBot.get().getClientManger().getMap().values()) {
-            if (clientInfo.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) {
+        for (Customer customer : DiscordBot.get().getCustomerManger().getMap().values()) {
+            if (customer.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) {
                 isPrivate = true;
             }
         }
@@ -34,14 +34,14 @@ public class Util {
         return !isPrivate;
     }
 
-    public static ClientInfo getClientInfoByChannelId(Channel channel) {
-        for (ClientInfo clientInfo : DiscordBot.get().getClientManger().getMap().values()) {
-            if (clientInfo.getTextChannel().getId().equalsIgnoreCase(channel.getId())) {
-                return clientInfo;
+    public static Customer getCustomerByChannelId(Channel channel) {
+        for (Customer customer : DiscordBot.get().getCustomerManger().getMap().values()) {
+            if (customer.getTextChannel().getId().equalsIgnoreCase(channel.getId())) {
+                return customer;
             }
 
-            if (clientInfo.getVoiceChannel().getId().equalsIgnoreCase(channel.getId())) {
-                return clientInfo;
+            if (customer.getVoiceChannel().getId().equalsIgnoreCase(channel.getId())) {
+                return customer;
             }
         }
         return null;

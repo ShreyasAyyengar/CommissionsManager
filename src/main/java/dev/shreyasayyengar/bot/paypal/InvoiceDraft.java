@@ -3,7 +3,8 @@ package dev.shreyasayyengar.bot.paypal;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
+import dev.shreyasayyengar.bot.customer.Customer;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import okhttp3.*;
 import org.json.JSONObject;
@@ -31,7 +32,7 @@ public class InvoiceDraft {
 
     private final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    private final ClientCommission commission;
+    private final CustomerCommission commission;
     private final InteractionHook interactionHook;
     private final String invoiceName = "Minecraft Plugin Development Services";
     private final String productName;
@@ -42,13 +43,13 @@ public class InvoiceDraft {
     /**
      * This is the public constructor of the InvoiceDraft class.
      *
-     * @param commission      The {@link ClientCommission} object that is being drafted.
+     * @param commission      The {@link CustomerCommission} object that is being drafted.
      * @param productName     The name of the product being sold. This is most commonly
-     *                        is the value of {@link ClientCommission#pluginName}.
+     *                        is the value of {@link CustomerCommission#pluginName}.
      * @param price           The price of the product being sold. This is most commonly
      * @param interactionHook The {@link InteractionHook} that triggered this request.
      */
-    public InvoiceDraft(ClientCommission commission, String productName, double price, InteractionHook interactionHook) {
+    public InvoiceDraft(CustomerCommission commission, String productName, double price, InteractionHook interactionHook) {
         this.commission = commission;
         this.productName = productName;
         this.price = price + 0.30;
@@ -141,7 +142,7 @@ public class InvoiceDraft {
      * mainly notifies the client that the invoice has been sent.
      * <p></p>
      * <b>Most importantly, it takes the response of the HTTP request, and turns it into
-     * a final {@link Invoice} object, which is then linked to the {@link dev.shreyasayyengar.bot.client.ClientInfo}</b>
+     * a final {@link Invoice} object, which is then linked to the {@link Customer}</b>
      */
     private void success() throws IOException {
         OkHttpClient client = new OkHttpClient();
@@ -185,7 +186,7 @@ public class InvoiceDraft {
          */
         public String fixJSON() {
             rawJSON = this.rawJSON
-                    .replace("{client_email}", InvoiceDraft.this.commission.getClient().getPaypalEmail())
+                    .replace("{client_email}", InvoiceDraft.this.commission.getCustomer().getPaypalEmail())
                     .replace("{invoice_name}", InvoiceDraft.this.invoiceName)
                     .replace("{invoice_description}", InvoiceDraft.this.productName + " (Plugin Service)")
                     .replace("{invoice_amount}", InvoiceDraft.this.price + "");

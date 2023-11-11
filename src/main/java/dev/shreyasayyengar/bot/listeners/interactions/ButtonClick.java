@@ -1,11 +1,11 @@
 package dev.shreyasayyengar.bot.listeners.interactions;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
-import dev.shreyasayyengar.bot.client.ClientInfo;
-import dev.shreyasayyengar.bot.client.conversation.impl.ClientEmailConversation;
-import dev.shreyasayyengar.bot.client.conversation.impl.InvoiceAddFileConversation;
-import dev.shreyasayyengar.bot.client.conversation.impl.QuoteChangeConversation;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
+import dev.shreyasayyengar.bot.customer.Customer;
+import dev.shreyasayyengar.bot.customer.conversation.impl.CustomerEmailConversation;
+import dev.shreyasayyengar.bot.customer.conversation.impl.InvoiceAddFileConversation;
+import dev.shreyasayyengar.bot.customer.conversation.impl.QuoteChangeConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import dev.shreyasayyengar.bot.paypal.Invoice;
@@ -31,18 +31,18 @@ public class ButtonClick extends ListenerAdapter {
         String buttonID = event.getButton().getId().toLowerCase();
 
         if (buttonID.equalsIgnoreCase("purge-channel")) {
-            ClientInfo clientInfoToDelete = Util.getClientInfoByChannelId(event.getChannel().asTextChannel());
+            Customer customerToDelete = Util.getCustomerByChannelId(event.getChannel().asTextChannel());
 
-            clientInfoToDelete.getTextChannel().delete().queue();
-            clientInfoToDelete.getVoiceChannel().delete().queue();
+            customerToDelete.getTextChannel().delete().queue();
+            customerToDelete.getVoiceChannel().delete().queue();
 
-            DiscordBot.get().getClientManger().getMap().remove(clientInfoToDelete.getHolder().getId());
+            DiscordBot.get().getCustomerManger().getMap().remove(customerToDelete.getHolder().getId());
         }
 
         // ------------------------- Initial `/commission` buttons -------------------- //
         if (buttonID.startsWith("commission-info.")) {
             String commissionID = buttonID.replace("commission-info.", "");
-            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(commissionID);
+            CustomerCommission commission = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(commissionID);
             String pluginName = commission.getPluginName();
 
             List<Button> commissionInfoButtons = List.of(
@@ -70,7 +70,7 @@ public class ButtonClick extends ListenerAdapter {
 
         if (buttonID.startsWith("invoice-info.")) {
             String commissionID = buttonID.replace("invoice-info.", "");
-            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(commissionID);
+            CustomerCommission commission = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(commissionID);
             String pluginName = commission.getPluginName();
 
             List<Button> invoiceInfoButtons = List.of(
@@ -86,8 +86,8 @@ public class ButtonClick extends ListenerAdapter {
             String pluginName = buttonID.split("\\.")[1];
             String action = buttonID.split("\\.")[2];
 
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
-            ClientCommission commission = clientInfo.getCommission(pluginName);
+            Customer customer = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel());
+            CustomerCommission commission = customer.getCommission(pluginName);
 
             switch (action) {
 
@@ -102,7 +102,7 @@ public class ButtonClick extends ListenerAdapter {
                         return;
                     }
 
-                    clientInfo.getTextChannel().sendMessage(clientInfo.getHolder().getAsMention()).queue(message -> message.delete().queue());
+                    customer.getTextChannel().sendMessage(customer.getHolder().getAsMention()).queue(message -> message.delete().queue());
 
                     event.replyEmbeds(EmbedUtil.confirmCommission(commission))
                             .addActionRow(
@@ -120,7 +120,7 @@ public class ButtonClick extends ListenerAdapter {
                 case "change-quote" -> new QuoteChangeConversation(commission, event);
 
                 case "info" -> {
-                    Message infoMessage = clientInfo.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete();
+                    Message infoMessage = customer.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete();
                     event.replyEmbeds(infoMessage.getEmbeds().get(0)).setEphemeral(true).queue();
                 }
 
@@ -130,15 +130,15 @@ public class ButtonClick extends ListenerAdapter {
                                     Button.success("vouch", "Write a Vouch!").withEmoji(Emoji.fromUnicode("U+270D")),
                                     Button.link("https://tinyurl.com/mpmk7fy2", "Vouch on SpigotMC").withEmoji(Emoji.fromFormatted("<:spigot:933250194877849640>"))
                             ).queue();
-                    event.getChannel().sendMessage(clientInfo.getHolder().getAsMention()).queue(message -> message.delete().queue());
-                    clientInfo.closeCommission(commission);
+                    event.getChannel().sendMessage(customer.getHolder().getAsMention()).queue(message -> message.delete().queue());
+                    customer.closeCommission(commission);
                 }
 
                 case "cancel" -> {
-                    clientInfo.closeCommission(commission);
+                    customer.closeCommission(commission);
 
                     if (commission.getInfoEmbed() != null) {
-                        clientInfo.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete().delete().queue();
+                        customer.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete().delete().queue();
                     }
 
                     event.replyEmbeds(EmbedUtil.cancelCommission(commission)).queue();
@@ -163,15 +163,15 @@ public class ButtonClick extends ListenerAdapter {
             String pluginName = buttonID.split("\\.")[1];
             String action = buttonID.split("\\.")[2];
 
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
-            ClientCommission commission = clientInfo.getCommission(pluginName);
+            Customer customer = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel());
+            CustomerCommission commission = customer.getCommission(pluginName);
 
             switch (action) {
                 case "generate" -> {
 
-                    if (commission.getClient().getPaypalEmail() == null) {
+                    if (commission.getCustomer().getPaypalEmail() == null) {
                         event.replyEmbeds(EmbedUtil.paypalEmailNotSet()).setEphemeral(true).queue();
-                        new ClientEmailConversation(clientInfo);
+                        new CustomerEmailConversation(customer);
                         return;
                     }
 
@@ -209,11 +209,11 @@ public class ButtonClick extends ListenerAdapter {
             String value = buttonID.split("\\.")[1]; // This could be the commission name or the invoice ID
             String action = buttonID.split("\\.")[2];
 
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
+            Customer customer = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel());
 
             switch (action) {
                 case "yes" -> {
-                    ClientCommission commission = clientInfo.getCommission(value);
+                    CustomerCommission commission = customer.getCommission(value);
 
                     if (commission.checkPrice()) {
                         event.replyEmbeds(EmbedUtil.noPriceSet()).setEphemeral(true).queue();
@@ -233,7 +233,7 @@ public class ButtonClick extends ListenerAdapter {
                 }
 
                 case "no" -> {
-                    ClientCommission commission = clientInfo.getCommission(value);
+                    CustomerCommission commission = customer.getCommission(value);
 
                     Modal.Builder builder = Modal.create("sub-invoice." + commission.getPluginName(), "Create a Sub-Invoice");
                     builder.addActionRow(TextInput.create("description", "Sub-Invoice Description", TextInputStyle.SHORT).setRequired(true).build());
@@ -243,24 +243,24 @@ public class ButtonClick extends ListenerAdapter {
                 }
 
                 case "file-holding" -> {
-                    Invoice invoice = clientInfo.getInvoice(value);
+                    Invoice invoice = customer.getInvoice(value);
 
                     new InvoiceAddFileConversation(invoice);
                     event.getInteraction().editMessageEmbeds(EmbedUtil.checkDMForMore()).setComponents().queue();
                 }
 
                 case "view-info" -> {
-                    Invoice invoice = clientInfo.getInvoice(value);
+                    Invoice invoice = customer.getInvoice(value);
                     event.getChannel().retrieveMessageById(invoice.getMessageID()).queue(message -> event.replyEmbeds(message.getEmbeds().get(0)).setEphemeral(true).queue());
                 }
 
                 case "nudge" -> {
-                    Invoice invoice = clientInfo.getInvoice(value);
+                    Invoice invoice = customer.getInvoice(value);
                     invoice.nudgePayment(event);
                 }
 
                 case "cancel" -> {
-                    Invoice invoice = clientInfo.getInvoice(value);
+                    Invoice invoice = customer.getInvoice(value);
 
                     event.getInteraction().replyEmbeds(EmbedUtil.nudge(invoice)).setEphemeral(true).queue();
                     invoice.cancel();

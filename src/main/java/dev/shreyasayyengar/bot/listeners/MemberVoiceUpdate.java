@@ -86,7 +86,7 @@ public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHa
 
             Runtime.getRuntime().exec("ffmpeg -i " + file.getAbsolutePath() + " " + file.getAbsolutePath().replace(".wav", "-final.mp3"));
 
-            TextChannel textChannel = Util.getClientInfoByChannelId(channel).getTextChannel();
+            TextChannel textChannel = Util.getCustomerByChannelId(channel).getTextChannel();
             textChannel.sendMessageEmbeds(EmbedUtil.recordingFinished()).queue();
             textChannel.sendFiles(FileUpload.fromData(file)).queue();
 

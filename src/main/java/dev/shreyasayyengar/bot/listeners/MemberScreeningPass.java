@@ -1,6 +1,6 @@
 package dev.shreyasayyengar.bot.listeners;
 
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.customer.Customer;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -31,10 +31,10 @@ public class MemberScreeningPass extends ListenerAdapter {
         member.getGuild().addRoleToMember(member, member.getGuild().getRoleById("979538113816838174")).complete();
         sendWelcomeMessage(member);
 
-        ClientInfo clientInfo = new ClientInfo(member);
+        Customer customer = new Customer(member);
 
-        String textChanelMention = clientInfo.getTextChannel().getAsMention();
-        String voiceChannelMention = clientInfo.getVoiceChannel().getAsMention();
+        String textChanelMention = customer.getTextChannel().getAsMention();
+        String voiceChannelMention = customer.getVoiceChannel().getAsMention();
 
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle("Welcome to the server!")
@@ -48,8 +48,8 @@ public class MemberScreeningPass extends ListenerAdapter {
                 .setTimestamp(new Date().toInstant())
                 .build();
 
-        clientInfo.getTextChannel().sendMessage(clientInfo.getHolder().getAsMention()).queue(message -> message.delete().queue());
-        clientInfo.getTextChannel().sendMessageEmbeds(embed).queue();
+        customer.getTextChannel().sendMessage(customer.getHolder().getAsMention()).queue(message -> message.delete().queue());
+        customer.getTextChannel().sendMessageEmbeds(embed).queue();
     }
 
     private static void sendWelcomeMessage(Member member) {

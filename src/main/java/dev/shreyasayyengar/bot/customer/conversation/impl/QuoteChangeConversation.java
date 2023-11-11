@@ -1,7 +1,7 @@
-package dev.shreyasayyengar.bot.client.conversation.impl;
+package dev.shreyasayyengar.bot.customer.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
@@ -15,20 +15,20 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A QuoteChangeConversation is a restricted conversation that is initiated only by the owner
- * of the discord bot / developer / me. This conversation is used to change the quote of an existing {@link ClientCommission}
- * by calling {@link ClientCommission#setPrice(double)}.
+ * of the discord bot / developer / me. This conversation is used to change the quote of an existing {@link CustomerCommission}
+ * by calling {@link CustomerCommission#setPrice(double)}.
  * <p></p>
  *
  * @author Shreyas Ayyengar
  */
 public class QuoteChangeConversation extends ListenerAdapter {
 
-    private final ClientCommission commission;
+    private final CustomerCommission commission;
     private final TextChannel textChannel;
 
-    public QuoteChangeConversation(ClientCommission commission, ButtonInteractionEvent event) {
+    public QuoteChangeConversation(CustomerCommission commission, ButtonInteractionEvent event) {
         this.commission = commission;
-        this.textChannel = commission.getClient().getTextChannel();
+        this.textChannel = commission.getCustomer().getTextChannel();
 
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle("Quote Change: " + commission.getPluginName())
@@ -60,7 +60,7 @@ public class QuoteChangeConversation extends ListenerAdapter {
         commission.setPrice(newQuote);
 
         event.getMessage().delete().queue();
-        commission.getClient().getTextChannel().sendMessage("@here").setEmbeds(EmbedUtil.priceUpdated(commission)).queue();
+        commission.getCustomer().getTextChannel().sendMessage("@here").setEmbeds(EmbedUtil.priceUpdated(commission)).queue();
         commission.setConfirmed(false);
 
         DiscordBot.get().bot().removeEventListener(this);

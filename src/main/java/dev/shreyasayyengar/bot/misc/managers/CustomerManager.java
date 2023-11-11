@@ -1,8 +1,8 @@
 package dev.shreyasayyengar.bot.misc.managers;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
+import dev.shreyasayyengar.bot.customer.Customer;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
@@ -15,15 +15,15 @@ import java.util.HashMap;
  *
  * @author Shreyas Ayyengar
  */
-public class ClientInfoManager {
+public class CustomerManager {
 
-    private final HashMap<String, ClientInfo> clientInfoMap = new HashMap<>();
+    private final HashMap<String, Customer> customerMap = new HashMap<>();
 
     /**
      * The registerExistingClients is used to pull data from the provided MySQL database
-     * and reconstruct the ClientInfo objects using {@link ClientInfo#ClientInfo(String, String, String)}
+     * and reconstruct the ClientInfo objects using {@link Customer#Customer(String, String, String)}
      */
-    public void registerExistingClients() {
+    public void registerExistingCustomers() {
         DiscordBot.get().database.preparedStatementBuilder("select * from CM_client_info;").executeQuery(resultSet -> {
             try {
 
@@ -35,7 +35,7 @@ public class ClientInfoManager {
                     String paypal_email = resultSet.getString("paypal_email");
 
                     if (DiscordBot.get().workingGuild.getMemberById(member_id) != null) {
-                        new ClientInfo(member_id, voice_id, text_id).setPaypalEmail(paypal_email);
+                        new Customer(member_id, voice_id, text_id).setPaypalEmail(paypal_email);
                     }
                 }
 
@@ -46,13 +46,13 @@ public class ClientInfoManager {
     }
 
     /**
-     * This method purges all information tied to a {@link ClientInfo} (if any) from the {@link User}
+     * This method purges all information tied to a {@link Customer} (if any) from the {@link User}
      * passed in. This also removed any information from the MySQL database.
      */
     public void purgeMemberSQL(User user) {
         try {
-            ClientInfo toPurge = DiscordBot.get().getClientManger().getMap().get(user.getId());
-            toPurge.getCommissions().forEach(ClientCommission::close);
+            Customer toPurge = DiscordBot.get().getCustomerManger().getMap().get(user.getId());
+            toPurge.getCommissions().forEach(CustomerCommission::close);
 
             DiscordBot.get().database.preparedStatementBuilder("delete from CM_client_info where member_id = ?;").setString(1, user.getId()).executeUpdate();
         } catch (Exception err) {
@@ -61,12 +61,12 @@ public class ClientInfoManager {
     }
 
     /**
-     * Gets the {@link ClientInfo} object associated with the provided {@link TextChannel}
+     * Gets the {@link Customer} object associated with the provided {@link TextChannel}
      */
-    public ClientInfo getByTextChannel(TextChannel textChannel) {
-        for (ClientInfo clientInfo : clientInfoMap.values()) {
-            if (clientInfo.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) {
-                return clientInfo;
+    public Customer getByTextChannel(TextChannel textChannel) {
+        for (Customer customer : customerMap.values()) {
+            if (customer.getTextChannel().getId().equalsIgnoreCase(textChannel.getId())) {
+                return customer;
             }
         }
 
@@ -76,19 +76,19 @@ public class ClientInfoManager {
     /**
      * Gets the ClientInfo object associated with the provided user ID.
      */
-    public ClientInfo get(String id) {
-        return clientInfoMap.get(id);
+    public Customer get(String id) {
+        return customerMap.get(id);
     }
 
-    public HashMap<String, ClientInfo> getMap() {
-        return clientInfoMap;
+    public HashMap<String, Customer> getMap() {
+        return customerMap;
     }
 
-    public void add(String id, ClientInfo clientInfo) {
-        clientInfoMap.put(id, clientInfo);
+    public void add(String id, Customer customer) {
+        customerMap.put(id, customer);
     }
 
     public boolean containsInfoOf(String id) {
-        return clientInfoMap.containsKey(id);
+        return customerMap.containsKey(id);
     }
 }

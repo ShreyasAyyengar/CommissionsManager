@@ -1,8 +1,8 @@
-package dev.shreyasayyengar.bot.client.conversation.impl;
+package dev.shreyasayyengar.bot.customer.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
+import dev.shreyasayyengar.bot.customer.Customer;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -20,25 +20,25 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
- * A ClientRequestConversation is a user <---> bot conversation that is initiated by a client
+ * A CustomerRequestConversation is a user <---> bot conversation that is initiated by a customer
  * who wishes to make a commission request. Once started, the discord bot will take
- * the client through the various stages of {@link ClientRequestStage}. Once finished
- * the confirmation provided by the conversation will construct a new {@link ClientCommission}.
+ * the customer through the various stages of {@link CustomerRequestStage}. Once finished
+ * the confirmation provided by the conversation will construct a new {@link CustomerCommission}.
  * <p></p>
  *
  * @author Shreyas Ayyengar
  */
-public class ClientRequestConversation extends ListenerAdapter {
+public class CustomerRequestConversation extends ListenerAdapter {
 
-    private final ClientInfo client;
+    private final Customer customer;
     private final InteractionHook initialMessageHook;
     private final List<String> responses = new ArrayList<>();
 
     private Message currentMessage;
-    private ClientRequestStage stage = ClientRequestStage.NAME;
+    private CustomerRequestStage stage = CustomerRequestStage.NAME;
 
-    public ClientRequestConversation(ClientInfo clientInfo, InteractionHook initialMessageHook) {
-        this.client = clientInfo;
+    public CustomerRequestConversation(Customer customer, InteractionHook initialMessageHook) {
+        this.customer = customer;
         this.initialMessageHook = initialMessageHook;
 
         checkStage();
@@ -46,8 +46,8 @@ public class ClientRequestConversation extends ListenerAdapter {
     }
 
     private void checkStage() {
-        client.getTextChannel().sendMessageEmbeds(stage.getEmbedInstruction()).queue(message -> currentMessage = message);
-    } // Check the current ClientRequestStage and instruct.
+        customer.getTextChannel().sendMessageEmbeds(stage.getEmbedInstruction()).queue(message -> currentMessage = message);
+    } // Check the current CustomerRequestStage and instruct.
 
     private void finish() {
 
@@ -59,7 +59,7 @@ public class ClientRequestConversation extends ListenerAdapter {
         boolean longerExtraInfo = false;
 
         EmbedBuilder compiledResponses = new EmbedBuilder();
-        compiledResponses.setTitle(client.getHolder().getEffectiveName() + "'s Plugin Request");
+        compiledResponses.setTitle(customer.getHolder().getEffectiveName() + "'s Plugin Request");
         compiledResponses.setDescription("For the plugin: `" + responses.get(0) + "`");
 
         if (responses.get(1).length() > 1000) {
@@ -88,7 +88,7 @@ public class ClientRequestConversation extends ListenerAdapter {
 
         compiledResponses.setColor(Util.getColor());
 
-        Message commissionRequestDone = client.getTextChannel().sendMessageEmbeds(compiledResponses.build()).complete();
+        Message commissionRequestDone = customer.getTextChannel().sendMessageEmbeds(compiledResponses.build()).complete();
         String id = commissionRequestDone.getId();
 
         if (longerDescription) {
@@ -97,7 +97,7 @@ public class ClientRequestConversation extends ListenerAdapter {
                     .setDescription(responses.get(1))
                     .setColor(Util.getColor())
                     .build();
-            client.getTextChannel().sendMessageEmbeds(description).complete();
+            customer.getTextChannel().sendMessageEmbeds(description).complete();
         }
 
         if (longerExtraInfo) {
@@ -106,20 +106,20 @@ public class ClientRequestConversation extends ListenerAdapter {
                     .setDescription(responses.get(6))
                     .setColor(Util.getColor())
                     .build();
-            client.getTextChannel().sendMessageEmbeds(extraInfo).complete();
+            customer.getTextChannel().sendMessageEmbeds(extraInfo).complete();
         }
 
         commissionRequestDone.pin().complete();
-        client.getTextChannel().sendMessage("<@690755476555563019>").complete();
-        client.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
+        customer.getTextChannel().sendMessage("<@690755476555563019>").complete();
+        customer.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
 
-        client.getCommissions().add(new ClientCommission(client, responses.get(0), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), id));
+        customer.getCommissions().add(new CustomerCommission(customer, responses.get(0), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), id));
 
         DiscordBot.get().bot().removeEventListener(this);
     }
 
     private void cancel() {
-        client.getTextChannel().getHistory().retrievePast(3).complete().forEach(message -> message.delete().queue());
+        customer.getTextChannel().getHistory().retrievePast(3).complete().forEach(message -> message.delete().queue());
 
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle("Cancelled Request")
@@ -127,7 +127,7 @@ public class ClientRequestConversation extends ListenerAdapter {
                 .setColor(Color.RED)
                 .build();
 
-        client.getTextChannel().sendMessageEmbeds(embed).queue();
+        customer.getTextChannel().sendMessageEmbeds(embed).queue();
 
         DiscordBot.get().bot().removeEventListener(this);
     }
@@ -135,8 +135,8 @@ public class ClientRequestConversation extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 
-        if (!event.getChannel().getId().equalsIgnoreCase(client.getTextChannel().getId())) return;
-        if (!event.getAuthor().getId().equals(client.getHolder().getId())) return;
+        if (!event.getChannel().getId().equalsIgnoreCase(customer.getTextChannel().getId())) return;
+        if (!event.getAuthor().getId().equals(customer.getHolder().getId())) return;
 
         String contentRaw = event.getMessage().getContentRaw();
 
@@ -145,8 +145,8 @@ public class ClientRequestConversation extends ListenerAdapter {
             return;
         }
 
-        if (stage == ClientRequestStage.NAME && contentRaw.length() > 30) {
-            client.getTextChannel().sendMessage("The plugin name requested is far too long! Please keep it within 30 characters.").queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+        if (stage == CustomerRequestStage.NAME && contentRaw.length() > 30) {
+            customer.getTextChannel().sendMessage("The plugin name requested is far too long! Please keep it within 30 characters.").queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
             return;
         }
 
@@ -154,7 +154,7 @@ public class ClientRequestConversation extends ListenerAdapter {
 
         event.getChannel().asTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
 
-        if (responses.size() < ClientRequestStage.values().length) {
+        if (responses.size() < CustomerRequestStage.values().length) {
             setStage(stage.next());
             checkStage();
         } else {
@@ -163,9 +163,9 @@ public class ClientRequestConversation extends ListenerAdapter {
         }
     }
 
-    // ------------------ ClientRequestStage ------------------ //
+    // ------------------ CustomerRequestStage ------------------ //
 
-    enum ClientRequestStage {
+    enum CustomerRequestStage {
         NAME,
         DESCRIPTION,
         SERVER_TYPE,
@@ -221,12 +221,12 @@ public class ClientRequestConversation extends ListenerAdapter {
             return embed.build();
         }
 
-        public ClientRequestStage next() {
-            return ClientRequestStage.values()[ordinal() + 1];
+        public CustomerRequestStage next() {
+            return CustomerRequestStage.values()[ordinal() + 1];
         }
     }
 
-    public void setStage(ClientRequestStage stage) {
+    public void setStage(CustomerRequestStage stage) {
         this.stage = stage;
     }
 }

@@ -1,7 +1,7 @@
 package dev.shreyasayyengar.bot.listeners.interactions;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.InvoiceDraft;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -17,7 +17,7 @@ public class ModalSubmit extends ListenerAdapter {
 
         if (event.getModalId().toLowerCase().startsWith("sub-invoice.")) {
 
-            ClientCommission commission = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(event.getModalId().split("\\.")[1]);
+            CustomerCommission commission = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel()).getCommission(event.getModalId().split("\\.")[1]);
 
             String description = event.getValue("description").getAsString();
             int amount = Integer.parseInt(event.getValue("amount").getAsString());

@@ -1,8 +1,8 @@
 package dev.shreyasayyengar.bot.listeners.interactions;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientCommission;
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
+import dev.shreyasayyengar.bot.customer.Customer;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -20,9 +20,9 @@ public class MenuSelect extends ListenerAdapter {
         if (event.getComponentId().equalsIgnoreCase("menu:commissions")) {
 
             String pluginName = event.getValues().get(0).replace("commission.", "");
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
+            Customer customer = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel());
 
-            ClientCommission commission = clientInfo.getCommission(pluginName);
+            CustomerCommission commission = customer.getCommission(pluginName);
 
             List<Button> buttons = List.of(
                     Button.primary("commission-info." + pluginName, "Commission Information").withEmoji(Emoji.fromUnicode("\uD83D\uDCDD")),
@@ -35,10 +35,10 @@ public class MenuSelect extends ListenerAdapter {
         if (event.getComponentId().equalsIgnoreCase("menu:invoices")) {
 
             String invoiceID = event.getValues().get(0).replace("invoice.", "");
-            ClientInfo clientInfo = DiscordBot.get().getClientManger().getByTextChannel(event.getChannel().asTextChannel());
+            Customer customer = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel());
 
 
-            Invoice invoice = clientInfo.getInvoice(invoiceID);
+            Invoice invoice = customer.getInvoice(invoiceID);
 
             List<Button> invoiceButtons = List.of(
                     Button.secondary("invoice-management." + invoice.getID() + ".nudge", "Nudge Payment").withEmoji(Emoji.fromUnicode("U+1F64B")),

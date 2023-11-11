@@ -1,7 +1,7 @@
 package dev.shreyasayyengar.bot.misc.managers;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.client.ClientInfo;
+import dev.shreyasayyengar.bot.customer.Customer;
 import dev.shreyasayyengar.bot.misc.utils.Department;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -16,7 +16,7 @@ import java.io.StringWriter;
  * shut down the bot and save all data to the database. Without the ThreadHandler,
  * the bot will not be able to save data to the database, and will be reset to its
  * default state upon restart. Simple serialisation is called via {@link #serialise} methods
- * from {@link ClientInfo} & {@link Invoice} classes. The ThreadHandler is also responsible for
+ * from {@link Customer} & {@link Invoice} classes. The ThreadHandler is also responsible for
  * printing stacktraces and error messages to a designated {@link net.dv8tion.jda.api.entities.channel.concrete.TextChannel}.
  * <p></p>
  *
@@ -28,11 +28,11 @@ public class ThreadHandler extends Thread {
     public void run() {
         DiscordBot.log(Department.ShutdownManager, "Shutting down...");
 
-        DiscordBot.log(Department.ShutdownManager, "[MySQL] Serialising ClientInfo...");
-        DiscordBot.get().getClientManger().getMap().values().forEach(ClientInfo::serialise);
+        DiscordBot.log(Department.ShutdownManager, "[MySQL] Serialising Customers...");
+        DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialise);
 
         DiscordBot.log(Department.ShutdownManager, "[MySQL] Serialising Commissions...");
-        DiscordBot.get().getClientManger().getMap().values().forEach(ClientInfo::serialiseCommissions);
+        DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialiseCommissions);
 
         DiscordBot.log(Department.ShutdownManager, "[MySQL] Serialising Active Invoices...");
         Invoice.INVOICES.forEach(Invoice::serialise);

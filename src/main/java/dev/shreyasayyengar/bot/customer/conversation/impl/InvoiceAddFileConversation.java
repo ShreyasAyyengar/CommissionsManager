@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.client.conversation.impl;
+package dev.shreyasayyengar.bot.customer.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;

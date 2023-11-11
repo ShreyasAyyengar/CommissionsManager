@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.client;
+package dev.shreyasayyengar.bot.customer;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
@@ -12,24 +12,24 @@ import java.util.Collection;
 import java.util.HashSet;
 
 /**
- * A ClientCommission represents an ongoing commission for a client. This object
+ * A CustomerCommission represents an ongoing commission for a customer. This object
  * may be constructed in two different ways: Either by creating a new commission, or by
  * loading an existing commission from the database.
  * <p></p>
- * The commission stores vital info, such as the {@link ClientInfo} it is linked to,
- * the price of the commission, whether the Client has requested source code,
+ * The commission stores vital info, such as the {@link Customer} it is linked to,
+ * the price of the commission, whether the customer has requested source code,
  * and the {@link Invoice}s that is associated with the commission.
  * <p></p>
  *
  * @author Shreyas Ayyengar
  */
-public class ClientCommission {
+public class CustomerCommission {
 
-    public static final Collection<ClientCommission> COMMISSIONS = new HashSet<>();
+    public static final Collection<CustomerCommission> COMMISSIONS = new HashSet<>();
 
     private final Collection<Invoice> invoices = new HashSet<>();
 
-    private final ClientInfo client;
+    private final Customer customer;
     private final String pluginName;
     private final String infoEmbed;
 
@@ -39,7 +39,7 @@ public class ClientCommission {
 
     /**
      * Registers all serialise commissions from the MySQL database and loads them up
-     * and assigns them to the corresponding {@link ClientInfo} object.
+     * and assigns them to the corresponding {@link Customer} object.
      */
     public static void registerCommissions() {
         DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_commission_info").executeQuery(resultSet -> {
@@ -52,7 +52,7 @@ public class ClientCommission {
                     double price = resultSet.getDouble("price");
                     String infoEmbed = resultSet.getString("info_embed");
 
-                    new ClientCommission(holderId, pluginName, requestedSourceCode, confirmed, price, infoEmbed);
+                    new CustomerCommission(holderId, pluginName, requestedSourceCode, confirmed, price, infoEmbed);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -61,18 +61,18 @@ public class ClientCommission {
     }
 
     /**
-     * Constructs a new ClientCommission object during Runtime. <b>This method should not be called
+     * Constructs a new CustomerCommission object during Runtime. <b>This method should not be called
      * if the Commission is not being generated live.</b> i.e. only when created via the <code>/request</code>
      * command used by users in the Discord server.
      * <p></p>
      *
-     * @param client              The {@link ClientInfo} object that the commission is linked to.
+     * @param customer              The {@link Customer} object that the commission is linked to.
      * @param pluginName          The name of the plugin that the commission is for.
-     * @param requestedSourceCode Whether the client has requested source code.
+     * @param requestedSourceCode Whether the customer has requested source code.
      * @param infoEmbed           The {@link net.dv8tion.jda.api.entities.MessageEmbed} that contains the info for the commission.
      */
-    public ClientCommission(ClientInfo client, String pluginName, boolean requestedSourceCode, String infoEmbed) {
-        this.client = client;
+    public CustomerCommission(Customer customer, String pluginName, boolean requestedSourceCode, String infoEmbed) {
+        this.customer = customer;
         this.pluginName = pluginName;
         this.requestedSourceCode = requestedSourceCode;
         this.confirmed = false;
@@ -82,26 +82,26 @@ public class ClientCommission {
     }
 
     /**
-     * Constructs a new ClientCommission object from the MySQL database. <b>This method should not be called
+     * Constructs a new CustomerCommission object from the MySQL database. <b>This method should not be called
      * if the Commission is not being loaded from the database.</b>
      * <p></p>
      *
-     * @param holderId            The {@link ClientInfo}'s holder ID that the commission is linked to.
+     * @param holderId            The {@link Customer}'s holder ID that the commission is linked to.
      * @param pluginName          The name of the plugin that the commission is for.
-     * @param requestedSourceCode Whether the client has requested source code.
-     * @param confirmed           Whether the commission has been confirmed by the client.
+     * @param requestedSourceCode Whether the customer has requested source code.
+     * @param confirmed           Whether the commission has been confirmed by the customer.
      * @param price               The price of the commission.
      * @param infoEmbed           The {@link net.dv8tion.jda.api.entities.MessageEmbed} message ID that contains the info for the commission.
      */
-    public ClientCommission(String holderId, String pluginName, boolean requestedSourceCode, boolean confirmed, double price, String infoEmbed) {
+    public CustomerCommission(String holderId, String pluginName, boolean requestedSourceCode, boolean confirmed, double price, String infoEmbed) {
         this.pluginName = pluginName;
         this.requestedSourceCode = requestedSourceCode;
         this.confirmed = confirmed;
         this.price = price;
         this.infoEmbed = infoEmbed;
 
-        this.client = DiscordBot.get().getClientManger().get(holderId);
-        this.client.getCommissions().add(this);
+        this.customer = DiscordBot.get().getCustomerManger().get(holderId);
+        this.customer.getCommissions().add(this);
         COMMISSIONS.add(this);
     }
 
@@ -129,7 +129,7 @@ public class ClientCommission {
         try {
             // Does the commission exist?
             DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_commission_info WHERE holder_id = ? AND plugin_name = ?")
-                    .setString(client.getHolder().getId())
+                    .setString(customer.getHolder().getId())
                     .setString(pluginName).executeQuery(resultSet -> {
                         try {
                             if (resultSet.next()) {
@@ -139,12 +139,12 @@ public class ClientCommission {
                                         .setBoolean(confirmed)
                                         .setDouble(price)
                                         .setString(infoEmbed)
-                                        .setString(client.getHolder().getId())
+                                        .setString(customer.getHolder().getId())
                                         .setString(pluginName)
                                         .build().executeUpdate();
                             } else {
                                 DiscordBot.get().database.preparedStatementBuilder("insert into CM_commission_info (holder_id, plugin_name, source_code, confirmed, price, info_embed) values (?, ?, ?, ?, ?, ?);")
-                                        .setString(client.getHolder().getId())
+                                        .setString(customer.getHolder().getId())
                                         .setString(pluginName)
                                         .setBoolean(requestedSourceCode)
                                         .setBoolean(confirmed)
@@ -164,16 +164,16 @@ public class ClientCommission {
     }
 
     /**
-     * Closes the commission for any reason and removes it from the {@link #COMMISSIONS} & {@link ClientInfo#getCommissions()} list.
+     * Closes the commission for any reason and removes it from the {@link #COMMISSIONS} & {@link Customer#getCommissions()} list.
      */
     public void close() {
         COMMISSIONS.remove(this);
-        this.client.getCommissions().remove(this);
+        this.customer.getCommissions().remove(this);
         this.invoices.forEach(Invoice::cancel);
 
         try {
             DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_commission_info WHERE holder_id = ?")
-                    .setString(client.getHolder().getId()).executeUpdate();
+                    .setString(customer.getHolder().getId()).executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -188,8 +188,8 @@ public class ClientCommission {
 
     // --------------------------------------- Getters & Setters --------------------------------------- //
 
-    public ClientInfo getClient() {
-        return client;
+    public Customer getCustomer() {
+        return customer;
     }
 
     public String getPluginName() {
