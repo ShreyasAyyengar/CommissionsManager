@@ -1,8 +1,6 @@
 package dev.shreyasayyengar.bot.paypal;
 
-import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
-import dev.shreyasayyengar.bot.misc.utils.Department;
 import okhttp3.*;
 import org.json.JSONObject;
 
@@ -28,8 +26,6 @@ public class AccessTokenRequest {
     private final String access_token;
 
     public AccessTokenRequest() throws IOException {
-        DiscordBot.log(Department.PayPal, "Obtaining access token through PayPal OAuth2...");
-
         OkHttpClient client = new OkHttpClient();
         MediaType JSON = MediaType.get("application/json; charset=utf-8");
         RequestBody body = RequestBody.create("grant_type=client_credentials", JSON);
