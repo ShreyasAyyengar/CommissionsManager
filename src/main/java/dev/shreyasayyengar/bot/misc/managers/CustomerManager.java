@@ -24,7 +24,7 @@ public class CustomerManager {
      * and reconstruct the ClientInfo objects using {@link Customer#Customer(String, String, String)}
      */
     public void registerExistingCustomers() {
-        DiscordBot.get().database.preparedStatementBuilder("select * from CM_client_info;").executeQuery(resultSet -> {
+        DiscordBot.get().database.preparedStatementBuilder("select * from customer_info;").executeQuery(resultSet -> {
             try {
 
                 while (resultSet.next()) {
@@ -54,7 +54,7 @@ public class CustomerManager {
             Customer toPurge = DiscordBot.get().getCustomerManger().getMap().get(user.getId());
             toPurge.getCommissions().forEach(CustomerCommission::close);
 
-            DiscordBot.get().database.preparedStatementBuilder("delete from CM_client_info where member_id = ?;").setString(1, user.getId()).executeUpdate();
+            DiscordBot.get().database.preparedStatementBuilder("delete from customer_info where member_id = ?;").setString(1, user.getId()).executeUpdate();
         } catch (Exception err) {
             err.printStackTrace();
         }

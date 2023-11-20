@@ -107,21 +107,20 @@ public class DiscordBot {
             );
 
             log(Department.MySQL, "Loading Tables...");
-            database.preparedStatementBuilder("create table if not exists CM_client_info(" +
+            database.preparedStatementBuilder("create table if not exists customer_info(" +
                     "    member_id    tinytext     null," +
                     "    text_id      tinytext     null," +
                     "    voice_id     tinytext     null," +
                     "    paypal_email tinytext null" +
                     ");").executeUpdate();
 
-            database.preparedStatementBuilder("create table if not exists CM_invoice_info(" +
+            database.preparedStatementBuilder("create table if not exists customer_invoice_info(" +
                     "    invoice_id tinytext null," +
                     "    message_id tinytext null," +
                     "    client_id  tinytext null" +
-
                     ");").executeUpdate();
 
-            database.preparedStatementBuilder("create table if not exists CM_commission_info(" +
+            database.preparedStatementBuilder("create table if not exists customer_commission_info(" +
                     "    holder_id   tinytext null," +
                     "    plugin_name tinytext null," +
                     "    source_code boolean  null," +

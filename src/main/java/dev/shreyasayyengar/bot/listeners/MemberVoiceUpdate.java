@@ -1,17 +1,12 @@
 package dev.shreyasayyengar.bot.listeners;
 
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
-import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.CombinedAudio;
 import net.dv8tion.jda.api.entities.channel.Channel;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
 import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import java.io.ByteArrayInputStream;
@@ -81,18 +76,23 @@ public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHa
 
             String presentableDate = new Date().toString().replace(" ", "_").replace(":", "-");
 
-            File file = new File("/Users/ShreyasSrinivasAyyengar/JetBrains/IdeaProjects/CommissionsManager/src/main/resources/recordings/" + presentableDate + ".mp3");
+            // convert the data into a WAV file and send to hcannel
+            File file = new File("/Users/ShreyasSrinivasAyyengar/JetBrains/IdeaProjects/CommissionsManager/src/main/resources/recordings/" + presentableDate + ".wav");
             getWavFile(file, decodedData);
 
-            Runtime.getRuntime().exec("ffmpeg -i " + file.getAbsolutePath() + " " + file.getAbsolutePath().replace(".wav", "-final.mp3"));
 
-            TextChannel textChannel = Util.getCustomerByChannelId(channel).getTextChannel();
-            textChannel.sendMessageEmbeds(EmbedUtil.recordingFinished()).queue();
-            textChannel.sendFiles(FileUpload.fromData(file)).queue();
-
-            file.delete();
-
-            audioData.clear();
+//            File file = new File("/Users/ShreyasSrinivasAyyengar/JetBrains/IdeaProjects/CommissionsManager/src/main/resources/recordings/" + presentableDate + ".mp3");
+//            getWavFile(file, decodedData);
+//
+//            Runtime.getRuntime().exec("ffmpeg -i " + file.getAbsolutePath() + " " + file.getAbsolutePath().replace(".wav", "-final.mp3"));
+//
+//            TextChannel textChannel = Util.getCustomerByChannelId(channel).getTextChannel();
+//            textChannel.sendMessageEmbeds(EmbedUtil.recordingFinished()).queue();
+//            textChannel.sendFiles(FileUpload.fromData(file)).queue();
+//
+//            file.delete();
+//
+//            audioData.clear();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -100,7 +100,6 @@ public class MemberVoiceUpdate extends ListenerAdapter implements AudioReceiveHa
     }
 
     private void getWavFile(File outFile, byte[] decodedData) throws IOException {
-        AudioFormat format = new AudioFormat(48000, 16, 2, true, true);
-        AudioSystem.write(new AudioInputStream(new ByteArrayInputStream(decodedData), format, decodedData.length), AudioFileFormat.Type.WAVE, outFile);
+        AudioSystem.write(new AudioInputStream(new ByteArrayInputStream(decodedData), AudioReceiveHandler.OUTPUT_FORMAT, decodedData.length), AudioFileFormat.Type.WAVE, outFile);
     }
 }

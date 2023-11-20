@@ -42,7 +42,7 @@ public class CustomerCommission {
      * and assigns them to the corresponding {@link Customer} object.
      */
     public static void registerCommissions() {
-        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_commission_info").executeQuery(resultSet -> {
+        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_commission_info").executeQuery(resultSet -> {
             try {
                 while (resultSet.next()) {
                     String holderId = resultSet.getString("holder_id");
@@ -128,12 +128,12 @@ public class CustomerCommission {
     public void serialise() {
         try {
             // Does the commission exist?
-            DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_commission_info WHERE holder_id = ? AND plugin_name = ?")
+            DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_commission_info WHERE holder_id = ? AND plugin_name = ?")
                     .setString(customer.getHolder().getId())
                     .setString(pluginName).executeQuery(resultSet -> {
                         try {
                             if (resultSet.next()) {
-                                DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_commission_info SET plugin_name = ?, source_code = ?, confirmed = ?, price = ?, info_embed = ? WHERE holder_id = ? AND plugin_name = ?")
+                                DiscordBot.get().database.preparedStatementBuilder("UPDATE customer_commission_info SET plugin_name = ?, source_code = ?, confirmed = ?, price = ?, info_embed = ? WHERE holder_id = ? AND plugin_name = ?")
                                         .setString(pluginName)
                                         .setBoolean(requestedSourceCode)
                                         .setBoolean(confirmed)
@@ -143,7 +143,7 @@ public class CustomerCommission {
                                         .setString(pluginName)
                                         .build().executeUpdate();
                             } else {
-                                DiscordBot.get().database.preparedStatementBuilder("insert into CM_commission_info (holder_id, plugin_name, source_code, confirmed, price, info_embed) values (?, ?, ?, ?, ?, ?);")
+                                DiscordBot.get().database.preparedStatementBuilder("insert into customer_commission_info (holder_id, plugin_name, source_code, confirmed, price, info_embed) values (?, ?, ?, ?, ?, ?);")
                                         .setString(customer.getHolder().getId())
                                         .setString(pluginName)
                                         .setBoolean(requestedSourceCode)
@@ -172,7 +172,7 @@ public class CustomerCommission {
         this.invoices.forEach(Invoice::cancel);
 
         try {
-            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_commission_info WHERE holder_id = ?")
+            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM customer_commission_info WHERE holder_id = ?")
                     .setString(customer.getHolder().getId()).executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);

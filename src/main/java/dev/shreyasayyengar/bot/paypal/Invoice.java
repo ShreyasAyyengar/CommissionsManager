@@ -64,7 +64,7 @@ public class Invoice {
      * This is only called once, when the program is started via {@link DiscordBot#deserialiseMySQLData()}.
      */
     public static void registerInvoices() {
-        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info").executeQuery(resultSet -> {
+        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_invoice_info").executeQuery(resultSet -> {
             try {
                 while (resultSet.next()) {
                     String customerId = resultSet.getString("client_id");
@@ -199,7 +199,7 @@ public class Invoice {
         this.commission.getInvoices().remove(this);
 
         try {
-            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM CM_invoice_info WHERE invoice_id = ?")
+            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM customer_invoice_info WHERE invoice_id = ?")
                     .setString(invoiceID).executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
@@ -364,12 +364,12 @@ public class Invoice {
      */
     public void serialise() {
         try {
-            ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_invoice_info WHERE invoice_id = ?")
+            ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_invoice_info WHERE invoice_id = ?")
                     .setString(invoiceID)
                     .build().executeQuery();
 
             if (!resultSet.next()) {
-                DiscordBot.get().database.preparedStatementBuilder("insert into CM_invoice_info (invoice_id, message_id, client_id, commission_name) values (?, ?, ?, ?);")
+                DiscordBot.get().database.preparedStatementBuilder("insert into customer_invoice_info (invoice_id, message_id, client_id, commission_name) values (?, ?, ?, ?);")
                         .setString(this.invoiceID)
                         .setString(this.messageID)
                         .setString(this.customer.getHolder().getId())

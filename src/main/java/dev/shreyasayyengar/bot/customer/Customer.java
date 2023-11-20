@@ -124,12 +124,12 @@ public class Customer {
      */
     public void serialise() {
         // Does the customer exist?
-        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM CM_client_info WHERE member_id = '" + holder.getId() + "'").executeQuery(resultSet -> {
+        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_info WHERE member_id = '" + holder.getId() + "'").executeQuery(resultSet -> {
             try {
 
                 if (resultSet.next()) {
                     // Update the customer info
-                    DiscordBot.get().database.preparedStatementBuilder("UPDATE CM_client_info SET voice_id = ?, text_id = ?, paypal_email = ? WHERE member_id = ?")
+                    DiscordBot.get().database.preparedStatementBuilder("UPDATE customer_info SET voice_id = ?, text_id = ?, paypal_email = ? WHERE member_id = ?")
                             .setString(voiceChannel.getId())
                             .setString(textChannel.getId())
                             .setString(paypalEmail)
@@ -137,7 +137,7 @@ public class Customer {
                             .build().executeUpdate();
                 } else {
                     // Create customer info
-                    DiscordBot.get().database.preparedStatementBuilder("insert into CM_client_info (member_id, text_id, voice_id, paypal_email) values (?, ?, ?, ?)")
+                    DiscordBot.get().database.preparedStatementBuilder("insert into customer_info (member_id, text_id, voice_id, paypal_email) values (?, ?, ?, ?)")
                             .setString(holder.getId())
                             .setString(textChannel.getId())
                             .setString(voiceChannel.getId())
