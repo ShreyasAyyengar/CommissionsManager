@@ -49,7 +49,7 @@ public class InvoiceAddFileConversation extends ListenerAdapter {
             return;
         }
 
-        if (message.getAttachments().size() == 0) {
+        if (message.getAttachments().isEmpty()) {
             privateChannel.sendMessageEmbeds(EmbedUtil.noAttachments()).queue();
             return;
         }

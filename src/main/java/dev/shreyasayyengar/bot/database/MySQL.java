@@ -34,8 +34,9 @@ public class MySQL {
             DiscordBot.log(Department.MySQL, "Database Connection Established & Successfully Connected!");
         } catch (SQLException x) {
             DiscordBot.log(Department.MySQL, "[FAILURE] ------------------------- [FAILURE]");
-            DiscordBot.log(Department.MySQL, "There was a problem connecting to the MySQL database. Please double check that the information is correct, and that the MySQL server is online");
+            DiscordBot.log(Department.MySQL, "There was a problem connecting to the MySQL database.");
             DiscordBot.log(Department.MySQL, "[FAILURE] ------------------------- [FAILURE]");
+            x.printStackTrace();
         }
     }
 

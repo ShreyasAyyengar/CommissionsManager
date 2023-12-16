@@ -143,7 +143,7 @@ public class CustomerCommission {
                                         .setString(pluginName)
                                         .build().executeUpdate();
                             } else {
-                                DiscordBot.get().database.preparedStatementBuilder("insert into customer_commission_info (holder_id, plugin_name, source_code, confirmed, price, info_embed) values (?, ?, ?, ?, ?, ?);")
+                                DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_commission_info (holder_id, plugin_name, source_code, confirmed, price, info_embed) VALUES (?, ?, ?, ?, ?, ?);")
                                         .setString(customer.getHolder().getId())
                                         .setString(pluginName)
                                         .setBoolean(requestedSourceCode)

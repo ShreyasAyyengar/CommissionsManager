@@ -1,9 +1,9 @@
 package dev.shreyasayyengar.bot;
 
-import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.database.MySQL;
 import dev.shreyasayyengar.bot.listeners.JDAException;
 import dev.shreyasayyengar.bot.listeners.MemberRemove;
@@ -16,7 +16,6 @@ import dev.shreyasayyengar.bot.misc.managers.CustomerManager;
 import dev.shreyasayyengar.bot.misc.managers.ThreadHandler;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
 import dev.shreyasayyengar.bot.misc.utils.Department;
-import dev.shreyasayyengar.bot.paypal.AccessTokenRequest;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -25,6 +24,8 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import okhttp3.*;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -68,25 +69,47 @@ public class DiscordBot {
         deserialiseMySQLData();
         initThreadHandler();
 
-        log(Department.Main, "*** CommissionsManager Ready! *** (PRODUCTION-80)");
+        log(Department.Main, "*** CommissionsManager Ready! ***");
         System.gc();
     }
 
     /**
      * This method generates a new OAuth2 access token for the PayPal API
      * every 5 hours. This is done via HTTP requests to the PayPal API.
-     *
-     * @see AccessTokenRequest
      */
     private void maintainAccessToken() {
         ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
         scheduledService.scheduleAtFixedRate(() -> {
-            try {
-                this.paypalAccessToken = new AccessTokenRequest().getToken();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            this.paypalAccessToken = this.getAccessToken();
         }, 0, 5, TimeUnit.HOURS);
+    }
+
+    private String getAccessToken() {
+        try {
+            OkHttpClient client = new OkHttpClient();
+            MediaType JSON = MediaType.get("application/json; charset=utf-8");
+            RequestBody body = RequestBody.create("grant_type=client_credentials", JSON);
+
+            Request request = new Request.Builder()
+                    .url("https://api-m.paypal.com/v1/oauth2/token")
+                    .addHeader("Accept", "application/json")
+                    .addHeader("Accept-Language", "en_US")
+                    .addHeader("Authorization", Credentials.basic(Authentication.PAYPAL_CLIENT_ID.get(), Authentication.PAYPAL_CLIENT_SECRET.get()))
+                    .post(body)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            String responseJSON = response.body().string();
+            JSONObject decode = new JSONObject(responseJSON);
+            response.close();
+
+            return decode.getString("access_token");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     /**
@@ -107,20 +130,20 @@ public class DiscordBot {
             );
 
             log(Department.MySQL, "Loading Tables...");
-            database.preparedStatementBuilder("create table if not exists customer_info(" +
+            database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_info(" +
                     "    member_id    tinytext     null," +
                     "    text_id      tinytext     null," +
                     "    voice_id     tinytext     null," +
                     "    paypal_email tinytext null" +
                     ");").executeUpdate();
 
-            database.preparedStatementBuilder("create table if not exists customer_invoice_info(" +
+            database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_invoice_info(" +
                     "    invoice_id tinytext null," +
                     "    message_id tinytext null," +
                     "    client_id  tinytext null" +
                     ");").executeUpdate();
 
-            database.preparedStatementBuilder("create table if not exists customer_commission_info(" +
+            database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_commission_info(" +
                     "    holder_id   tinytext null," +
                     "    plugin_name tinytext null," +
                     "    source_code boolean  null," +
@@ -129,7 +152,7 @@ public class DiscordBot {
                     "    info_embed  tinytext null" +
                     ");").executeUpdate();
 
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> database.preparedStatementBuilder("select 1;").executeQuery(resultSet -> {
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> database.preparedStatementBuilder("SELECT 1;").executeQuery(resultSet -> {
             }), 5, 30, TimeUnit.SECONDS);
 
         } catch (Exception e) {

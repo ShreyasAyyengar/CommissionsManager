@@ -185,7 +185,7 @@ public class ButtonClick extends ListenerAdapter {
                 }
 
                 case "view-invoices" -> {
-                    if (commission.getInvoices().size() == 0) {
+                    if (commission.getInvoices().isEmpty()) {
                         event.replyEmbeds(EmbedUtil.noInvoices()).setEphemeral(true).queue();
                         return;
                     }

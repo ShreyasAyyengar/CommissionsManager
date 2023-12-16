@@ -137,7 +137,7 @@ public class Customer {
                             .build().executeUpdate();
                 } else {
                     // Create customer info
-                    DiscordBot.get().database.preparedStatementBuilder("insert into customer_info (member_id, text_id, voice_id, paypal_email) values (?, ?, ?, ?)")
+                    DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_info (member_id, text_id, voice_id, paypal_email) VALUES (?, ?, ?, ?)")
                             .setString(holder.getId())
                             .setString(textChannel.getId())
                             .setString(voiceChannel.getId())

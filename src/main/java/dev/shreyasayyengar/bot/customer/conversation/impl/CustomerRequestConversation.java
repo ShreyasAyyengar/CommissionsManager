@@ -1,8 +1,8 @@
 package dev.shreyasayyengar.bot.customer.conversation.impl;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.customer.Customer;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -16,6 +16,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -33,7 +36,9 @@ public class CustomerRequestConversation extends ListenerAdapter {
     private final Customer customer;
     private final InteractionHook initialMessageHook;
     private final List<String> responses = new ArrayList<>();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
+    private ScheduledFuture<?> timeoutFuture = scheduler.schedule(this::cancel, 5, TimeUnit.MINUTES);
     private Message currentMessage;
     private CustomerRequestStage stage = CustomerRequestStage.NAME;
 
@@ -45,8 +50,20 @@ public class CustomerRequestConversation extends ListenerAdapter {
         DiscordBot.get().bot().addEventListener(this);
     }
 
+    // Example usage
+    public void resetTimeout() {
+        // Cancel any existing timeout task
+        if (timeoutFuture != null && !timeoutFuture.isDone()) {
+            timeoutFuture.cancel(true);
+        }
+
+        // Start a new timeout task
+        timeoutFuture = scheduler.schedule(this::cancel, 5, TimeUnit.MINUTES);
+    }
+
     private void checkStage() {
         customer.getTextChannel().sendMessageEmbeds(stage.getEmbedInstruction()).queue(message -> currentMessage = message);
+        resetTimeout();
     } // Check the current CustomerRequestStage and instruct.
 
     private void finish() {

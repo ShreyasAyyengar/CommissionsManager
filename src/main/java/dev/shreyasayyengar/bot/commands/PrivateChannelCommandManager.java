@@ -47,6 +47,7 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
 
                 if (action.equalsIgnoreCase("add")) {
                     customer.addCollaborator(member);
+                    event.replyEmbeds(EmbedUtil.joinedAsCollaborator(member)).setEphemeral(true).queue();
                 }
 
                 if (action.equalsIgnoreCase("remove")) {
@@ -76,7 +77,7 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
             case "commissions" -> {
                 Collection<CustomerCommission> commissions = customer.getCommissions();
 
-                if (commissions.size() == 0) {
+                if (commissions.isEmpty()) {
                     event.replyEmbeds(EmbedUtil.noCommissions()).setEphemeral(true).queue();
                     return;
                 }
@@ -115,6 +116,5 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
                 event.replyEmbeds(embed).queue();
             }
         }
-
     }
 }

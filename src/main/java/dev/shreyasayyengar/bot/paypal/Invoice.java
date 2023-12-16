@@ -293,7 +293,7 @@ public class Invoice {
      */
     public void releaseFiles() {
 
-        if (filesHolding.size() == 0) return;
+        if (filesHolding.isEmpty()) return;
 
         MessageEmbed builder = new EmbedBuilder()
                 .setTitle("Files in Holding Below:")
@@ -369,7 +369,7 @@ public class Invoice {
                     .build().executeQuery();
 
             if (!resultSet.next()) {
-                DiscordBot.get().database.preparedStatementBuilder("insert into customer_invoice_info (invoice_id, message_id, client_id, commission_name) values (?, ?, ?, ?);")
+                DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_invoice_info (invoice_id, message_id, client_id, commission_name) VALUES (?, ?, ?, ?);")
                         .setString(this.invoiceID)
                         .setString(this.messageID)
                         .setString(this.customer.getHolder().getId())
