@@ -5,6 +5,7 @@ import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.database.MySQL;
+import dev.shreyasayyengar.bot.listeners.interactions.button.ButtonActionManager;
 import dev.shreyasayyengar.bot.listeners.jda.JDAException;
 import dev.shreyasayyengar.bot.listeners.jda.MemberRemove;
 import dev.shreyasayyengar.bot.listeners.jda.MemberScreeningPass;
@@ -45,11 +46,13 @@ public class DiscordBot {
     private static DiscordBot instance; // Ths instance of this class. (Singleton)
 
     private JDA discordBot;
+    public MySQL database;
+
     private CustomerManager customerManager;
-    private String paypalAccessToken;
+    private ButtonActionManager buttonActionManager;
 
     public Guild workingGuild;
-    public MySQL database;
+    private String paypalAccessToken;
 
     public static DiscordBot get() {
         return instance;
@@ -173,6 +176,8 @@ public class DiscordBot {
                 .setEnabledIntents(Arrays.stream(GatewayIntent.values()).filter(intent -> intent != GatewayIntent.GUILD_PRESENCES).toList())
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .build().awaitReady();
+
+        this.buttonActionManager = new ButtonActionManager();
     }
 
     /**
@@ -244,6 +249,10 @@ public class DiscordBot {
 
     public String getPaypalAccessToken() {
         return paypalAccessToken;
+    }
+
+    public ButtonActionManager getButtonManager() {
+        return buttonActionManager;
     }
 }
 
