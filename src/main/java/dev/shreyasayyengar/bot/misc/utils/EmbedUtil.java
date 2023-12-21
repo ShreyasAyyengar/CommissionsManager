@@ -248,6 +248,7 @@ public class EmbedUtil {
     }
 
     public static MessageEmbed vouch(String vouch, Member member, String spigotMC) {
+
         return new EmbedBuilder()
                 .setAuthor("New Vouch!", null, member.getUser().getAvatarUrl())
                 .setTitle("Vouch for " + member.getEffectiveName() + "'s plugin commission!")
