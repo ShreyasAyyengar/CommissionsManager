@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.listeners;
+package dev.shreyasayyengar.bot.listeners.jda;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import net.dv8tion.jda.api.EmbedBuilder;

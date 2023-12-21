@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.listeners;
+package dev.shreyasayyengar.bot.listeners.jda;
 
 import net.dv8tion.jda.api.audio.AudioReceiveHandler;
 import net.dv8tion.jda.api.audio.CombinedAudio;

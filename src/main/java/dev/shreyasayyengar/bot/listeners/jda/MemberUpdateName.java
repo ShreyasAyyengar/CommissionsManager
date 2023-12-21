@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.listeners;
+package dev.shreyasayyengar.bot.listeners.jda;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.customer.Customer;

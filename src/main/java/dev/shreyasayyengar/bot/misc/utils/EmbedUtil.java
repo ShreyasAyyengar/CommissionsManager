@@ -150,7 +150,7 @@ public class EmbedUtil {
 
     public static MessageEmbed commissionInformation(String pluginName) {
         return new EmbedBuilder()
-                .setTitle(pluginName)
+                .setTitle("Commission Information: " + pluginName)
                 .setDescription("`Click the buttons below to view more information!`")
                 .setColor(Util.getColor())
                 .build();
