@@ -133,6 +133,8 @@ public class CustomerRequestConversation extends ListenerAdapter {
         customer.getCommissions().add(new CustomerCommission(customer, responses.get(0), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), id));
 
         DiscordBot.get().bot().removeEventListener(this);
+
+        timeoutFuture.cancel(true);
     }
 
     private void cancel() {
