@@ -151,7 +151,6 @@ public class EmbedUtil {
     public static MessageEmbed commissionInformation(String pluginName) {
         return new EmbedBuilder()
                 .setTitle("Commission Information: " + pluginName)
-                .setDescription("`Click the buttons below to view more information!`")
                 .setColor(Util.getColor())
                 .build();
     }
@@ -159,7 +158,6 @@ public class EmbedUtil {
     public static MessageEmbed invoiceInformation(String invoiceID) {
         return new EmbedBuilder()
                 .setTitle("Invoice Information: " + invoiceID)
-                .setDescription("`Click the buttons below to view more information!`")
                 .setColor(Util.getColor())
                 .build();
     }
@@ -250,9 +248,9 @@ public class EmbedUtil {
     public static MessageEmbed vouch(String vouch, Member member, String spigotMC) {
 
         return new EmbedBuilder()
-                .setAuthor("New Vouch!", null, member.getUser().getAvatarUrl())
-                .setTitle("Vouch for " + member.getEffectiveName() + "'s plugin commission!")
-                .addField("Vouch: ", "`" + vouch + "` - " + member.getAsMention(), false)
+                .setAuthor(null, null, member.getUser().getAvatarUrl())
+                .setTitle(member.getEffectiveName() + "'s Commission Vouch!")
+                .addField("Vouch: ", vouch + " - " + member.getAsMention(), false)
                 .addField("SpigotMC Username: ", "`" + spigotMC + "`", false)
                 .setFooter("Thank you for leaving a vouch!")
                 .setColor(Color.PINK)
@@ -262,8 +260,9 @@ public class EmbedUtil {
 
     public static MessageEmbed vouch(String vouch, Member member) {
         return new EmbedBuilder()
-                .setAuthor("- New Vouch for " + member.getEffectiveName() + "'s plugin commission!", null, member.getUser().getAvatarUrl())
-                .addField("Vouch: ", "`" + vouch + "` - " + member.getAsMention(), false)
+                .setAuthor(null, null, member.getUser().getAvatarUrl())
+                .setTitle(member.getEffectiveName() + "'s Commission Vouch!")
+                .addField("Vouch: ", vouch + " - " + member.getAsMention(), false)
                 .setFooter("Thank you for leaving a vouch!")
                 .setColor(Color.PINK)
                 .setTimestamp(new Date().toInstant())
