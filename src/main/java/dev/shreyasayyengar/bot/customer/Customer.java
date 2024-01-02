@@ -1,7 +1,6 @@
 package dev.shreyasayyengar.bot.customer;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -106,7 +105,6 @@ public class Customer {
         channelGroups.forEach(channel -> channel.upsertPermissionOverride(member).setPermissions(getAllowedPermissions(), getDeniedPermissions()).queue());
 
         textChannel.sendMessage(member.getAsMention()).queue(message -> message.delete().queue());
-        textChannel.sendMessageEmbeds(EmbedUtil.joinedAsCollaborator(member)).queue();
     }
 
     /**
@@ -115,8 +113,6 @@ public class Customer {
     public void removeCollaborator(Member member) {
         Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel, voiceChannel);
         channelGroups.forEach(channel -> channel.upsertPermissionOverride(member).setPermissions(new HashSet<>(), Arrays.stream(Permission.values()).toList()).queue());
-
-        textChannel.sendMessageEmbeds(EmbedUtil.leftAsCollaborator(member)).queue();
     }
 
     /**

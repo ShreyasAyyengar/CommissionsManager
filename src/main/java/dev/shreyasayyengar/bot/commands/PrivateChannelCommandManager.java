@@ -47,12 +47,13 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
 
                 if (action.equalsIgnoreCase("add")) {
                     customer.addCollaborator(member);
-                    event.replyEmbeds(EmbedUtil.joinedAsCollaborator(member)).setEphemeral(true).queue();
+                    event.replyEmbeds(EmbedUtil.joinedAsCollaborator(member)).setEphemeral(false).queue();
                 }
 
                 if (action.equalsIgnoreCase("remove")) {
                     if (customer.getTextChannel().getMembers().stream().map(Member::getId).anyMatch(id -> id.equalsIgnoreCase(member.getId()))) {
                         customer.removeCollaborator(member);
+                        event.replyEmbeds(EmbedUtil.removedAsCollaborator(member)).setEphemeral(false).queue();
                     } else {
                         event.replyEmbeds(EmbedUtil.notCollaborator()).setEphemeral(true).queue();
                     }

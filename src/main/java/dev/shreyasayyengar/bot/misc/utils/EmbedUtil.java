@@ -61,16 +61,16 @@ public class EmbedUtil {
 
     public static MessageEmbed joinedAsCollaborator(Member member) {
         return new EmbedBuilder()
-                .setTitle("Joined as Collaborator!")
+                .setTitle("Collaborator Added!!")
                 .setDescription(String.format("%s has joined as a collaborator for this channel!", member.getAsMention()))
                 .setColor(Util.getColor())
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
 
-    public static MessageEmbed leftAsCollaborator(Member member) {
+    public static MessageEmbed removedAsCollaborator(Member member) {
         return new EmbedBuilder()
-                .setTitle("Left as Collaborator!")
+                .setTitle("Collaborator Removed!")
                 .setDescription(String.format("%s has been removed as a collaborator for this channel!", member.getAsMention()))
                 .setColor(Util.getColor())
                 .setTimestamp(new Date().toInstant())
