@@ -65,6 +65,11 @@ public class PrivateChannelCommandManager extends ListenerAdapter {
                     return;
                 }
 
+                if (CustomerRequestConversation.ALREADY_REQUESTING.contains(customer)) {
+                    event.replyEmbeds(EmbedUtil.alreadyRequesting()).setEphemeral(true).queue();
+                    return;
+                }
+
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("Please fill out the following information by answering in the chat!")
                         .setDescription("If you would like to cancel this request, please type `!stoprequest`")

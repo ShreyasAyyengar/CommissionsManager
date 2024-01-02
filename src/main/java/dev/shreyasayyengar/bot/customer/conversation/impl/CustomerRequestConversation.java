@@ -13,9 +13,8 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -33,12 +32,14 @@ import java.util.stream.Stream;
  */
 public class CustomerRequestConversation extends ListenerAdapter {
 
+    public static final Set<Customer> ALREADY_REQUESTING = new HashSet<>();
+
     private final Customer customer;
     private final InteractionHook initialMessageHook;
     private final List<String> responses = new ArrayList<>();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    private ScheduledFuture<?> timeoutFuture = scheduler.schedule(this::cancel, 5, TimeUnit.MINUTES);
+    private ScheduledFuture<?> timeoutFuture = scheduler.schedule(() -> this.cancel(true), 5, TimeUnit.MINUTES);
     private Message currentMessage;
     private CustomerRequestStage stage = CustomerRequestStage.NAME;
 
@@ -46,19 +47,42 @@ public class CustomerRequestConversation extends ListenerAdapter {
         this.customer = customer;
         this.initialMessageHook = initialMessageHook;
 
+        ALREADY_REQUESTING.add(customer);
+
         checkStage();
         DiscordBot.get().bot().addEventListener(this);
     }
 
-    // Example usage
-    public void resetTimeout() {
-        // Cancel any existing timeout task
-        if (timeoutFuture != null && !timeoutFuture.isDone()) {
-            timeoutFuture.cancel(true);
+    @Override
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+
+        if (!event.getChannel().getId().equalsIgnoreCase(customer.getTextChannel().getId())) return;
+        if (!event.getAuthor().getId().equals(customer.getHolder().getId())) return;
+
+        String contentRaw = event.getMessage().getContentRaw();
+
+        if (contentRaw.contains("!stoprequest")) {
+            cancel(false);
+            return;
         }
 
-        // Start a new timeout task
-        timeoutFuture = scheduler.schedule(this::cancel, 5, TimeUnit.MINUTES);
+        if (stage == CustomerRequestStage.NAME && contentRaw.length() > 30) {
+            event.getMessage().delete().queue();
+            customer.getTextChannel().sendMessage("The plugin name requested is far too long! Please keep it within 30 characters.").queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
+            return;
+        }
+
+        responses.add(contentRaw);
+
+        event.getChannel().asTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
+
+        if (responses.size() < CustomerRequestStage.values().length) {
+            setStage(stage.next());
+            checkStage();
+        } else {
+            initialMessageHook.deleteOriginal().queue();
+            finish();
+        }
     }
 
     private void checkStage() {
@@ -132,54 +156,38 @@ public class CustomerRequestConversation extends ListenerAdapter {
 
         customer.getCommissions().add(new CustomerCommission(customer, responses.get(0), no.stream().noneMatch(responses.get(5)::equalsIgnoreCase), id));
 
-        DiscordBot.get().bot().removeEventListener(this);
-
         timeoutFuture.cancel(true);
+        ALREADY_REQUESTING.remove(customer);
+        DiscordBot.get().bot().removeEventListener(this);
     }
 
-    private void cancel() {
-        customer.getTextChannel().getHistory().retrievePast(3).complete().forEach(message -> message.delete().queue());
+    private void cancel(boolean inactive) {
+        initialMessageHook.deleteOriginal().queue();
 
-        MessageEmbed embed = new EmbedBuilder()
+        EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setTitle("Cancelled Request")
                 .setDescription("Your request has been cancelled.")
-                .setColor(Color.RED)
-                .build();
+                .setColor(Color.RED);
 
-        customer.getTextChannel().sendMessageEmbeds(embed).queue();
+        if (inactive) {
+            embedBuilder.setFooter("You were inactive for too long. Please try again.");
+        }
 
+        customer.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+        timeoutFuture.cancel(true);
+        ALREADY_REQUESTING.remove(customer);
         DiscordBot.get().bot().removeEventListener(this);
     }
 
-    @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-
-        if (!event.getChannel().getId().equalsIgnoreCase(customer.getTextChannel().getId())) return;
-        if (!event.getAuthor().getId().equals(customer.getHolder().getId())) return;
-
-        String contentRaw = event.getMessage().getContentRaw();
-
-        if (contentRaw.contains("!stoprequest")) {
-            cancel();
-            return;
+    // Example usage
+    public void resetTimeout() {
+        // Cancel any existing timeout task
+        if (timeoutFuture != null && !timeoutFuture.isDone()) {
+            timeoutFuture.cancel(true);
         }
 
-        if (stage == CustomerRequestStage.NAME && contentRaw.length() > 30) {
-            customer.getTextChannel().sendMessage("The plugin name requested is far too long! Please keep it within 30 characters.").queue(message -> message.delete().queueAfter(5, TimeUnit.SECONDS));
-            return;
-        }
-
-        responses.add(contentRaw);
-
-        event.getChannel().asTextChannel().deleteMessages(List.of(event.getMessage(), currentMessage)).queue();
-
-        if (responses.size() < CustomerRequestStage.values().length) {
-            setStage(stage.next());
-            checkStage();
-        } else {
-            initialMessageHook.deleteOriginal().queue();
-            finish();
-        }
+        // Start a new timeout task
+        timeoutFuture = scheduler.schedule(() -> this.cancel(true), 5, TimeUnit.MINUTES);
     }
 
     // ------------------ CustomerRequestStage ------------------ //

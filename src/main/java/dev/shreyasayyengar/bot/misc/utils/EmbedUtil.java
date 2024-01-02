@@ -431,4 +431,14 @@ public class EmbedUtil {
                 .setFooter("--CommissionsManager--")
                 .build();
     }
+
+    public static MessageEmbed alreadyRequesting() {
+        return new EmbedBuilder()
+                .setTitle("Already Requesting!")
+                .setDescription("You are already requesting a commission! Please wait until your current request is finished before requesting another one!")
+                .setColor(Color.RED)
+                .setTimestamp(new Date().toInstant())
+                .setFooter("To cancel your current request, type !stoprequest")
+                .build();
+    }
 }
