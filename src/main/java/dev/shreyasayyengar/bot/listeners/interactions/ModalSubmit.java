@@ -7,7 +7,6 @@ import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import dev.shreyasayyengar.bot.paypal.InvoiceDraft;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -46,23 +45,24 @@ public class ModalSubmit extends ListenerAdapter {
             compiledResponsesEmbedBuilder.addField("Version", arrow + " " + version, false);
             compiledResponsesEmbedBuilder.addField("Source Code", arrow + " " + (addSourceCode ? "Yes" : "No") + "\nIf you would like this changed, please let me know!", false);
             compiledResponsesEmbedBuilder.setColor(Util.THEME_COLOUR);
+            event.deferReply().queue();
 
-            Message commissionRequestDone = customer.getTextChannel().sendMessageEmbeds(compiledResponsesEmbedBuilder.build()).complete();
+            event.getHook().sendMessageEmbeds(compiledResponsesEmbedBuilder.build()).queue(commissionRequestDoneMessage -> {
+                if (longerDescription) {
+                    MessageEmbed longerDescriptionEmbed = new EmbedBuilder()
+                            .setTitle("Description:")
+                            .setDescription(description)
+                            .setColor(Util.THEME_COLOUR)
+                            .build();
+                    customer.getTextChannel().sendMessageEmbeds(longerDescriptionEmbed).complete();
+                }
 
-            if (longerDescription) {
-                MessageEmbed longerDescriptionEmbed = new EmbedBuilder()
-                        .setTitle("Description:")
-                        .setDescription(description)
-                        .setColor(Util.THEME_COLOUR)
-                        .build();
-                customer.getTextChannel().sendMessageEmbeds(longerDescriptionEmbed).complete();
-            }
+                commissionRequestDoneMessage.pin().queue();
+                customer.getTextChannel().sendMessage("<@690755476555563019>").complete();
+                customer.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
 
-            commissionRequestDone.pin().queue();
-            customer.getTextChannel().sendMessage("<@690755476555563019>").complete();
-            customer.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
-
-            customer.getCommissions().add(new CustomerCommission(customer, name, addSourceCode, commissionRequestDone.getId()));
+                customer.getCommissions().add(new CustomerCommission(customer, name, addSourceCode, commissionRequestDoneMessage.getId()));
+            });
         }
 
         if (event.getModalId().equalsIgnoreCase("submit-email")) {
