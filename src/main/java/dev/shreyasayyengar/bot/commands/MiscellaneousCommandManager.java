@@ -56,7 +56,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                                         - [**My GitHub**](https://github.com/ShreyasAyyengar)
                                         - [**My Personal Website**](https://shreyasayyengar.dev/)
                                     """, false)
-                            .setColor(Util.getColor())
+                            .setColor(Util.THEME_COLOUR)
                             .setThumbnail("attachment://shreyasayyengar.png")
                             .setFooter("Shreyas Ayyengar", event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
                             .build();
@@ -79,7 +79,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                                             If you have any questions! Feel free to ping me in your private channel"""
                                     , false)
                             .setFooter("- Shreyas A.", event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
-                            .setColor(Util.getColor())
+                            .setColor(Util.THEME_COLOUR)
                             .build();
 
                     event.getChannel().sendMessageEmbeds(rulesEmbed).queue();
@@ -102,7 +102,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                                     A lot of the features, development, and general server flow would not be possible without some very cool people! So thank you all for being awesome!
                                     """, false)
                             .setFooter("- Shreyas A.", event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
-                            .setColor(Util.getColor())
+                            .setColor(Util.THEME_COLOUR)
                             .build();
 
                     event.getChannel().sendMessageEmbeds(specialThanks).queue();

@@ -3,7 +3,7 @@ package dev.shreyasayyengar.bot.listeners.interactions;
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.customer.Customer;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
-import dev.shreyasayyengar.bot.customer.conversation.impl.QuoteChangeConversation;
+import dev.shreyasayyengar.bot.customer.conversation.QuoteChangeConversation;
 import dev.shreyasayyengar.bot.listeners.interactions.button.JDAButton;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.Invoice;

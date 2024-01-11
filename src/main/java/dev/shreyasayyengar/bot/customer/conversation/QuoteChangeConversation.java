@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.customer.conversation.impl;
+package dev.shreyasayyengar.bot.customer.conversation;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
@@ -35,7 +35,7 @@ public class QuoteChangeConversation extends ListenerAdapter {
                 .setDescription("Please enter the new price for this commission.")
                 .addField("Current Price:", "`$" + commission.getPrice() + "`", false)
                 .setFooter("Type '!cancel' to cancel this process.")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
 
         event.replyEmbeds(embed).setEphemeral(true).queue();

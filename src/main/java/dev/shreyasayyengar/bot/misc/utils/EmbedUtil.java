@@ -28,9 +28,8 @@ public class EmbedUtil {
     public static MessageEmbed onlyInPrivateChannels() {
         return new EmbedBuilder()
                 .setTitle("Error while executing command...")
-                .setDescription("`This command can only be used in private channels of clients!`")
+                .setDescription("`This command can only be used in a private channel!`")
                 .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
                 .build();
     }
 
@@ -38,7 +37,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Generating Invoice...")
                 .setFooter("This will just take a moment...")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
@@ -55,7 +54,6 @@ public class EmbedUtil {
                 .setTitle("Error while executing command...")
                 .setDescription("`You cannot execute this command as a non-client!`")
                 .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
                 .build();
     }
 
@@ -63,7 +61,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Collaborator Added!!")
                 .setDescription(String.format("%s has joined as a collaborator for this channel!", member.getAsMention()))
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -72,7 +70,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Collaborator Removed!")
                 .setDescription(String.format("%s has been removed as a collaborator for this channel!", member.getAsMention()))
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -82,7 +80,6 @@ public class EmbedUtil {
                 .setTitle("Error while executing command...")
                 .setDescription("`This member is not a collaborator of this channel!`")
                 .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
                 .build();
     }
 
@@ -91,7 +88,6 @@ public class EmbedUtil {
                 .setTitle("Error while executing command...")
                 .setDescription("`This member is already a collaborator of this channel!`")
                 .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
                 .build();
     }
 
@@ -128,7 +124,6 @@ public class EmbedUtil {
                 .setTitle("Error while executing command...")
                 .setDescription("There are no commissions available for this client!")
                 .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
                 .build();
     }
 
@@ -137,28 +132,27 @@ public class EmbedUtil {
                 .setTitle("Error while executing command...")
                 .setDescription("There are no pending invoices available for this client!")
                 .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
                 .build();
     }
 
     public static MessageEmbed selectCommission() {
         return new EmbedBuilder()
                 .setDescription("Select a commission to view more information!")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
     public static MessageEmbed commissionInformation(String pluginName) {
         return new EmbedBuilder()
                 .setTitle("Commission Information: " + pluginName)
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
     public static MessageEmbed invoiceInformation(String invoiceID) {
         return new EmbedBuilder()
                 .setTitle("Invoice Information: " + invoiceID)
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
@@ -195,7 +189,7 @@ public class EmbedUtil {
                 .addField(":warning: This may not be the final price! :warning:", "As more work is completed and process continues, the price **may or may not** increase or decrease. " +
                         "If this happens to be the case **you will see a message just like this one** alerting you of a price change. ", false)
                 .setFooter("Should there ever be a change in the price, I will always require your confirmation again, before generating any related invoices.", DiscordBot.get().workingGuild.getOwner().getEffectiveAvatarUrl())
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
@@ -203,7 +197,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Source Code Update: " + commission.getPluginName())
                 .setDescription(commission.hasRequestedSourceCode() ? "The client has requested the source code for this plugin." : "The client has removed the request for the source code for this plugin.")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
@@ -211,7 +205,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Price Updated: " + commission.getPluginName())
                 .setDescription("The price for this commission has been updated to `$" + commission.getPrice() + "`.")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
@@ -273,17 +267,15 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Vouch Success!")
                 .setDescription("Thank you for leaving a vouch! You can find your vouch in the <#980373571807367208> channel!")
-                .setColor(Util.getColor())
-                .setTimestamp(new Date().toInstant())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
     public static MessageEmbed invalidEmail() {
         return new EmbedBuilder()
                 .setTitle("Invalid Email!")
-                .setDescription("The email you provided is not a valid email address!")
+                .setDescription("The email you provided is not a valid email address! Please use /email to try again!")
                 .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
                 .build();
     }
 
@@ -300,8 +292,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Feedback Submitted!")
                 .setDescription("Thank you for submitting your feedback! The feedback will be reviewed and responded to as soon as possible!")
-                .setColor(Util.getColor())
-                .setTimestamp(new Date().toInstant())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
@@ -312,8 +303,7 @@ public class EmbedUtil {
                 .addField("Total Memory Free:", Runtime.getRuntime().freeMemory() + "", false)
                 .addField("Total Memory Used:", (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + "", false)
                 .addField("Total Megabytes Used: ", (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1000 * 1000) + "M", false)
-                .setColor(Util.getColor())
-                .setTimestamp(new Date().toInstant())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
@@ -321,15 +311,14 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Garbage Collected!")
                 .setDescription("The garbage collector has been run!")
-                .setColor(Util.getColor())
-                .setTimestamp(new Date().toInstant())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
     public static MessageEmbed inviteEmbed() {
         return new EmbedBuilder()
                 .setDescription("**__https://discord.gg/5nFQBzy7Xx__**\n\n**Use this link to invite others!**\n*shreyasayyengar.dev*")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setThumbnail(DiscordBot.get().workingGuild.getIconUrl())
                 .build();
     }
@@ -338,7 +327,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Recording Finished!")
                 .setDescription("The recent voice channel has been recorded and can be found below!")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -347,14 +336,13 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Exiting...")
                 .setDescription("The bot is now exiting and shutting down. If this is an IDE stagnant crash, please restart the bot through your IDE!")
-                .setColor(Util.getColor())
-                .setTimestamp(new Date().toInstant())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
     public static MessageEmbed requestPurge(User user) {
         return new EmbedBuilder()
-                .setTitle(user.getAsTag() + " has left the server!")
+                .setTitle(user.getAsMention() + " has left the server!")
                 .setDescription("Their information has already been removed from the database!")
                 .addField("User ID: ", user.getId(), false)
                 .setColor(new Color(213, 171, 255))
@@ -369,7 +357,7 @@ public class EmbedUtil {
                 .setDescription("This is a reminder that you have an outstanding invoice!")
                 .addField("Invoice ID: ", invoice.getID(), false)
                 .setFooter("Click the button below to pay it via PayPal!")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -378,7 +366,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Before generating an invoice:")
                 .setDescription("Is this invoice for the main product of the commission: `" + commission.getPluginName() + "`?")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .build();
     }
 
@@ -386,7 +374,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("No Attachments!")
                 .setDescription("You must attach a file to your message to be added to the invoice's file holding.")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -397,7 +385,7 @@ public class EmbedUtil {
                 .setDescription("These files will be added to the invoice's file holding. " +
                         "Once the invoice is paid, the files will be released to the client!")
                 .setFooter("Please send any attachments below.")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -406,7 +394,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Attachments Added!")
                 .setDescription("Success! The attachments have been added to the invoice!")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -415,7 +403,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Check your DMs for more instructions")
                 .setDescription("You can upload files to holding from there.")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .build();
     }
@@ -427,7 +415,7 @@ public class EmbedUtil {
                         If you are having issues with the latest .jar sent to you, please be more detailed on what isn't working.\s
 
                         Is there a specific command that is failing or not responding? Is there a console error that is being thrown. Is there a specific error message that is being thrown? Please include all of the above in your message to aid in troubleshooting.""")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setFooter("--CommissionsManager--")
                 .build();
     }

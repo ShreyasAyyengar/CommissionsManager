@@ -2,7 +2,7 @@ package dev.shreyasayyengar.bot;
 
 import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
-import dev.shreyasayyengar.bot.commands.PrivateChannelCommandManager;
+import dev.shreyasayyengar.bot.commands.CustomerCommandManager;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.database.MySQL;
 import dev.shreyasayyengar.bot.listeners.interactions.button.ButtonActionManager;
@@ -232,7 +232,7 @@ public class DiscordBot {
                 new ButtonClick(),
                 new MenuSelect(),
                 new ModalSubmit(),
-                new PrivateChannelCommandManager(),
+                new CustomerCommandManager(),
                 new MiscellaneousSlashCommandManager(),
                 new MiscellaneousCommandManager(),
                 new JDAException()

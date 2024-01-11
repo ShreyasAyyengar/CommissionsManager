@@ -1,11 +1,11 @@
 package dev.shreyasayyengar.bot.listeners.interactions;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.customer.Customer;
-import dev.shreyasayyengar.bot.customer.conversation.impl.CustomerEmailConversation;
-import dev.shreyasayyengar.bot.customer.conversation.impl.InvoiceAddFileConversation;
-import dev.shreyasayyengar.bot.customer.conversation.impl.QuoteChangeConversation;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
+import dev.shreyasayyengar.bot.customer.conversation.InvoiceAddFileConversation;
+import dev.shreyasayyengar.bot.customer.conversation.QuoteChangeConversation;
+import dev.shreyasayyengar.bot.listeners.interactions.button.JDAButton;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import dev.shreyasayyengar.bot.paypal.Invoice;
@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
@@ -31,7 +32,7 @@ public class ButtonClick extends ListenerAdapter {
         String buttonID = event.getButton().getId().toLowerCase();
 
         if (buttonID.equalsIgnoreCase("purge-channel")) {
-            Customer customerToDelete = Util.getCustomerByChannelId(event.getChannel().asTextChannel());
+            Customer customerToDelete = Util.getCustomerByGenericChannel(event.getChannel().asTextChannel());
 
             customerToDelete.getTextChannel().delete().queue();
             customerToDelete.getVoiceChannel().delete().queue();
@@ -170,8 +171,8 @@ public class ButtonClick extends ListenerAdapter {
                 case "generate" -> {
 
                     if (commission.getCustomer().getPaypalEmail() == null) {
-                        event.replyEmbeds(EmbedUtil.paypalEmailNotSet()).setEphemeral(true).queue();
-                        new CustomerEmailConversation(customer);
+                        Button setEmailButton = JDAButton.of(ButtonStyle.PRIMARY, "Set PayPal Email", "\uD83D\uDCE7", (user, buttonInteractionEvent) -> buttonInteractionEvent.replyModal(Util.submitEmailModal()).queue()).asButton();
+                        event.replyEmbeds(EmbedUtil.paypalEmailNotSet()).setEphemeral(true).addActionRow(setEmailButton).queue();
                         return;
                     }
 

@@ -3,6 +3,7 @@ package dev.shreyasayyengar.bot.paypal;
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.customer.Customer;
+import dev.shreyasayyengar.bot.customer.conversation.InvoiceAddFileConversation;
 import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.misc.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -256,7 +257,7 @@ public class Invoice {
                         This message will update upon payment.
 
                         Reminder: This message only displays the most important information regarding your invoice. Please check the invoice on PayPal for more, official information.""")
-                .setColor(Util.getColor());
+                .setColor(Util.THEME_COLOUR);
     }
 
     private MessageEmbed getPaidInvoiceEmbed() {
@@ -280,7 +281,7 @@ public class Invoice {
 
     /**
      * Adds a file to the invoices holding files. ({@link #filesHolding})
-     * This method is directly called via {@link dev.shreyasayyengar.bot.customer.conversation.impl.InvoiceAddFileConversation}
+     * This method is directly called via {@link InvoiceAddFileConversation}
      */
     public void addFileToHolding(File file) {
         this.filesHolding.add(file);
@@ -298,7 +299,7 @@ public class Invoice {
         MessageEmbed builder = new EmbedBuilder()
                 .setTitle("Files in Holding Below:")
                 .setDescription("This commission contained files that were only meant to be released once the invoice was paid. Now that it has been paid, here are the released files:")
-                .setColor(Util.getColor())
+                .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())
                 .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
                 .build();
