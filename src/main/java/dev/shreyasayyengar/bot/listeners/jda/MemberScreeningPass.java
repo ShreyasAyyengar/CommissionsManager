@@ -27,7 +27,7 @@ public class MemberScreeningPass extends ListenerAdapter {
         setupMember(member);
     }
 
-    public static void setupMember(Member member) {
+    private void setupMember(Member member) {
         member.getGuild().addRoleToMember(member, member.getGuild().getRoleById("979538113816838174")).complete();
         sendWelcomeMessage(member);
 
@@ -52,7 +52,7 @@ public class MemberScreeningPass extends ListenerAdapter {
         customer.getTextChannel().sendMessageEmbeds(embed).queue();
     }
 
-    private static void sendWelcomeMessage(Member member) {
+    private void sendWelcomeMessage(Member member) {
         TextChannel welcomeChannel = member.getGuild().getTextChannelById("979537874003312731");
         assert welcomeChannel != null;
 
