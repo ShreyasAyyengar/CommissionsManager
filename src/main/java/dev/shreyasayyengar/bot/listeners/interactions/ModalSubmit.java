@@ -58,9 +58,8 @@ public class ModalSubmit extends ListenerAdapter {
                 }
 
                 commissionRequestDoneMessage.pin().queue();
-                customer.getTextChannel().sendMessage("<@690755476555563019>").complete();
-                customer.getTextChannel().getHistory().retrievePast(2).complete().forEach(message -> message.delete().queue());
 
+                customer.getTextChannel().sendMessage("<@690755476555563019>").queue(message -> message.delete().queue());
                 customer.getCommissions().add(new CustomerCommission(customer, name, addSourceCode, commissionRequestDoneMessage.getId()));
             });
         }
