@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MenuSelect extends ListenerAdapter {
-
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
 
@@ -81,6 +80,26 @@ public class MenuSelect extends ListenerAdapter {
                                 JDAButton.of(ButtonStyle.SECONDARY, "Source Code", "<:discorddeveloper:697686848545488986>", (user1, srcButtonEvent) -> {
                                     commission.setRequestedSourceCode(!commission.hasRequestedSourceCode());
                                     srcButtonEvent.replyEmbeds(EmbedUtil.sourceCodeUpdate(commission)).queue();
+                                }),
+                                JDAButton.of(ButtonStyle.SECONDARY, "Confirm Work", "\uD83E\uDD1D", (user1, confirmButtonEvent) -> {
+                                    if (commission.checkPrice()) {
+                                        event.replyEmbeds(EmbedUtil.noPriceSet()).setEphemeral(true).queue();
+                                        return;
+                                    }
+
+                                    if (commission.isConfirmed()) {
+                                        event.replyEmbeds(EmbedUtil.alreadyConfirmed()).setEphemeral(true).queue();
+                                        return;
+                                    }
+
+                                    customer.getTextChannel().sendMessage(customer.getHolder().getAsMention()).queue(message -> message.delete().queue());
+
+                                    event.replyEmbeds(EmbedUtil.confirmCommission(commission))
+                                            .addActionRow(
+                                                    Button.success("commission." + pluginName + ".accept", "Accept Quote").withEmoji(Emoji.fromUnicode("U+2705")),
+                                                    Button.danger("commission." + pluginName + ".reject", "Reject Quote").withEmoji(Emoji.fromUnicode("U+26D4"))
+                                            )
+                                            .queue();
                                 }),
                                 JDAButton.of(ButtonStyle.SECONDARY, "Back", "⬅", (user1, buttonInteractionEvent) -> {
                                     buttonInteractionEvent.editComponents(ActionRow.of(initialButtons.stream().map(JDAButton::asButton).collect(Collectors.toList()))).queue();

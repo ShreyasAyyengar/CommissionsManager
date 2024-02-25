@@ -1,7 +1,6 @@
 package dev.shreyasayyengar.bot.misc.utils;
 
 public enum Authentication {
-
     BOT_TOKEN,
     GUILD_ID,
     OWNER_ID,

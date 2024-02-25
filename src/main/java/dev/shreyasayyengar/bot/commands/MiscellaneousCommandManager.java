@@ -17,7 +17,6 @@ import java.io.InputStream;
 
 @SuppressWarnings("all")
 public class MiscellaneousCommandManager extends ListenerAdapter {
-
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
 

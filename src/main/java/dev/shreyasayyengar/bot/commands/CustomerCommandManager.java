@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.stream.Stream;
 
 public class CustomerCommandManager extends ListenerAdapter {
-
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 

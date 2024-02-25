@@ -126,6 +126,5 @@ public class ModalSubmit extends ListenerAdapter {
             event.replyEmbeds(EmbedUtil.feedbackSubmitted()).setEphemeral(true).queue();
             event.getGuild().getTextChannelById("982112203794685963").sendMessageEmbeds(EmbedUtil.feedback(feedback, event.getMember())).queue();
         }
-
     }
 }
