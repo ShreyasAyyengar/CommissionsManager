@@ -83,18 +83,18 @@ public class MenuSelect extends ListenerAdapter {
                                 }),
                                 JDAButton.of(ButtonStyle.SECONDARY, "Confirm Work", "\uD83E\uDD1D", (user1, confirmButtonEvent) -> {
                                     if (commission.checkPrice()) {
-                                        event.replyEmbeds(EmbedUtil.noPriceSet()).setEphemeral(true).queue();
+                                        confirmButtonEvent.replyEmbeds(EmbedUtil.noPriceSet()).setEphemeral(true).queue();
                                         return;
                                     }
 
                                     if (commission.isConfirmed()) {
-                                        event.replyEmbeds(EmbedUtil.alreadyConfirmed()).setEphemeral(true).queue();
+                                        confirmButtonEvent.replyEmbeds(EmbedUtil.alreadyConfirmed()).setEphemeral(true).queue();
                                         return;
                                     }
 
                                     customer.getTextChannel().sendMessage(customer.getHolder().getAsMention()).queue(message -> message.delete().queue());
 
-                                    event.replyEmbeds(EmbedUtil.confirmCommission(commission))
+                                    confirmButtonEvent.replyEmbeds(EmbedUtil.confirmCommission(commission))
                                             .addActionRow(
                                                     Button.success("commission." + pluginName + ".accept", "Accept Quote").withEmoji(Emoji.fromUnicode("U+2705")),
                                                     Button.danger("commission." + pluginName + ".reject", "Reject Quote").withEmoji(Emoji.fromUnicode("U+26D4"))
