@@ -54,7 +54,7 @@ public class ModalSubmit extends ListenerAdapter {
                             .setDescription(description)
                             .setColor(Util.THEME_COLOUR)
                             .build();
-                    customer.getTextChannel().sendMessageEmbeds(longerDescriptionEmbed).complete();
+                    customer.getTextChannel().sendMessageEmbeds(longerDescriptionEmbed).queue();
                 }
 
                 commissionRequestDoneMessage.pin().queue();
