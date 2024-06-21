@@ -36,6 +36,8 @@ public class ThreadHandler extends Thread {
 
         DiscordBot.log(Department.ShutdownManager, "[MySQL] Serialising Active Invoices...");
         Invoice.INVOICES.forEach(Invoice::serialise);
+
+        DiscordBot.log(Department.ShutdownManager, "CommissionsManager has been shut down.");
     }
 
     @Override
