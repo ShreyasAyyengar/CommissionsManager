@@ -22,8 +22,9 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
 
         try {
             if (event.getAuthor().getId().equalsIgnoreCase(Authentication.OWNER_ID.get())) {
+                String message = event.getMessage().getContentRaw();
 
-                if (event.getMessage().getContentRaw().equalsIgnoreCase("!about")) {
+                if (message.equalsIgnoreCase("!about")) {
 
                     File file = new File(getClass().getClassLoader().getResource("imgs/shreyasayyengar.png").toURI());
 
@@ -64,7 +65,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
 
                 }
 
-                if (event.getMessage().getContentRaw().equalsIgnoreCase("!rules")) {
+                if (message.equalsIgnoreCase("!rules")) {
 
                     MessageEmbed rulesEmbed = new EmbedBuilder()
                             .setTitle("Rules!!!!!")
@@ -84,7 +85,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                     event.getChannel().sendMessageEmbeds(rulesEmbed).queue();
                 }
 
-                if (event.getMessage().getContentRaw().equalsIgnoreCase("!special")) {
+                if (message.equalsIgnoreCase("!special")) {
 
                     MessageEmbed specialThanks = new EmbedBuilder()
                             .setTitle("Special Thanks")
@@ -107,15 +108,23 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                     event.getChannel().sendMessageEmbeds(specialThanks).queue();
                 }
 
-                if (event.getMessage().getContentRaw().contains("thank you darling")) {
+                if (message.equalsIgnoreCase("!mismatch")) {
+                    for (var member : DiscordBot.get().workingGuild.getMembers()) {
+                        if (DiscordBot.get().getCustomerManger().get(member.getId()) == null) {
+                            event.getChannel().sendMessage("Mismatched member: " + member.getUser().getAsTag()).queue();
+                        }
+                    }
+                }
+
+                if (message.contains("thank you darling")) {
                     event.getMessage().reply("You're most welcome! :blush: :heart:").queue();
                 }
 
-                if (event.getMessage().getContentRaw().contains("!notwork")) {
+                if (message.contains("!notwork")) {
                     event.getMessage().replyEmbeds(EmbedUtil.doesNotWork()).queue();
                 }
 
-                if (event.getMessage().getContentRaw().contains("!filestatus")) {
+                if (message.contains("!filestatus")) {
                     File templateFile = new File("invoice_template.yml");
                     InputStream inputStream = DiscordBot.get().getClass().getResourceAsStream("/invoice_template.yml");
                     FileOutputStream fileOutput = new FileOutputStream(templateFile);
@@ -135,7 +144,6 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                     event.getMessage().reply("Done?").queue();
                 }
             }
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

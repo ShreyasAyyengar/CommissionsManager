@@ -1,18 +1,18 @@
 package dev.shreyasayyengar.bot;
 
+import dev.shreyasayyengar.bot.commands.CustomerCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
-import dev.shreyasayyengar.bot.commands.CustomerCommandManager;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.database.MySQL;
+import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
+import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
+import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
 import dev.shreyasayyengar.bot.listeners.interactions.button.ButtonActionManager;
 import dev.shreyasayyengar.bot.listeners.jda.JDAException;
 import dev.shreyasayyengar.bot.listeners.jda.MemberRemove;
 import dev.shreyasayyengar.bot.listeners.jda.MemberScreeningPass;
 import dev.shreyasayyengar.bot.listeners.jda.MemberUpdateName;
-import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
-import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
-import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
 import dev.shreyasayyengar.bot.misc.managers.CustomerManager;
 import dev.shreyasayyengar.bot.misc.managers.ThreadHandler;
 import dev.shreyasayyengar.bot.misc.utils.Authentication;
@@ -65,7 +65,6 @@ public class DiscordBot {
     public DiscordBot() throws InterruptedException {
         instance = this;
         maintainAccessToken();
-
         initMySQL();
         createBot();
         fixData();
