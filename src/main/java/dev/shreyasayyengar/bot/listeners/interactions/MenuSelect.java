@@ -81,7 +81,6 @@ public class MenuSelect extends ListenerAdapter {
                         List<DiscordButton> finaliseCommissionButtons = new ArrayList<>() {{
                             add(new DiscordButton(ButtonStyle.SUCCESS, "Complete", "✅", (user1, completeButtonEvent) -> {
                                 commission.close(true);
-
                                 List<DiscordButton> closingButtons = new ArrayList<>() {{
                                     add(new DiscordButton(ButtonStyle.SUCCESS, "Write a Vouch!", "U+270D", (user1, vouchButtonEvent) -> {
                                         DiscordModal inputVouchModal = new DiscordModal("Write your vouch!")
@@ -97,7 +96,7 @@ public class MenuSelect extends ListenerAdapter {
                                                     } else vouchEmbed = EmbedUtil.vouch(vouch, modalUser);
 
                                                     modalEvent.deferEdit().queue();
-                                                    vouchButtonEvent.getHook().editOriginalComponents().setEmbeds(EmbedUtil.vouchSuccess()).queue(); // TODO test
+                                                    vouchButtonEvent.getHook().editOriginalComponents().setEmbeds(EmbedUtil.vouchSuccess()).queue();
                                                     DiscordBot.get().workingGuild.getTextChannelById("980373571807367208").sendMessageEmbeds(vouchEmbed).queue();
                                                 });
                                         vouchButtonEvent.replyModal(inputVouchModal.asModal()).queue();
@@ -108,15 +107,9 @@ public class MenuSelect extends ListenerAdapter {
                                 completeButtonEvent.replyEmbeds(EmbedUtil.commissionCompleted(commission)).addContent(customer.getHolder().getAsMention()).addActionRow(closingButtons.stream().map(DiscordButton::asButton).toList()).queue();
                             }));
                             add(new DiscordButton(ButtonStyle.DANGER, "Cancel", "⛔", (user1, cancelButtonEvent) -> {
-                                if (commission.getInfoEmbedId() != null) {
-                                    customer.getTextChannel().retrieveMessageById(commission.getInfoEmbedId()).complete().delete().queue();
-                                }
-
-
+                                commission.close(false);
 
                                 cancelButtonEvent.replyEmbeds(EmbedUtil.commissionCancelled(commission)).queue();
-                                commission.close();
-
                             }));
                         }};
 

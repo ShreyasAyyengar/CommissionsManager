@@ -236,8 +236,7 @@ public class CustomerCommission {
     }
 
     public boolean isConfirmed() {
-//        return confirmed;
-        return true; // TODO FIX ASAP
+        return confirmed;
     }
 
     public Collection<Invoice> getInvoices() {
