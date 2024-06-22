@@ -2,12 +2,12 @@ package dev.shreyasayyengar.bot.listeners.jda;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.customer.Customer;
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.functional.type.DiscordButton;
+import dev.shreyasayyengar.bot.utils.EmbedUtil;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.jetbrains.annotations.NotNull;
 
 public class MemberRemove extends ListenerAdapter {
@@ -17,11 +17,14 @@ public class MemberRemove extends ListenerAdapter {
         User user = event.getUser();
 
         Customer customer = DiscordBot.get().getCustomerManger().get(user.getId());
-
         DiscordBot.get().getCustomerManger().purgeMemberSQL(user);
 
-        customer.getTextChannel().sendMessageEmbeds(EmbedUtil.requestPurge(user))
-                .setActionRow(Button.danger("purge-channel", "Purge Channels").withEmoji(Emoji.fromUnicode("U+1F5D1")))
-                .queue();
+        DiscordButton purgeButton = new DiscordButton(ButtonStyle.DANGER, "Purge Channels", "U+1F5D1", (buttonUser, buttonInteractionEvent) -> {
+            customer.getTextChannel().delete().queue();
+            customer.getVoiceChannel().delete().queue();
+
+            DiscordBot.get().getCustomerManger().getMap().remove(customer.getHolder().getId());
+        });
+        customer.getTextChannel().sendMessageEmbeds(EmbedUtil.requestPurge(user)).setActionRow(purgeButton.asButton()).queue();
     }
 }

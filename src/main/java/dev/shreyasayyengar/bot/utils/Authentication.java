@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.misc.utils;
+package dev.shreyasayyengar.bot.utils;
 
 public enum Authentication {
     BOT_TOKEN,

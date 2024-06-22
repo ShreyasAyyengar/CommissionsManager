@@ -3,8 +3,9 @@ package dev.shreyasayyengar.bot.commands;
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.customer.Customer;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
-import dev.shreyasayyengar.bot.misc.utils.Util;
+import dev.shreyasayyengar.bot.functional.type.DiscordModal;
+import dev.shreyasayyengar.bot.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -14,7 +15,6 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -24,10 +24,9 @@ import java.util.stream.Stream;
 public class CustomerCommandManager extends ListenerAdapter {
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        Stream<String> commandName = Stream.of("request", "collaborator", "quote", "commissions");
 
-        Stream<String> request = Stream.of("request", "collaborator", "quote", "commissions");
-
-        if (request.anyMatch(event.getName().toLowerCase()::contains)) {
+        if (commandName.anyMatch(event.getName().toLowerCase()::contains)) {
             if (Util.privateChannel(event.getChannel().asTextChannel())) {
                 event.replyEmbeds(EmbedUtil.onlyInPrivateChannels()).setEphemeral(true).queue();
                 return;
@@ -43,38 +42,83 @@ public class CustomerCommandManager extends ListenerAdapter {
                     return;
                 }
 
-                Modal.Builder requestModal = Modal.create("request-form", "Request Form");
-                TextInput name = TextInput.create("name", "Plugin Name", TextInputStyle.SHORT)
-                        .setRequired(true)
-                        .setRequiredRange(1, 30)
-                        .setPlaceholder("Ex: LootBoxes, PotionMasters, WorldManager")
-                        .build();
-                TextInput description = TextInput.create("description", "What do you need developed! Be specific!", TextInputStyle.PARAGRAPH)
-                        .setRequired(true)
-                        .setPlaceholder("Ex: I want a plugin that disables crafting tables. Permissions, Commands, Config...")
-                        .build();
-                TextInput serverType = TextInput.create("server-type", "What type of server do you run? (Plugin Type)", TextInputStyle.SHORT)
-                        .setRequired(true)
-                        .setPlaceholder("Ex: Bukkit, Spigot, Paper, BungeeCord etc...")
-                        .build();
-                TextInput version = TextInput.create("version", "What version of Minecraft do you run?", TextInputStyle.SHORT)
-                        .setRequired(true)
-                        .setRequiredRange(2, 100)
-                        .setPlaceholder("1.8.8, 1.12, 1.16, 1.20")
-                        .build();
-                TextInput sourceCode = TextInput.create("source-code", "Send source code after completion? (Adds $5)", TextInputStyle.SHORT)
-                        .setRequired(true)
-                        .setRequiredRange(2, 3)
-                        .setPlaceholder("Yes/No")
-                        .build();
+                DiscordModal modal = new DiscordModal("Request Form")
+                        .addTextInput(
+                                TextInput.create("name", "Plugin Name", TextInputStyle.SHORT)
+                                        .setRequired(true)
+                                        .setRequiredRange(1, 30)
+                                        .setPlaceholder("Ex: LootBoxes, PotionMasters, WorldManager")
+                                        .build()
+                        )
+                        .addTextInput(
+                                TextInput.create("description", "What do you need developed! Be specific!", TextInputStyle.PARAGRAPH)
+                                        .setRequired(true)
+                                        .setPlaceholder("Ex: I want a plugin that disables crafting tables. Permissions, Commands, Config...")
+                                        .build()
+                        )
+                        .addTextInput(
+                                TextInput.create("server-type", "What type of server do you run? (Plugin Type)", TextInputStyle.SHORT)
+                                        .setRequired(true)
+                                        .setPlaceholder("Ex: Bukkit, Spigot, Paper, BungeeCord etc...")
+                                        .build()
+                        )
+                        .addTextInput(
+                                TextInput.create("version", "What version of Minecraft do you run?", TextInputStyle.SHORT)
+                                        .setRequired(true)
+                                        .setRequiredRange(2, 100)
+                                        .setPlaceholder("1.8.8, 1.12.2, 1.16, 1.20")
+                                        .build()
+                        )
+                        .addTextInput(
+                                TextInput.create("source-code", "Send source code after completion? (Adds 5%)", TextInputStyle.SHORT)
+                                        .setRequired(true)
+                                        .setRequiredRange(2, 3)
+                                        .setPlaceholder("Yes/No")
+                                        .build()
+                        )
+                        .onSubmit((modalUser, modalEvent) -> {
+                            String name = modalEvent.getValue("name").getAsString();
+                            String description = modalEvent.getValue("description").getAsString();
+                            String serverType = modalEvent.getValue("server-type").getAsString();
+                            String version = modalEvent.getValue("version").getAsString();
+                            String sourceCode = modalEvent.getValue("source-code").getAsString();
+                            boolean addSourceCode = sourceCode.equalsIgnoreCase("yes");
 
-                requestModal.addActionRow(name);
-                requestModal.addActionRow(description);
-                requestModal.addActionRow(serverType);
-                requestModal.addActionRow(version);
-                requestModal.addActionRow(sourceCode);
+                            String arrow = "<:purple_arrow:980020213863055390>";
+                            boolean longerDescription = description.length() > 1000;
 
-                event.replyModal(requestModal.build()).queue();
+                            EmbedBuilder compiledResponsesEmbedBuilder = new EmbedBuilder();
+                            compiledResponsesEmbedBuilder.setTitle(customer.getHolder().getEffectiveName() + "'s Plugin Request");
+                            compiledResponsesEmbedBuilder.setDescription("For the plugin: `" + name + "`");
+
+                            if (longerDescription) {
+                                compiledResponsesEmbedBuilder.addField("Description:", "See Below", false);
+                            } else compiledResponsesEmbedBuilder.addField("Description:", arrow + " " + description, false);
+
+                            compiledResponsesEmbedBuilder.addField("Plugin/Server Type:", arrow + " " + serverType, false);
+                            compiledResponsesEmbedBuilder.addField("Version:", arrow + " " + version, false);
+                            compiledResponsesEmbedBuilder.addField("Source Code (adds 5% to total quote):", arrow + " " + (addSourceCode ? "Yes" : "No") + "\nIf you would like this changed, please let me know!", false);
+                            compiledResponsesEmbedBuilder.setColor(Util.THEME_COLOUR);
+                            modalEvent.deferReply().queue();
+
+                            modalEvent.getHook().sendMessageEmbeds(compiledResponsesEmbedBuilder.build()).queue(commissionRequestDoneMessage -> {
+                                if (longerDescription) {
+                                    MessageEmbed longerDescriptionEmbed = new EmbedBuilder()
+                                            .setTitle("Description:")
+                                            .setDescription(description)
+                                            .setColor(Util.THEME_COLOUR)
+                                            .build();
+                                    customer.getTextChannel().sendMessageEmbeds(longerDescriptionEmbed).queue();
+                                }
+
+                                commissionRequestDoneMessage.pin().queue();
+
+                                customer.getTextChannel().sendMessage("<@690755476555563019>").queue(message -> message.delete().queue());
+                                customer.getCommissions().add(new CustomerCommission(customer, name, addSourceCode, commissionRequestDoneMessage.getId()));
+                            });
+                        });
+
+                event.replyModal(modal.asModal()).queue();
             }
 
             case "commissions" -> {
@@ -97,7 +141,7 @@ public class CustomerCommandManager extends ListenerAdapter {
                 event.replyEmbeds(EmbedUtil.selectCommission()).addActionRow(commissionsMenu).setEphemeral(true).queue();
             }
 
-            case "email" -> {
+            case "email" -> { // TODO check double implementation
                 String email = event.getOption("email").getAsString();
 
                 if (!email.matches("([A-Za-z\\d-_.]+@[A-Za-z\\d-_]+(?:\\.[A-Za-z\\d]+)+)")) {
@@ -141,7 +185,6 @@ public class CustomerCommandManager extends ListenerAdapter {
                     }
                 }
             }
-
         }
     }
 }

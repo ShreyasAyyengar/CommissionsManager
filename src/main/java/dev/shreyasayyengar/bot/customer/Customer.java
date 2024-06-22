@@ -1,6 +1,7 @@
 package dev.shreyasayyengar.bot.customer;
 
 import dev.shreyasayyengar.bot.DiscordBot;
+import dev.shreyasayyengar.bot.utils.Util;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -11,12 +12,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
-import org.apache.commons.collections4.CollectionUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -68,7 +67,7 @@ public class Customer {
         // region Permissions
         Stream<? extends ChannelAction<? extends ICopyableChannel>> channels = Stream.of(voiceChannelAction, textChannelAction);
         channels.forEach(channel -> {
-            channel.addMemberPermissionOverride(holder.getIdLong(), getAllowedPermissions(), getDeniedPermissions());
+            channel.addMemberPermissionOverride(holder.getIdLong(), Util.getAllowedPermissions(), Util.getDeniedPermissions());
             channel.addPermissionOverride(workingGuild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL));
         });
         // endregion
@@ -102,7 +101,7 @@ public class Customer {
      */
     public void addCollaborator(Member member) {
         Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel, voiceChannel);
-        channelGroups.forEach(channel -> channel.upsertPermissionOverride(member).setPermissions(getAllowedPermissions(), getDeniedPermissions()).queue());
+        channelGroups.forEach(channel -> channel.upsertPermissionOverride(member).setPermissions(Util.getAllowedPermissions(), Util.getDeniedPermissions()).queue());
 
         textChannel.sendMessage(member.getAsMention()).queue(message -> message.delete().queue());
     }
@@ -148,14 +147,6 @@ public class Customer {
     }
 
     /**
-     * This removes the CustomerCommission passed in from the {@link #commissions} list and from
-     * the global CustomerCommission list.
-     */
-    public void closeCommission(CustomerCommission commission) {
-        commission.close();
-    }
-
-    /**
      * Iterates through all CustomerCommissions inside the {@link #commissions} list to the MySQL
      * database.
      */
@@ -186,7 +177,7 @@ public class Customer {
                 .orElse(null);
     }
 
-    public Invoice getInvoice(String id) {
+    public Invoice getInvoiceByID(String id) {
         return commissions
                 .stream()
                 .flatMap(commission -> commission.getInvoices().stream())
@@ -197,23 +188,6 @@ public class Customer {
 
     public Collection<CustomerCommission> getCommissions() {
         return commissions;
-    }
-
-    public Collection<Permission> getAllowedPermissions() {
-        return Stream.of(
-                Permission.VIEW_CHANNEL,
-                Permission.MESSAGE_SEND,
-                Permission.MESSAGE_ADD_REACTION,
-                Permission.MESSAGE_EMBED_LINKS,
-                Permission.MESSAGE_ATTACH_FILES,
-                Permission.VOICE_CONNECT,
-                Permission.VOICE_SPEAK,
-                Permission.VOICE_USE_VAD
-        ).collect(Collectors.toList());
-    }
-
-    public Collection<Permission> getDeniedPermissions() {
-        return CollectionUtils.subtract(getAllowedPermissions(), Arrays.stream(Permission.values()).toList());
     }
 
     public String getPaypalEmail() {

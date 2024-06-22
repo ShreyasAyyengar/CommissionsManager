@@ -1,11 +1,11 @@
 package dev.shreyasayyengar.bot.paypal;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.customer.Customer;
+import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.customer.conversation.InvoiceAddFileConversation;
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
-import dev.shreyasayyengar.bot.misc.utils.Util;
+import dev.shreyasayyengar.bot.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -108,22 +108,22 @@ public class Invoice {
      * (hence the protected access modifier).
      */
     protected Invoice(CustomerCommission commission, JSONObject invoiceData, InteractionHook interactionHook) throws IOException {
-
         this.customer = commission.getCustomer();
         this.commission = commission;
 
         this.invoiceID = invoiceData.getString("id");
         this.status = invoiceData.getString("status").equalsIgnoreCase("paid") ? "PAID" : "UNPAID";
         this.clientEmail = invoiceData.getJSONArray("primary_recipients").getJSONObject(0).getJSONObject("billing_info").getString("email_address");
-        this.total = invoiceData.getJSONObject("amount").getString("value");
+        this.total = invoiceData.getJSONObject("amount").getString("value"); // TODO save to SQL to pull from other constructor
         this.currency = invoiceData.getJSONObject("amount").getString("currency_code");
         this.merchantName = invoiceData.getJSONObject("invoicer").getJSONObject("name").getString("full_name");
         this.merchantEmail = invoiceData.getJSONObject("invoicer").getString("email_address");
+        String timeSent = invoiceData.getJSONObject("detail").getJSONObject("metadata").getString("last_update_time");
 
         setQRCode();
 
         Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
-        Message invoiceEmbed = interactionHook.editOriginalEmbeds(getInvoiceEmbed().build())
+        Message invoiceEmbed = interactionHook.editOriginalEmbeds(getInvoiceEmbed(timeSent).build())
                 .setActionRow(paypalButton)
                 .setFiles(FileUpload.fromData(this.QRCodeImg, "qr_code.png"))
                 .complete();
@@ -141,7 +141,6 @@ public class Invoice {
      * hence the private access modifier.
      */
     private Invoice(String customerID, String commissionName, String messageID, String invoiceID) {
-
         this.customer = DiscordBot.get().getCustomerManger().get(customerID);
         this.commission = customer.getCommission(commissionName);
 
@@ -161,7 +160,6 @@ public class Invoice {
      * @apiNote This method is called automatically by the {@link #cycleChecks()}
      */
     private void updateIfPaid() throws IOException {
-
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
                 .url("https://api-m.paypal.com/v2/invoicing/invoices/" + invoiceID)
@@ -174,14 +172,13 @@ public class Invoice {
 
         if (jsonObject.getString("status").equalsIgnoreCase("paid")) {
             this.status = "PAID";
-
+            String timePaid = jsonObject.getJSONObject("detail").getJSONObject("metadata").getString("last_update_time");
             Button viewInvoiceButton = Button.link("https://www.paypal.com/invoice/p/#" + invoiceID, Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("View Invoice via PayPal");
-            customer.getTextChannel().retrieveMessageById(messageID).complete().editMessageEmbeds(getPaidInvoiceEmbed()).setActionRow(viewInvoiceButton).setFiles().queue();
 
-            MessageEmbed embed = new EmbedBuilder(EmbedUtil.invoicePaid())
-                    .setDescription("{name}'s invoice has been paid!".replace("{name}", customer.getHolder().getEffectiveName()))
-                    .build();
-            customer.getTextChannel().sendMessageEmbeds(embed).setContent("@here").queue();
+            Message invoiceMessage = customer.getTextChannel().retrieveMessageById(messageID).complete();
+            invoiceMessage.editMessageEmbeds(getPaidInvoiceEmbed(timePaid)).setActionRow(viewInvoiceButton).setFiles().queue();
+
+            customer.getTextChannel().sendMessageEmbeds(EmbedUtil.invoicePaid(customer.getHolder().getUser(), invoiceMessage.getJumpUrl())).setContent("@here").queue();
 
             closeInvoice();
             releaseFiles();
@@ -242,7 +239,7 @@ public class Invoice {
         response.close();
     }
 
-    private EmbedBuilder getInvoiceEmbed() {
+    private EmbedBuilder getInvoiceEmbed(String timeCreated) {
         return new EmbedBuilder()
                 .setAuthor("Invoice: " + this.invoiceID, null, customer.getHolder().getEffectiveAvatarUrl())
                 .setTitle("Important Information regarding your invoice:")
@@ -250,7 +247,7 @@ public class Invoice {
                 .addField("**Billed to:**", "`" + this.clientEmail + "`\n\n", false)
                 .addField("**Merchant Info:**", "Name: `" + this.merchantName + "`\n Email:`" + this.merchantEmail + "`\n\n", false)
                 .addField("**Total:**", "`" + this.total + " " + this.currency + "`\n\n", false)
-                .addField("**Date Issued:**", "<t:" + new Date().getTime() / 1000 + ":F>" + "\n\n", false)
+                .addField("**Date Issued:**", "<t:" + Util.convertDateToEpoch(timeCreated) + ":F>" + "\n\n", false)
                 .setThumbnail("attachment://qr_code.png")
                 .setTimestamp(new Date().toInstant())
                 .setFooter("""
@@ -260,12 +257,12 @@ public class Invoice {
                 .setColor(Util.THEME_COLOUR);
     }
 
-    private MessageEmbed getPaidInvoiceEmbed() {
+    private MessageEmbed getPaidInvoiceEmbed(String timePaid) {
         MessageEmbed previousInvoiceEmbed = customer.getTextChannel().retrieveMessageById(messageID).complete().getEmbeds().get(0);
         EmbedBuilder invoiceEmbed = new EmbedBuilder(previousInvoiceEmbed);
         invoiceEmbed.getFields().set(0, new MessageEmbed.Field("**Status:** `" + this.status + "` ✅", "", false));
         invoiceEmbed.setThumbnail("attachment://qr_code.png");
-        invoiceEmbed.addField("**Date Paid:**", "<t:" + new Date().getTime() / 1000 + ":F>", false);
+        invoiceEmbed.addField("**Date Paid:**", "<t:" + Util.convertDateToEpoch(timePaid) + ":F>", false);
         invoiceEmbed.setColor(Color.GREEN);
 
         return invoiceEmbed.build();
@@ -391,5 +388,9 @@ public class Invoice {
 
     public String getMessageID() {
         return messageID;
+    }
+
+    public String getTotal() {
+        return total;
     }
 }

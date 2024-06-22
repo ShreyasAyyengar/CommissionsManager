@@ -1,12 +1,11 @@
 package dev.shreyasayyengar.bot.commands;
 
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.functional.type.DiscordModal;
+import dev.shreyasayyengar.bot.utils.EmbedUtil;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Executors;
@@ -14,18 +13,19 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class MiscellaneousSlashCommandManager extends ListenerAdapter {
-
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-
         if (event.getName().equalsIgnoreCase("feedback")) {
 
-            TextInput feedbackTextInput = TextInput.create("feedback", "Please write any feedback here!", TextInputStyle.PARAGRAPH).build();
-            Modal feedbackModal = Modal.create("feedback", "Feedback Form!")
-                    .addComponents(ActionRow.of(feedbackTextInput))
-                    .build();
+            DiscordModal feedbackModal = new DiscordModal("Feedback Form")
+                    .addTextInput(TextInput.create("feedback", "Please write any feedback here!", TextInputStyle.PARAGRAPH).build())
+                    .onSubmit((modalUser, modalEvent) -> {
+                        String feedback = modalEvent.getValue("feedback").getAsString();
+                        modalEvent.replyEmbeds(EmbedUtil.feedbackSubmitted()).setEphemeral(true).queue();
+                        modalEvent.getGuild().getTextChannelById("982112203794685963").sendMessageEmbeds(EmbedUtil.feedback(feedback, modalUser)).queue();
+                    });
 
-            event.replyModal(feedbackModal).queue();
+            event.replyModal(feedbackModal.asModal()).queue();
         }
 
         if (event.getName().equalsIgnoreCase("clear")) {

@@ -1,8 +1,8 @@
 package dev.shreyasayyengar.bot.customer.conversation;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.misc.utils.Authentication;
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.utils.Authentication;
+import dev.shreyasayyengar.bot.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
@@ -50,7 +50,7 @@ public class InvoiceAddFileConversation extends ListenerAdapter {
         }
 
         if (message.getAttachments().isEmpty()) {
-            privateChannel.sendMessageEmbeds(EmbedUtil.noAttachments()).queue();
+            privateChannel.sendMessageEmbeds(EmbedUtil.noAttachmentsSent()).queue();
             return;
         }
 

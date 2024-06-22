@@ -1,7 +1,7 @@
 package dev.shreyasayyengar.bot.database;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.misc.utils.Department;
+import dev.shreyasayyengar.bot.utils.Department;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -31,11 +31,11 @@ public class MySQL {
 
         try {
             openConnection();
-            DiscordBot.log(Department.MySQL, "Database Connection Established & Successfully Connected!");
+            DiscordBot.log(Department.DATABASE, "Database Connection Established & Successfully Connected!");
         } catch (SQLException x) {
-            DiscordBot.log(Department.MySQL, "[FAILURE] ------------------------- [FAILURE]");
-            DiscordBot.log(Department.MySQL, "There was a problem connecting to the MySQL database.");
-            DiscordBot.log(Department.MySQL, "[FAILURE] ------------------------- [FAILURE]");
+            DiscordBot.log(Department.DATABASE, "[FAILURE] ------------------------- [FAILURE]");
+            DiscordBot.log(Department.DATABASE, "There was a problem connecting to the MySQL database.");
+            DiscordBot.log(Department.DATABASE, "[FAILURE] ------------------------- [FAILURE]");
             x.printStackTrace();
         }
     }

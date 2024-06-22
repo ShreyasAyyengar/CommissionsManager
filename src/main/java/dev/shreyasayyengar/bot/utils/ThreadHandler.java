@@ -1,8 +1,7 @@
-package dev.shreyasayyengar.bot.misc.managers;
+package dev.shreyasayyengar.bot.utils;
 
 import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.customer.Customer;
-import dev.shreyasayyengar.bot.misc.utils.Department;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
@@ -26,18 +25,18 @@ public class ThreadHandler extends Thread {
 
     @Override
     public void run() {
-        DiscordBot.log(Department.ShutdownManager, "Shutting down...");
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "Shutting down...");
 
-        DiscordBot.log(Department.ShutdownManager, "[MySQL] Serialising Customers...");
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Customers...");
         DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialise);
 
-        DiscordBot.log(Department.ShutdownManager, "[MySQL] Serialising Commissions...");
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Commissions...");
         DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialiseCommissions);
 
-        DiscordBot.log(Department.ShutdownManager, "[MySQL] Serialising Active Invoices...");
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Active Invoices...");
         Invoice.INVOICES.forEach(Invoice::serialise);
 
-        DiscordBot.log(Department.ShutdownManager, "CommissionsManager has been shut down.");
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "CommissionsManager has been shut down.");
     }
 
     @Override

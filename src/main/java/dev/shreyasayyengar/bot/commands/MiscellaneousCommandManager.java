@@ -1,9 +1,9 @@
 package dev.shreyasayyengar.bot.commands;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.misc.utils.Authentication;
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
-import dev.shreyasayyengar.bot.misc.utils.Util;
+import dev.shreyasayyengar.bot.utils.Authentication;
+import dev.shreyasayyengar.bot.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

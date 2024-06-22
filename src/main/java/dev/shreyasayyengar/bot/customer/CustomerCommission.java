@@ -1,9 +1,9 @@
 package dev.shreyasayyengar.bot.customer;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.misc.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import dev.shreyasayyengar.bot.paypal.InvoiceDraft;
+import dev.shreyasayyengar.bot.utils.EmbedUtil;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class CustomerCommission {
      * command used by users in the Discord server.
      * <p></p>
      *
-     * @param customer              The {@link Customer} object that the commission is linked to.
+     * @param customer            The {@link Customer} object that the commission is linked to.
      * @param pluginName          The name of the plugin that the commission is for.
      * @param requestedSourceCode Whether the customer has requested source code.
      * @param infoEmbed           The {@link net.dv8tion.jda.api.entities.MessageEmbed} that contains the info for the commission.
@@ -204,8 +204,8 @@ public class CustomerCommission {
         return price;
     }
 
-    public double getFinalPrice() {
-        double rebasedPrice = price + 0.30 + (requestedSourceCode ? 5 : 0);
+    public double getFinalPrice() { // TODO show this when price is changed with embed
+        double rebasedPrice = price + (requestedSourceCode ? price * 0.05 : 0);
         double tax = rebasedPrice * 0.0725;
 
         return rebasedPrice + tax;

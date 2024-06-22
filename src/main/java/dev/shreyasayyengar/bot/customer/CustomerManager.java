@@ -1,8 +1,6 @@
-package dev.shreyasayyengar.bot.misc.managers;
+package dev.shreyasayyengar.bot.customer;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.customer.CustomerCommission;
-import dev.shreyasayyengar.bot.customer.Customer;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 

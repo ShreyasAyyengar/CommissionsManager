@@ -1,7 +1,7 @@
 package dev.shreyasayyengar.bot.listeners.jda;
 
 import dev.shreyasayyengar.bot.customer.Customer;
-import dev.shreyasayyengar.bot.misc.utils.Util;
+import dev.shreyasayyengar.bot.utils.Util;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

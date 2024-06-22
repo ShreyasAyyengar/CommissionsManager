@@ -5,18 +5,16 @@ import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.database.MySQL;
-import dev.shreyasayyengar.bot.listeners.interactions.ButtonClick;
+import dev.shreyasayyengar.bot.functional.InteractionManager;
 import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
-import dev.shreyasayyengar.bot.listeners.interactions.ModalSubmit;
-import dev.shreyasayyengar.bot.listeners.interactions.button.ButtonActionManager;
 import dev.shreyasayyengar.bot.listeners.jda.JDAException;
 import dev.shreyasayyengar.bot.listeners.jda.MemberRemove;
 import dev.shreyasayyengar.bot.listeners.jda.MemberScreeningPass;
 import dev.shreyasayyengar.bot.listeners.jda.MemberUpdateName;
-import dev.shreyasayyengar.bot.misc.managers.CustomerManager;
-import dev.shreyasayyengar.bot.misc.managers.ThreadHandler;
-import dev.shreyasayyengar.bot.misc.utils.Authentication;
-import dev.shreyasayyengar.bot.misc.utils.Department;
+import dev.shreyasayyengar.bot.customer.CustomerManager;
+import dev.shreyasayyengar.bot.utils.ThreadHandler;
+import dev.shreyasayyengar.bot.utils.Authentication;
+import dev.shreyasayyengar.bot.utils.Department;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -49,7 +47,7 @@ public class DiscordBot {
     public MySQL database;
 
     private CustomerManager customerManager;
-    private ButtonActionManager buttonActionManager;
+    private InteractionManager interactionManager;
 
     public Guild workingGuild;
     private String paypalAccessToken;
@@ -71,7 +69,7 @@ public class DiscordBot {
         deserialiseMySQLData();
         initThreadHandler();
 
-        log(Department.Main, "*** CommissionsManager Ready! ***");
+        log(Department.MAIN, "*** CommissionsManager Ready! ***");
         System.gc();
     }
 
@@ -117,7 +115,7 @@ public class DiscordBot {
     /**
      * This method initializes the MySQL database. It also sends
      * keep-alive queries to the database every 30 seconds to prevent
-     * the database connection from closing. TODO: (Will fix in future)
+     * the database connection from closing.
      *
      * @see MySQL
      */
@@ -131,7 +129,7 @@ public class DiscordBot {
                     Integer.parseInt(Authentication.MYSQL_PORT.get())
             );
 
-            log(Department.MySQL, "Loading Tables...");
+            log(Department.DATABASE, "Loading Tables...");
             database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_info(" +
                     "    member_id    tinytext     null," +
                     "    text_id      tinytext     null," +
@@ -158,7 +156,7 @@ public class DiscordBot {
             }), 5, 30, TimeUnit.SECONDS);
 
         } catch (Exception e) {
-            log(Department.MySQL, "FATAL ERROR WHEN initMySQL: " + e.getMessage());
+            log(Department.DATABASE, "FATAL ERROR WHEN initMySQL: " + e.getMessage());
             e.printStackTrace();
 
             System.exit(1);
@@ -176,7 +174,7 @@ public class DiscordBot {
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
                 .build().awaitReady();
 
-        this.buttonActionManager = new ButtonActionManager();
+        this.interactionManager = new InteractionManager();
     }
 
     /**
@@ -228,9 +226,7 @@ public class DiscordBot {
                 new MemberScreeningPass(),
                 new MemberRemove(),
                 new MemberUpdateName(),
-                new ButtonClick(),
                 new MenuSelect(),
-                new ModalSubmit(),
                 new CustomerCommandManager(),
                 new MiscellaneousSlashCommandManager(),
                 new MiscellaneousCommandManager(),
@@ -250,9 +246,7 @@ public class DiscordBot {
         return paypalAccessToken;
     }
 
-    public ButtonActionManager getButtonManager() {
-        return buttonActionManager;
+    public InteractionManager getInteractionManager() {
+        return interactionManager;
     }
 }
-
-// TODO: Consider migrating Authentication#OWNER_ID to Guild#getOwner()#getId()

@@ -1,4 +1,4 @@
-package dev.shreyasayyengar.bot.misc.utils;
+package dev.shreyasayyengar.bot.utils;
 
 /**
  * A util class for displaying which department a log is coming from.
@@ -6,8 +6,8 @@ package dev.shreyasayyengar.bot.misc.utils;
  * @author Shreyas Ayyengar
  */
 public enum Department {
-    Main,
-    MySQL,
-    PayPal,
-    ShutdownManager
+    MAIN,
+    DATABASE,
+    PAYPAL,
+    SHUTDOWN_MANAGER
 }
