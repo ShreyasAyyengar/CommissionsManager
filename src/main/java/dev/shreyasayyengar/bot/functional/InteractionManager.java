@@ -22,15 +22,6 @@ public class InteractionManager extends ListenerAdapter {
         DiscordBot.get().bot().addEventListener(this);
     }
 
-//    @Override
-//    public void onButtonInteraction(ButtonInteractionEvent event) {
-//        for (DiscordButton button : buttons) {
-//            if (button.getInternalId().toString().equals(event.getComponentId())) {
-//                button.getAction().onClick(event.getUser(), event);
-//            }
-//        }
-//    }
-
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         Collection<DiscordButton> buttonsCopy = new ArrayList<>(buttons);

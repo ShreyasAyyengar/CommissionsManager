@@ -15,7 +15,7 @@ public class DiscordButton {
     private final ButtonStyle style;
     private final String label;
 
-    private final Button button;
+    private Button button;
     private Emoji emoji;
 
     public DiscordButton(ButtonStyle style, String label, ButtonClickAction action) {

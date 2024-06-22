@@ -79,9 +79,7 @@ public class DiscordBot {
      */
     private void maintainAccessToken() {
         ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
-        scheduledService.scheduleAtFixedRate(() -> {
-            this.paypalAccessToken = this.getAccessToken();
-        }, 0, 5, TimeUnit.HOURS);
+        scheduledService.scheduleAtFixedRate(() -> this.paypalAccessToken = this.getAccessToken(), 0, 5, TimeUnit.HOURS);
     }
 
     private String getAccessToken() {
