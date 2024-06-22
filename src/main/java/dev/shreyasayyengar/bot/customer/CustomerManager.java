@@ -50,7 +50,7 @@ public class CustomerManager {
     public void purgeMemberSQL(User user) {
         try {
             Customer toPurge = DiscordBot.get().getCustomerManger().getMap().get(user.getId());
-            toPurge.getCommissions().forEach(CustomerCommission::close);
+            toPurge.getCommissions().forEach(customerCommission -> customerCommission.close(false));
 
             DiscordBot.get().database.preparedStatementBuilder("DELETE FROM customer_info WHERE member_id = ?;").setString(1, user.getId()).executeUpdate();
         } catch (Exception err) {
