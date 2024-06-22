@@ -40,7 +40,7 @@ public class MenuSelect extends ListenerAdapter {
 
                         List<DiscordButton> commissionActionButtons = new ArrayList<>() {{
                             add(new DiscordButton(ButtonStyle.PRIMARY, "Description", "\uD83D\uDCDD", (user1, descriptionButtonEvent) -> {
-                                Message infoMessage = customer.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete();
+                                Message infoMessage = customer.getTextChannel().retrieveMessageById(commission.getInfoEmbedId()).complete();
                                 descriptionButtonEvent.replyEmbeds(infoMessage.getEmbeds().get(0)).setEphemeral(true).queue();
                             }));
                             add(new DiscordButton(ButtonStyle.PRIMARY, "Set Quote", "\uD83D\uDCB2", (user1, quoteButtonEvent) -> {
@@ -80,8 +80,7 @@ public class MenuSelect extends ListenerAdapter {
 
                         List<DiscordButton> finaliseCommissionButtons = new ArrayList<>() {{
                             add(new DiscordButton(ButtonStyle.SUCCESS, "Complete", "✅", (user1, completeButtonEvent) -> {
-                                commission.close();
-                                // TODO for deleted/completed commission, just set the embed to green or red or with a tick/cross
+                                commission.close(true);
 
                                 List<DiscordButton> closingButtons = new ArrayList<>() {{
                                     add(new DiscordButton(ButtonStyle.SUCCESS, "Write a Vouch!", "U+270D", (user1, vouchButtonEvent) -> {
@@ -109,9 +108,11 @@ public class MenuSelect extends ListenerAdapter {
                                 completeButtonEvent.replyEmbeds(EmbedUtil.commissionCompleted(commission)).addContent(customer.getHolder().getAsMention()).addActionRow(closingButtons.stream().map(DiscordButton::asButton).toList()).queue();
                             }));
                             add(new DiscordButton(ButtonStyle.DANGER, "Cancel", "⛔", (user1, cancelButtonEvent) -> {
-                                if (commission.getInfoEmbed() != null) {
-                                    customer.getTextChannel().retrieveMessageById(commission.getInfoEmbed()).complete().delete().queue();
+                                if (commission.getInfoEmbedId() != null) {
+                                    customer.getTextChannel().retrieveMessageById(commission.getInfoEmbedId()).complete().delete().queue();
                                 }
+
+
 
                                 cancelButtonEvent.replyEmbeds(EmbedUtil.commissionCancelled(commission)).queue();
                                 commission.close();

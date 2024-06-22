@@ -4,8 +4,11 @@ import dev.shreyasayyengar.bot.DiscordBot;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import dev.shreyasayyengar.bot.paypal.InvoiceDraft;
 import dev.shreyasayyengar.bot.utils.EmbedUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
+import java.awt.*;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -31,7 +34,7 @@ public class CustomerCommission {
 
     private final Customer customer;
     private final String pluginName;
-    private final String infoEmbed;
+    private final String infoEmbedId;
 
     private boolean requestedSourceCode;
     private boolean confirmed;
@@ -69,14 +72,14 @@ public class CustomerCommission {
      * @param customer            The {@link Customer} object that the commission is linked to.
      * @param pluginName          The name of the plugin that the commission is for.
      * @param requestedSourceCode Whether the customer has requested source code.
-     * @param infoEmbed           The {@link net.dv8tion.jda.api.entities.MessageEmbed} that contains the info for the commission.
+     * @param infoEmbedId         The {@link net.dv8tion.jda.api.entities.MessageEmbed} that contains the info for the commission.
      */
-    public CustomerCommission(Customer customer, String pluginName, boolean requestedSourceCode, String infoEmbed) {
+    public CustomerCommission(Customer customer, String pluginName, boolean requestedSourceCode, String infoEmbedId) {
         this.customer = customer;
         this.pluginName = pluginName;
         this.requestedSourceCode = requestedSourceCode;
         this.confirmed = false;
-        this.infoEmbed = infoEmbed;
+        this.infoEmbedId = infoEmbedId;
 
         COMMISSIONS.add(this);
     }
@@ -91,14 +94,14 @@ public class CustomerCommission {
      * @param requestedSourceCode Whether the customer has requested source code.
      * @param confirmed           Whether the commission has been confirmed by the customer.
      * @param price               The price of the commission.
-     * @param infoEmbed           The {@link net.dv8tion.jda.api.entities.MessageEmbed} message ID that contains the info for the commission.
+     * @param infoEmbedId         The {@link net.dv8tion.jda.api.entities.MessageEmbed} message ID that contains the info for the commission.
      */
-    public CustomerCommission(String holderId, String pluginName, boolean requestedSourceCode, boolean confirmed, double price, String infoEmbed) {
+    public CustomerCommission(String holderId, String pluginName, boolean requestedSourceCode, boolean confirmed, double price, String infoEmbedId) {
         this.pluginName = pluginName;
         this.requestedSourceCode = requestedSourceCode;
         this.confirmed = confirmed;
         this.price = price;
-        this.infoEmbed = infoEmbed;
+        this.infoEmbedId = infoEmbedId;
 
         this.customer = DiscordBot.get().getCustomerManger().get(holderId);
         this.customer.getCommissions().add(this);
@@ -138,7 +141,7 @@ public class CustomerCommission {
                                         .setBoolean(requestedSourceCode)
                                         .setBoolean(confirmed)
                                         .setDouble(price)
-                                        .setString(infoEmbed)
+                                        .setString(infoEmbedId)
                                         .setString(customer.getHolder().getId())
                                         .setString(pluginName)
                                         .build().executeUpdate();
@@ -149,7 +152,7 @@ public class CustomerCommission {
                                         .setBoolean(requestedSourceCode)
                                         .setBoolean(confirmed)
                                         .setDouble(price)
-                                        .setString(infoEmbed)
+                                        .setString(infoEmbedId)
                                         .build().executeUpdate();
                             }
                         } catch (SQLException e) {
@@ -166,7 +169,7 @@ public class CustomerCommission {
     /**
      * Closes the commission for any reason and removes it from the {@link #COMMISSIONS} & {@link Customer#getCommissions()} list.
      */
-    public void close() {
+    public void close(boolean completed) {
         COMMISSIONS.remove(this);
         this.customer.getCommissions().remove(this);
         this.invoices.forEach(Invoice::cancel);
@@ -177,6 +180,23 @@ public class CustomerCommission {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        customer.getTextChannel().retrieveMessageById(infoEmbedId).queue(message -> {
+            MessageEmbed messageEmbed = message.getEmbeds().get(0);
+
+            EmbedBuilder completedEmbed = new EmbedBuilder(messageEmbed);
+            if (completed) {
+                completedEmbed.setTitle(messageEmbed.getTitle() + " (COMPLETED)")
+                        .setColor(Color.GREEN)
+                        .build();
+            } else {
+                completedEmbed.setTitle(messageEmbed.getTitle() + " (CANCELLED)")
+                        .setColor(Color.RED)
+                        .build();
+            }
+            message.editMessageEmbeds(completedEmbed.build()).queue();
+        });
+
     }
 
     /**
@@ -196,8 +216,8 @@ public class CustomerCommission {
         return pluginName;
     }
 
-    public String getInfoEmbed() {
-        return infoEmbed;
+    public String getInfoEmbedId() {
+        return infoEmbedId;
     }
 
     public double getPrice() {
