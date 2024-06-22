@@ -28,7 +28,6 @@ public class MenuSelect extends ListenerAdapter {
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         if (event.getComponentId().equalsIgnoreCase("menu:commissions")) {
-
             String pluginName = event.getValues().get(0).replace("commission.", "");
             Customer customer = DiscordBot.get().getCustomerManger().getByTextChannel(event.getChannel().asTextChannel());
             CustomerCommission commission = customer.getCommission(pluginName);
@@ -161,7 +160,6 @@ public class MenuSelect extends ListenerAdapter {
 
                                 List<DiscordButton> isForPrimaryInvoiceButtons = new ArrayList<>() {{
                                     add(new DiscordButton(ButtonStyle.PRIMARY, "Primary Invoice", "U+2705", (buttonUser1, yesButtonEvent) -> {
-
                                         if (commission.checkPrice()) {
                                             event.replyEmbeds(EmbedUtil.noPriceSet()).setEphemeral(true).queue();
                                             return;
@@ -177,7 +175,6 @@ public class MenuSelect extends ListenerAdapter {
                                         } catch (IOException e) {
                                             throw new RuntimeException(e);
                                         }
-
                                     }));
                                     add(new DiscordButton(ButtonStyle.SECONDARY, "Secondary Invoice", "U+26D4", (buttonUser1, noButtonEvent) -> {
 
@@ -204,7 +201,6 @@ public class MenuSelect extends ListenerAdapter {
 
                                 generateButtonEvent.editMessageEmbeds(EmbedUtil.isInvoicePrimary(commission)).setActionRow(isForPrimaryInvoiceButtons.stream().map(DiscordButton::asButton).toList()).queue();
                             }));
-
                             add(new DiscordButton(ButtonStyle.SECONDARY, "View Outstanding Invoices", "U+1F9FE", (buttonUser, viewButtonEvent) -> {
                                 if (commission.getInvoices().isEmpty()) {
                                     viewButtonEvent.editMessageEmbeds(EmbedUtil.noOutstandingInvoices()).setActionRow().queue();
