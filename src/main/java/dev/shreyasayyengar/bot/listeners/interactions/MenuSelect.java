@@ -161,12 +161,12 @@ public class MenuSelect extends ListenerAdapter {
                                 List<DiscordButton> isForPrimaryInvoiceButtons = new ArrayList<>() {{
                                     add(new DiscordButton(ButtonStyle.PRIMARY, "Primary Invoice", "U+2705", (buttonUser1, yesButtonEvent) -> {
                                         if (commission.checkPrice()) {
-                                            event.replyEmbeds(EmbedUtil.noPriceSet()).setEphemeral(true).queue();
+                                            yesButtonEvent.replyEmbeds(EmbedUtil.noPriceSet()).setEphemeral(true).queue();
                                             return;
                                         }
 
                                         if (!commission.isConfirmed()) {
-                                            event.replyEmbeds(EmbedUtil.notConfirmed()).setEphemeral(true).queue();
+                                            yesButtonEvent.replyEmbeds(EmbedUtil.notConfirmed()).setEphemeral(true).queue();
                                             return;
                                         }
 
