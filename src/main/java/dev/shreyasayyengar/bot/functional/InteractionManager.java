@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 public class InteractionManager extends ListenerAdapter {
     private final Collection<DiscordButton> buttons = new HashSet<>();
@@ -34,11 +35,12 @@ public class InteractionManager extends ListenerAdapter {
 
     @Override
     public void onModalInteraction(ModalInteractionEvent event) {
-        for (DiscordModal modal : modals) {
+        Iterator<DiscordModal> iterator = modals.iterator();
+        while (iterator.hasNext()) {
+            DiscordModal modal = iterator.next();
             if (modal.getInternalId().toString().equals(event.getModalId())) {
                 modal.getAction().onSubmit(event.getUser(), event);
-
-                modals.remove(modal);
+                iterator.remove();
             }
         }
     }
