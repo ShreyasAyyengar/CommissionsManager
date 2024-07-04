@@ -33,10 +33,10 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .setTitle("Welcome to shreyasayyengar.dev!")
                             .setDescription("The **#1** place for **all** your plugin development needs & services!")
                             .setThumbnail(event.getGuild().getMemberById(Authentication.OWNER_ID.get()).getEffectiveAvatarUrl())
-                            .addField("Who?", "Hi! I'm `Shreyas Ayyengar` and I am a high school student and a Java Developer! I specialise in creating Bukkit plugins for Minecraft Servers of all types and sizes. " +
+                            .addField("Who?", "Hi! I'm `Shreyas Ayyengar` and I am a university student and a Java Developer! I specialise in creating Bukkit plugins for Minecraft Servers of all types and sizes. " +
                                     "I also do some private bot development on the side when I feel like it :D ", false)
 
-                            .addField("What?", "I have worked with over **30 different clients** at the time of writing, aiming to create __sustainable, cheap, and customisable__ Bukkit plugins." +
+                            .addField("What?", "I have worked with over **70 different clients** at the time of writing, aiming to create __sustainable, cheap, and customisable__ Bukkit plugins." +
                                     " Working with this many people has made me very accessible and skillful at what I do. " +
                                     " Back when I started in `2020`, I was quite new, and still navigating my programming journey, and while that's still true, I am extremely more experienced " +
                                     "than I was years back!", false)
@@ -73,7 +73,7 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .addField("Where's the rules?", """
                                             Unlike most discord servers, I won't create a list of rules and what's bannable or what's not bannable etc.\s
 
-                                            The general consensus that I ask you to agree to is that your actions must not hurt me, hurt yourself, or hurt anyone else!. Anything that is obviously construed as **offensive**, **hurtful**, **disrespectful**, or otherwise is not allowed. If these acts are committed several times without an behaviour adjustment from a warning, you **will** be removed from this discord, and possibly cut loose from any commissions :(
+                                            The general consensus that I ask you to agree to is that your actions must not hurt me, hurt yourself, or hurt anyone else!. Anything that is obviously construed as **offensive**, **hurtful**, **disrespectful**, or otherwise is not allowed. If these acts are committed several times without an behaviour adjustment from a warning, you **will** be removed from this Server.
 
                                             Creating a list of rules (||that I myself may violate||) just isn't really feasible, so all I ask if that you be a compassionate and respectful person and I **promise** you will have an amazing time here! :purple_heart:
 
