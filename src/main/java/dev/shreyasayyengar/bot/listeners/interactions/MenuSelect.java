@@ -72,8 +72,13 @@ public class MenuSelect extends ListenerAdapter {
                                                     commission.setConfirmed(false);
                                                     denyButtonEvent.deferEdit().queue();
 
-                                                    denyButtonEvent.getHook().sendMessageEmbeds(EmbedUtil.rejectedQuote()).queue();
-                                                    denyButtonEvent.getHook().editOriginalComponents().setReplace(true).queue();
+                                                    MessageEmbed deniedEmbed = new EmbedBuilder()
+                                                            .setTitle("Commission Price Denied: " + commission.getPluginName())
+                                                            .setDescription("This price for this commission, set for " + String.format("%.2f", commission.getFinalPrice()) + " (**Inclusive of Tax and SRC if requested) has been denied.")
+                                                            .setFooter("Since you didn't agree to this quote, describe what you would like changed to meet you budget!")
+                                                            .setColor(Color.RED)
+                                                            .build();
+                                                    denyButtonEvent.editMessageEmbeds(deniedEmbed).setReplace(true).queue();
                                                 }));
                                             }};
 
