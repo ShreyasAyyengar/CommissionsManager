@@ -65,13 +65,15 @@ public class MenuSelect extends ListenerAdapter {
                                                             .build();
                                                     confirmButtonEvent.deferEdit().queue();
 
-                                                    confirmButtonEvent.getHook().editOriginalEmbeds(acceptedEmbed).queue();
+                                                    confirmButtonEvent.getHook().editOriginalEmbeds(acceptedEmbed).setReplace(true).queue();
                                                     confirmButtonEvent.getHook().sendMessageEmbeds(EmbedUtil.acceptedQuote()).queue();
                                                 }));
                                                 add(new DiscordButton(ButtonStyle.DANGER, "Deny", "⛔", (user1, denyButtonEvent) -> {
                                                     commission.setConfirmed(false);
-                                                    denyButtonEvent.replyEmbeds(EmbedUtil.rejectedQuote()).queue();
-                                                    denyButtonEvent.getHook().editOriginalComponents().queue();
+                                                    denyButtonEvent.deferEdit().queue();
+
+                                                    denyButtonEvent.getHook().sendMessageEmbeds(EmbedUtil.rejectedQuote()).queue();
+                                                    denyButtonEvent.getHook().editOriginalComponents().setReplace(true).queue();
                                                 }));
                                             }};
 
