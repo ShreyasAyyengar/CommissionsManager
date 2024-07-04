@@ -3,7 +3,9 @@ package dev.shreyasayyengar.bot;
 import dev.shreyasayyengar.bot.commands.CustomerCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
+import dev.shreyasayyengar.bot.customer.Customer;
 import dev.shreyasayyengar.bot.customer.CustomerCommission;
+import dev.shreyasayyengar.bot.customer.CustomerManager;
 import dev.shreyasayyengar.bot.database.MySQL;
 import dev.shreyasayyengar.bot.functional.InteractionManager;
 import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
@@ -11,11 +13,11 @@ import dev.shreyasayyengar.bot.listeners.jda.JDAException;
 import dev.shreyasayyengar.bot.listeners.jda.MemberRemove;
 import dev.shreyasayyengar.bot.listeners.jda.MemberScreeningPass;
 import dev.shreyasayyengar.bot.listeners.jda.MemberUpdateName;
-import dev.shreyasayyengar.bot.customer.CustomerManager;
-import dev.shreyasayyengar.bot.utils.ThreadHandler;
+import dev.shreyasayyengar.bot.paypal.Invoice;
 import dev.shreyasayyengar.bot.utils.Authentication;
 import dev.shreyasayyengar.bot.utils.Department;
-import dev.shreyasayyengar.bot.paypal.Invoice;
+import dev.shreyasayyengar.bot.utils.EmbedUtil;
+import dev.shreyasayyengar.bot.utils.ThreadHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -215,6 +217,28 @@ public class DiscordBot {
         Thread.currentThread().setUncaughtExceptionHandler(handler.getUncaughtExceptionHandler());
 
 //        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(System::gc, 0, 30, TimeUnit.MINUTES);
+    }
+
+    public void shutdown() {
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "Shutting down...");
+
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Customers...");
+        DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialise);
+
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Commissions...");
+        DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialiseCommissions);
+
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Active Invoices...");
+        Invoice.INVOICES.forEach(Invoice::serialise);
+
+        DiscordBot.get().discordBot.getTextChannelById("997328980086632448").sendMessageEmbeds(EmbedUtil.dataSaved()).queue(_ignored -> {
+            DiscordBot.log(Department.SHUTDOWN_MANAGER, "Shutting down JDA...");
+            DiscordBot.get().discordBot.getTextChannelById("997328980086632448").sendMessageEmbeds(EmbedUtil.botShutdown()).queue(ignored -> {
+                DiscordBot.get().discordBot.shutdown();
+            });
+        });
+
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "CommissionsManager has been shut down.");
     }
 
     // ----------------------------- GETTERS --------------------------------- //

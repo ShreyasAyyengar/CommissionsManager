@@ -1,6 +1,7 @@
 package dev.shreyasayyengar.bot.commands;
 
 import dev.shreyasayyengar.bot.DiscordBot;
+import dev.shreyasayyengar.bot.paypal.Invoice;
 import dev.shreyasayyengar.bot.utils.Authentication;
 import dev.shreyasayyengar.bot.utils.EmbedUtil;
 import dev.shreyasayyengar.bot.utils.Util;
@@ -142,6 +143,10 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                     }
 
                     event.getMessage().reply("Done?").queue();
+                }
+
+                if (message.contains("!invoice-count")) {
+                    event.getMessage().reply("There are %s invoices in cycle to check.".formatted(Invoice.INVOICES.size())).queue();
                 }
             }
         } catch (Exception e) {

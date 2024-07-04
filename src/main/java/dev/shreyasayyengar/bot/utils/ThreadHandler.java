@@ -25,18 +25,7 @@ public class ThreadHandler extends Thread {
 
     @Override
     public void run() {
-        DiscordBot.log(Department.SHUTDOWN_MANAGER, "Shutting down...");
-
-        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Customers...");
-        DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialise);
-
-        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Commissions...");
-        DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialiseCommissions);
-
-        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Active Invoices...");
-        Invoice.INVOICES.forEach(Invoice::serialise);
-
-        DiscordBot.log(Department.SHUTDOWN_MANAGER, "CommissionsManager has been shut down.");
+        DiscordBot.get().shutdown();
     }
 
     @Override

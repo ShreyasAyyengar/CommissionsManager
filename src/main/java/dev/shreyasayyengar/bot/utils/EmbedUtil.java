@@ -416,14 +416,6 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed exiting() {
-        return new EmbedBuilder()
-                .setTitle("Exiting...")
-                .setDescription("The bot is now exiting and shutting down. If this is an IDE stagnant crash, please restart the bot through your IDE!")
-                .setColor(Util.THEME_COLOUR)
-                .build();
-    }
-
     public static MessageEmbed doesNotWork() {
         return new EmbedBuilder()
                 .setTitle("\"This isn't working!\", \"Nothing happens!\", \"I am getting errors!\"")
@@ -451,5 +443,30 @@ public class EmbedUtil {
                 .setColor(Color.RED)
                 .build();
     }
+
+    public static MessageEmbed exiting() {
+        return new EmbedBuilder()
+                .setTitle("Exiting...")
+                .setDescription("The bot is now exiting and shutting down. If this is an IDE stagnant crash, please restart the bot through your IDE!")
+                .setColor(Util.THEME_COLOUR)
+                .build();
+    }
+
+    public static MessageEmbed dataSaved() {
+        return new EmbedBuilder()
+                .setTitle("Data Saved!")
+                .setDescription("All data has been saved to the database!")
+                .setColor(Util.THEME_COLOUR)
+                .build();
+    }
+
+    public static MessageEmbed botShutdown() {
+        return new EmbedBuilder()
+                .setTitle("Bot Shutdown!")
+                .setDescription("The JDA reference has been shutdown.")
+                .setColor(Util.THEME_COLOUR)
+                .build();
+    }
+
     //endregion
 }
