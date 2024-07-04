@@ -53,9 +53,9 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                                     As for the finished product? Just have a look at <#980373571807367208>!""", false)
 
                             .addField("Extra information:", """
-                                        - [**My SpigotMC Developer Page**](https://www.spigotmc.org/threads/open-%E2%9C%A8-high-quality-plugins-configurable-affordable-easy-experienced-%E2%9C%A8.513897/)
-                                        - [**My GitHub**](https://github.com/ShreyasAyyengar)
-                                        - [**My Personal Website**](https://shreyasayyengar.dev/)
+                                       - [**My SpigotMC Developer Page**](https://www.spigotmc.org/threads/open-%E2%9C%A8-high-quality-plugins-configurable-affordable-easy-experienced-%E2%9C%A8.513897/)
+                                   - [**My GitHub**](https://github.com/ShreyasAyyengar)
+                                   - [**My Personal Website**](https://shreyasayyengar.dev/)
                                     """, false)
                             .setColor(Util.THEME_COLOUR)
                             .setThumbnail("attachment://shreyasayyengar.png")
@@ -63,7 +63,6 @@ public class MiscellaneousCommandManager extends ListenerAdapter {
                             .build();
 
                     event.getChannel().sendMessageEmbeds(aboutEmbed).addFiles(FileUpload.fromData(file, "shreyasayyengar.png")).queue();
-
                 }
 
                 if (message.equalsIgnoreCase("!rules")) {

@@ -231,12 +231,11 @@ public class DiscordBot {
         DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Active Invoices...");
         Invoice.INVOICES.forEach(Invoice::serialise);
 
-        DiscordBot.get().discordBot.getTextChannelById("997328980086632448").sendMessageEmbeds(EmbedUtil.dataSaved()).queue(_ignored -> {
-            DiscordBot.log(Department.SHUTDOWN_MANAGER, "Shutting down JDA...");
-            DiscordBot.get().discordBot.getTextChannelById("997328980086632448").sendMessageEmbeds(EmbedUtil.botShutdown()).queue(ignored -> {
-                DiscordBot.get().discordBot.shutdown();
-            });
-        });
+        DiscordBot.get().discordBot.getTextChannelById("997328980086632448").sendMessageEmbeds(EmbedUtil.dataSaved()).queue();
+
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "Shutting down JDA...");
+        DiscordBot.get().discordBot.getTextChannelById("997328980086632448").sendMessageEmbeds(EmbedUtil.botShutdown()).queue();
+        DiscordBot.get().discordBot.shutdown();
 
         DiscordBot.log(Department.SHUTDOWN_MANAGER, "CommissionsManager has been shut down.");
     }
