@@ -52,16 +52,16 @@ public class MenuSelect extends ListenerAdapter {
                                             List<DiscordButton> confirmDenyButtons = new ArrayList<>() {{
                                                 add(new DiscordButton(ButtonStyle.SUCCESS, "Accept", "✅", (user1, confirmButtonEvent) -> {
                                                     commission.setConfirmed(true);
-                                                    confirmButtonEvent.replyEmbeds(EmbedUtil.acceptedQuote()).queue();
+                                                    confirmButtonEvent.replyEmbeds(EmbedUtil.acceptedQuote()).setComponents().queue();
                                                 }));
-                                                add(new DiscordButton(ButtonStyle.DANGER, "Deny", "❌", (user1, denyButtonEvent) -> {
+                                                add(new DiscordButton(ButtonStyle.DANGER, "Deny", "⛔", (user1, denyButtonEvent) -> {
                                                     commission.setConfirmed(false);
-                                                    denyButtonEvent.replyEmbeds(EmbedUtil.rejectedQuote()).queue();
+                                                    denyButtonEvent.replyEmbeds(EmbedUtil.rejectedQuote()).setComponents().queue();
                                                 }));
                                             }};
 
                                             // TODO reply to modal
-                                            commission.getCustomer().getTextChannel().sendMessage("@here")
+                                            amountSubmitEvent.reply("@here")
                                                     .setEmbeds(EmbedUtil.confirmCommission(commission))
                                                     .setActionRow(confirmDenyButtons.stream().map(DiscordButton::asButton).toList())
                                                     .queue();
@@ -204,7 +204,7 @@ public class MenuSelect extends ListenerAdapter {
                             }));
                             add(new DiscordButton(ButtonStyle.SECONDARY, "View Outstanding Invoices", "U+1F9FE", (buttonUser, viewButtonEvent) -> {
                                 if (commission.getInvoices().isEmpty()) {
-                                    viewButtonEvent.editMessageEmbeds(EmbedUtil.noOutstandingInvoices()).setActionRow().queue();
+                                    viewButtonEvent.editMessageEmbeds(EmbedUtil.noOutstandingInvoices()).setReplace(true).queue();
                                     return;
                                 }
 
