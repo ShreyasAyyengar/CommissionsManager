@@ -70,7 +70,6 @@ public class MenuSelect extends ListenerAdapter {
                                                 }));
                                                 add(new DiscordButton(ButtonStyle.DANGER, "Deny", "⛔", (user1, denyButtonEvent) -> {
                                                     commission.setConfirmed(false);
-                                                    denyButtonEvent.deferEdit().queue();
 
                                                     MessageEmbed deniedEmbed = new EmbedBuilder()
                                                             .setTitle("Commission Price Denied: " + commission.getPluginName())
