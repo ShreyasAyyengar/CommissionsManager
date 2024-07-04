@@ -224,7 +224,7 @@ public class CustomerCommission {
         return price;
     }
 
-    public double getFinalPrice() { // TODO show this when price is changed with embed
+    public double getFinalPrice() {
         double rebasedPrice = price + (requestedSourceCode ? price * 0.05 : 0);
         double tax = rebasedPrice * 0.0725;
 

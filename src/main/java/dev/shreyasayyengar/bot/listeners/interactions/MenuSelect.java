@@ -10,6 +10,7 @@ import dev.shreyasayyengar.bot.functional.type.DiscordModal;
 import dev.shreyasayyengar.bot.paypal.Invoice;
 import dev.shreyasayyengar.bot.paypal.InvoiceDraft;
 import dev.shreyasayyengar.bot.utils.EmbedUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -20,6 +21,7 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,11 +54,24 @@ public class MenuSelect extends ListenerAdapter {
                                             List<DiscordButton> confirmDenyButtons = new ArrayList<>() {{
                                                 add(new DiscordButton(ButtonStyle.SUCCESS, "Accept", "✅", (user1, confirmButtonEvent) -> {
                                                     commission.setConfirmed(true);
-                                                    confirmButtonEvent.replyEmbeds(EmbedUtil.acceptedQuote()).setComponents().queue();
+
+                                                    MessageEmbed acceptedEmbed = new EmbedBuilder()
+                                                            .setTitle("Commission Price Confirmed: " + commission.getPluginName())
+                                                            .setDescription("This price for this commission, set for " + String.format("%.2f", commission.getFinalPrice()) + " (**Inclusive of Tax and SRC if requested) has been confirmed.")
+                                                            .addField(":warning: This may not be the final price! :warning:", "As more work is completed and process continues, the price **may or may not** increase or decrease. " +
+                                                                    "If this happens to be the case **you will see a message just like this one** alerting you of a price change. ", false)
+                                                            .setFooter("Should there ever be a change in the price, your confirmation again will be required before generating any related invoices.", DiscordBot.get().workingGuild.getOwner().getEffectiveAvatarUrl())
+                                                            .setColor(Color.GREEN)
+                                                            .build();
+                                                    confirmButtonEvent.deferEdit().queue();
+
+                                                    confirmButtonEvent.getHook().editOriginalEmbeds(acceptedEmbed).queue();
+                                                    confirmButtonEvent.getHook().sendMessageEmbeds(EmbedUtil.acceptedQuote()).queue();
                                                 }));
                                                 add(new DiscordButton(ButtonStyle.DANGER, "Deny", "⛔", (user1, denyButtonEvent) -> {
                                                     commission.setConfirmed(false);
-                                                    denyButtonEvent.replyEmbeds(EmbedUtil.rejectedQuote()).setComponents().queue();
+                                                    denyButtonEvent.replyEmbeds(EmbedUtil.rejectedQuote()).queue();
+                                                    denyButtonEvent.getHook().editOriginalComponents().queue();
                                                 }));
                                             }};
 
