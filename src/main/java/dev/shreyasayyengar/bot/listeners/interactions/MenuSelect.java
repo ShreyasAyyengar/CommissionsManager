@@ -57,7 +57,7 @@ public class MenuSelect extends ListenerAdapter {
 
                                                     MessageEmbed acceptedEmbed = new EmbedBuilder()
                                                             .setTitle("Commission Price Confirmed: " + commission.getPluginName())
-                                                            .setDescription("This price for this commission, set for " + String.format("%.2f", commission.getFinalPrice()) + " (**Inclusive of Tax and SRC if requested) has been confirmed.")
+                                                            .setDescription("This price for this commission, set for `$" + String.format("%.2f", commission.getFinalPrice()) + "` (**Inclusive** of Tax and SRC if requested) has been confirmed.")
                                                             .addField(":warning: This may not be the final price! :warning:", "As more work is completed and process continues, the price **may or may not** increase or decrease. " +
                                                                     "If this happens to be the case **you will see a message just like this one** alerting you of a price change. ", false)
                                                             .setFooter("Should there ever be a change in the price, your confirmation again will be required before generating any related invoices.", DiscordBot.get().workingGuild.getOwner().getEffectiveAvatarUrl())
@@ -73,7 +73,7 @@ public class MenuSelect extends ListenerAdapter {
 
                                                     MessageEmbed deniedEmbed = new EmbedBuilder()
                                                             .setTitle("Commission Price Denied: " + commission.getPluginName())
-                                                            .setDescription("This price for this commission, set for " + String.format("%.2f", commission.getFinalPrice()) + " (**Inclusive of Tax and SRC if requested) has been denied.")
+                                                            .setDescription("This price for this commission, set for `$" + String.format("%.2f", commission.getFinalPrice()) + "` (**Inclusive** of Tax and SRC if requested) has been denied.")
                                                             .setFooter("Since you didn't agree to this quote, describe what you would like changed to meet you budget!")
                                                             .setColor(Color.RED)
                                                             .build();
