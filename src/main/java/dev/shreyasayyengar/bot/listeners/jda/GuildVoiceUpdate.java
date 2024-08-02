@@ -6,22 +6,18 @@ import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.util.concurrent.TimeUnit;
-
 public class GuildVoiceUpdate extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
         if (event.getChannelJoined() == null) {
             AudioChannelUnion channelLeft = event.getChannelLeft();
 
-            for (Customer customer : DiscordBot.get().getCustomerManger().getMap().values()) {
-                if (channelLeft.getId().equalsIgnoreCase(customer.getTemporaryVoiceChannel().getId())) {
-                    // customer left their temporary voice channel.
-                    if (channelLeft.getMembers().isEmpty()) {
-                        customer.getTemporaryVoiceChannel().delete().queueAfter(5, TimeUnit.SECONDS);
-                    }
-                }
-            }
+            Customer customer = DiscordBot.get().getCustomerManger().getMap().get(event.getMember().getId());
+            if (customer == null) return; // either bot or myself
+            if (!customer.getTemporaryVoiceChannel().getId().equalsIgnoreCase(channelLeft.getId())) return;
+
+            // customer left their temporary voice channel.
+            customer.getTemporaryVoiceChannel().delete();
         }
     }
 }
