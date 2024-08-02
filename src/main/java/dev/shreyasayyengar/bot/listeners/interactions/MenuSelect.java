@@ -111,7 +111,6 @@ public class MenuSelect extends ListenerAdapter {
                                                     String vouch = modalEvent.getValue("text-box").getAsString();
                                                     MessageEmbed vouchEmbed;
 
-                                                    modalEvent.getValue("spigotmc").getAsString();
                                                     if (!modalEvent.getValue("spigotmc").getAsString().isEmpty()) {
                                                         vouchEmbed = EmbedUtil.vouch(vouch, modalUser, modalEvent.getValue("spigotmc").getAsString());
                                                     } else vouchEmbed = EmbedUtil.vouch(vouch, modalUser);

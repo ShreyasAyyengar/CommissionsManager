@@ -86,7 +86,7 @@ public class Invoice {
      * The cycleChecks method loops through all invoices inside the {@link #INVOICES} collection, and checks if they
      * are paid or not. Action is only taken if the invoice is paid, and is done so by updating the {@link #status} of the
      * invoice object. The MessageEmbed, which would've been sent to the user immediately after the invoice was created
-     * ({@link #getInvoiceEmbed()}) is updated to reflect the new status, provided by {@link #getPaidInvoiceEmbed()}.
+     * ({@link #getInvoiceEmbed(String)}) is updated to reflect the new status, provided by {@link #getPaidInvoiceEmbed(String)}.
      */
     private static void cycleChecks() {
         ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
@@ -154,7 +154,7 @@ public class Invoice {
     /**
      * This method makes regular calls to PayPal's API requesting if the Invoice has been paid or not.
      * If the invoice has been paid successfully and the status returned is "<code>PAID</code>", then
-     * the {@link #status} is updated to reflect this, and the {@link #getPaidInvoiceEmbed()} method is called to
+     * the {@link #status} is updated to reflect this, and the {@link #getPaidInvoiceEmbed(String)} method is called to
      * edit the embed to reflect the new status. No action is taken if the return status is not "<code>PAID</code>".
      *
      * @apiNote This method is called automatically by the {@link #cycleChecks()}

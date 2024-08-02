@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +25,7 @@ public class InteractionManager extends ListenerAdapter {
     }
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent event) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         Collection<DiscordButton> buttonsCopy = new ArrayList<>(buttons);
         for (DiscordButton button : buttonsCopy) {
             if (button.getInternalId().toString().equals(event.getComponentId())) {
@@ -34,7 +35,7 @@ public class InteractionManager extends ListenerAdapter {
     }
 
     @Override
-    public void onModalInteraction(ModalInteractionEvent event) {
+    public void onModalInteraction(@NotNull ModalInteractionEvent event) {
         Iterator<DiscordModal> iterator = modals.iterator();
         while (iterator.hasNext()) {
             DiscordModal modal = iterator.next();
@@ -46,7 +47,7 @@ public class InteractionManager extends ListenerAdapter {
     }
 
     @Override
-    public void onStringSelectInteraction(StringSelectInteractionEvent event) {
+    public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
         for (DiscordMenu menu : menus) {
             if (menu.getInternalId().toString().equals(event.getComponentId())) {
                 menu.getAction().onSelect(event.getUser(), event);

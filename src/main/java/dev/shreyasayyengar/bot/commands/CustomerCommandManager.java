@@ -121,8 +121,9 @@ public class CustomerCommandManager extends ListenerAdapter {
                 event.replyModal(modal.asModal()).queue();
             }
 
-            case "vc" -> {
-
+            case "voice" -> {
+                MessageEmbed messageEmbed = customer.tryGenerateTemporaryVoiceChannel();
+                event.replyEmbeds(messageEmbed).queue();
             }
 
             case "commissions" -> {

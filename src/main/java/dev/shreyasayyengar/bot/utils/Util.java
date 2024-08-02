@@ -5,9 +5,6 @@ import dev.shreyasayyengar.bot.customer.Customer;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.awt.*;
@@ -66,16 +63,5 @@ public class Util {
 
     public static Collection<Permission> getDeniedPermissions() {
         return CollectionUtils.subtract(Util.getAllowedPermissions(), Arrays.stream(Permission.values()).toList());
-    }
-
-    public static Modal submitEmailModal() {
-        Modal.Builder emailModal = Modal.create("submit-email", "Submit your email");
-        emailModal.addActionRow(TextInput.create("email", "Email", TextInputStyle.SHORT)
-                .setRequired(true)
-                .setPlaceholder("Ex: j.appleseed@example.com")
-                .build()
-        );
-
-        return emailModal.build();
     }
 }

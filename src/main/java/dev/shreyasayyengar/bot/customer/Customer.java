@@ -49,7 +49,7 @@ public class Customer {
      * only be used when a new Member has joined a server.</b> If ran outside this context, the Customer object will generate
      * duplicate channels.
      * <p></p>
-     * To <b>load</b> an existing Customer object via a ResultSet use the {@link #Customer(String, String, String)} constructor.
+     * To <b>load</b> an existing Customer object via a ResultSet use the {@link #Customer(String, String)} constructor.
      *
      * <p></p>
      *

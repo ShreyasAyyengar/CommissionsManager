@@ -83,15 +83,6 @@ public class EmbedUtil {
                 .build();
     }
 
-    public static MessageEmbed rejectedQuote() {
-        return new EmbedBuilder()
-                .setTitle("Quote Denied!")
-                .setFooter("Since you didn't agree to this quote, describe what you would like changed!")
-                .setColor(Color.RED)
-                .setTimestamp(new Date().toInstant())
-                .build();
-    }
-
     public static MessageEmbed sourceCodeUpdate(CustomerCommission commission) {
         return new EmbedBuilder()
                 .setTitle("Source Code Update: " + commission.getPluginName())

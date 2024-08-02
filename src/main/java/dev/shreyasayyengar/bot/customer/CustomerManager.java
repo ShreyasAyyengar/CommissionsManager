@@ -19,7 +19,7 @@ public class CustomerManager {
 
     /**
      * The registerExistingClients is used to pull data from the provided MySQL database
-     * and reconstruct the ClientInfo objects using {@link Customer#Customer(String, String, String)}
+     * and reconstruct the ClientInfo objects using {@link Customer#Customer(String, String)}
      */
     public void registerExistingCustomers() {
         DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_info;").executeQuery(resultSet -> {

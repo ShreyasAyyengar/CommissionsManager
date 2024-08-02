@@ -139,8 +139,7 @@ public class DiscordBot {
             database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_info(" +
                     "    member_id    tinytext     null," +
                     "    text_id      tinytext     null," +
-                    "    voice_id     tinytext     null," +
-                    "    paypal_email tinytext null" +
+                    "    paypal_email tinytext     null" +
                     ");").executeUpdate();
 
             database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_invoice_info(" +
@@ -181,6 +180,10 @@ public class DiscordBot {
                 .build().awaitReady();
 
         this.interactionManager = new InteractionManager();
+
+        this.discordBot.upsertCommand("voice", "Create a temporary voice channel.").queue(command -> {
+            System.out.println(command.getId());
+        });
     }
 
     /**
