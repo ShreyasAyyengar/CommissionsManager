@@ -1,12 +1,13 @@
 package dev.shreyasayyengar.bot.customer;
 
 import dev.shreyasayyengar.bot.DiscordBot;
-import dev.shreyasayyengar.bot.utils.Util;
 import dev.shreyasayyengar.bot.paypal.Invoice;
+import dev.shreyasayyengar.bot.utils.Util;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.attribute.ICopyableChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.attribute.IPermissionContainer;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -15,7 +16,11 @@ import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -34,8 +39,8 @@ public class Customer {
     private final Collection<CustomerCommission> commissions = new HashSet<>();
 
     private final Member holder;
-    private final VoiceChannel voiceChannel;
     private final TextChannel textChannel;
+    private VoiceChannel temporaryVoiceChannel;
 
     private String paypalEmail;
 
@@ -56,25 +61,15 @@ public class Customer {
 
         Guild workingGuild = DiscordBot.get().workingGuild;
 
-        // region Voice and Text Channels
-        ChannelAction<VoiceChannel> voiceChannelAction = workingGuild.createVoiceChannel(holder.getEffectiveName() + "-vc").setParent(VOICE_CATEGORY)
-                .setBitrate(64000);
-
+        // region Text Channel
         ChannelAction<TextChannel> textChannelAction = workingGuild.createTextChannel(holder.getEffectiveName() + "-text").setParent(CHAT_CATEGORY)
                 .setTopic("Discussions relating to " + holder.getEffectiveName() + "'s commissions & work");
-        // endregion
 
-        // region Permissions
-        Stream<? extends ChannelAction<? extends ICopyableChannel>> channels = Stream.of(voiceChannelAction, textChannelAction);
-        channels.forEach(channel -> {
-            channel.addMemberPermissionOverride(holder.getIdLong(), Util.getAllowedPermissions(), Util.getDeniedPermissions());
-            channel.addPermissionOverride(workingGuild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL));
-        });
-        // endregion
+        textChannelAction.addMemberPermissionOverride(holder.getIdLong(), Util.getAllowedPermissions(), Util.getDeniedPermissions());
+        textChannelAction.addPermissionOverride(workingGuild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL));
 
-        // Finalising & Creating
-        this.voiceChannel = voiceChannelAction.complete();
         this.textChannel = textChannelAction.complete();
+        // endregion
 
         DiscordBot.get().getCustomerManger().add(holder.getId(), this);
     }
@@ -84,13 +79,11 @@ public class Customer {
      * initialise the object and keep it in the CustomerManager, to be used for later. This <b>will not generate any new channels</b>
      * or run any other setup actions, this merely loads the Customer object to be recognised and visible.
      *
-     * @param holderId       The Discord ID of the holder of the Customer object.
-     * @param voiceChannelId The Discord ID of the VoiceChannel of the Customer object.
-     * @param textChannelId  The Discord ID of the TextChannel of the Customer object.
+     * @param holderId      The Discord ID of the holder of the Customer object.
+     * @param textChannelId The Discord ID of the TextChannel of the Customer object.
      */
-    public Customer(String holderId, String voiceChannelId, String textChannelId) {
+    public Customer(String holderId, String textChannelId) {
         this.holder = DiscordBot.get().workingGuild.getMemberById(holderId);
-        this.voiceChannel = DiscordBot.get().workingGuild.getVoiceChannelById(voiceChannelId);
         this.textChannel = DiscordBot.get().workingGuild.getTextChannelById(textChannelId);
 
         DiscordBot.get().getCustomerManger().add(holder.getId(), this);
@@ -100,7 +93,11 @@ public class Customer {
      * Add a Member to the customer's {@link #textChannel}. This enables the member to see the channel and its messages.
      */
     public void addCollaborator(Member member) {
-        Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel, voiceChannel);
+        Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel);
+        if (temporaryVoiceChannel != null) {
+            channelGroups = Stream.concat(channelGroups, Stream.of(temporaryVoiceChannel));
+        }
+
         channelGroups.forEach(channel -> channel.upsertPermissionOverride(member).setPermissions(Util.getAllowedPermissions(), Util.getDeniedPermissions()).queue());
 
         textChannel.sendMessage(member.getAsMention()).queue(message -> message.delete().queue());
@@ -110,8 +107,38 @@ public class Customer {
      * Remove a Member from the customer's {@link #textChannel}. This disables the member from seeing the channel and its messages.
      */
     public void removeCollaborator(Member member) {
-        Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel, voiceChannel);
+        Stream<? extends IPermissionContainer> channelGroups = Stream.of(textChannel);
+        if (temporaryVoiceChannel != null) {
+            channelGroups = Stream.concat(channelGroups, Stream.of(temporaryVoiceChannel));
+        }
+
         channelGroups.forEach(channel -> channel.upsertPermissionOverride(member).setPermissions(new HashSet<>(), Arrays.stream(Permission.values()).toList()).queue());
+    }
+
+    public MessageEmbed tryGenerateTemporaryVoiceChannel() {
+        if (this.temporaryVoiceChannel != null) {
+            return new EmbedBuilder()
+                    .setTitle("Voice Channel Already Exists")
+                    .setDescription("You already have a voice channel: " + this.temporaryVoiceChannel.getAsMention())
+                    .setColor(Util.THEME_COLOUR)
+                    .build();
+        }
+
+        ChannelAction<VoiceChannel> temporaryVoiceChannel = DiscordBot.get().workingGuild.createVoiceChannel(holder.getEffectiveName() + "-vc").setParent(VOICE_CATEGORY)
+                .setBitrate(64000);
+
+        for (Member member : this.getTextChannel().getMembers()) {
+            temporaryVoiceChannel.addMemberPermissionOverride(member.getIdLong(), Util.getAllowedPermissions(), Util.getDeniedPermissions()); // allow customer + collaborators
+        }
+        temporaryVoiceChannel.addPermissionOverride(DiscordBot.get().workingGuild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL)); // deny public
+
+        this.temporaryVoiceChannel = temporaryVoiceChannel.complete();
+
+        return new EmbedBuilder()
+                .setTitle("Temporary Voice Channel Created")
+                .setDescription("A temporary voice channel has been created for you: " + this.temporaryVoiceChannel.getAsMention())
+                .setColor(Util.THEME_COLOUR)
+                .build();
     }
 
     /**
@@ -124,18 +151,16 @@ public class Customer {
 
                 if (resultSet.next()) {
                     // Update the customer info
-                    DiscordBot.get().database.preparedStatementBuilder("UPDATE customer_info SET voice_id = ?, text_id = ?, paypal_email = ? WHERE member_id = ?")
-                            .setString(voiceChannel.getId())
+                    DiscordBot.get().database.preparedStatementBuilder("UPDATE customer_info SET text_id = ?, paypal_email = ? WHERE member_id = ?")
                             .setString(textChannel.getId())
                             .setString(paypalEmail)
                             .setString(holder.getId())
                             .build().executeUpdate();
                 } else {
                     // Create customer info
-                    DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_info (member_id, text_id, voice_id, paypal_email) VALUES (?, ?, ?, ?)")
+                    DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_info (member_id, text_id, paypal_email) VALUES (?, ?, ?)")
                             .setString(holder.getId())
                             .setString(textChannel.getId())
-                            .setString(voiceChannel.getId())
                             .setString(paypalEmail == null ? null : paypalEmail)
                             .build().executeUpdate();
                 }
@@ -165,8 +190,8 @@ public class Customer {
         return textChannel;
     }
 
-    public VoiceChannel getVoiceChannel() {
-        return voiceChannel;
+    public VoiceChannel getTemporaryVoiceChannel() {
+        return temporaryVoiceChannel;
     }
 
     public CustomerCommission getCommission(String pluginName) {

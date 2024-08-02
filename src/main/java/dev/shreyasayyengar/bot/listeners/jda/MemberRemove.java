@@ -21,7 +21,7 @@ public class MemberRemove extends ListenerAdapter {
 
         DiscordButton purgeButton = new DiscordButton(ButtonStyle.DANGER, "Purge Channels", "U+1F5D1", (buttonUser, buttonInteractionEvent) -> {
             customer.getTextChannel().delete().queue();
-            customer.getVoiceChannel().delete().queue();
+            if (customer.getTemporaryVoiceChannel() != null) customer.getTemporaryVoiceChannel().delete().queue();
 
             DiscordBot.get().getCustomerManger().getMap().remove(customer.getHolder().getId());
         });

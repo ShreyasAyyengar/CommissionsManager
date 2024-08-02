@@ -121,6 +121,10 @@ public class CustomerCommandManager extends ListenerAdapter {
                 event.replyModal(modal.asModal()).queue();
             }
 
+            case "vc" -> {
+
+            }
+
             case "commissions" -> {
                 Collection<CustomerCommission> commissions = customer.getCommissions();
 

@@ -9,6 +9,7 @@ import dev.shreyasayyengar.bot.customer.CustomerManager;
 import dev.shreyasayyengar.bot.database.MySQL;
 import dev.shreyasayyengar.bot.functional.InteractionManager;
 import dev.shreyasayyengar.bot.listeners.interactions.MenuSelect;
+import dev.shreyasayyengar.bot.listeners.jda.GuildVoiceUpdate;
 import dev.shreyasayyengar.bot.listeners.jda.JDAException;
 import dev.shreyasayyengar.bot.listeners.jda.MemberRemove;
 import dev.shreyasayyengar.bot.listeners.jda.MemberScreeningPass;
@@ -25,7 +26,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.hooks.EventListener;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import okhttp3.*;
+import okhttp3.Credentials;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -247,6 +253,7 @@ public class DiscordBot {
                 new MemberScreeningPass(),
                 new MemberRemove(),
                 new MemberUpdateName(),
+                new GuildVoiceUpdate(),
                 new MenuSelect(),
                 new CustomerCommandManager(),
                 new MiscellaneousSlashCommandManager(),

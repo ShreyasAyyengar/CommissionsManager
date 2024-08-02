@@ -29,11 +29,10 @@ public class CustomerManager {
 
                     String member_id = resultSet.getString("member_id");
                     String text_id = resultSet.getString("text_id");
-                    String voice_id = resultSet.getString("voice_id");
                     String paypal_email = resultSet.getString("paypal_email");
 
                     if (DiscordBot.get().workingGuild.getMemberById(member_id) != null) {
-                        new Customer(member_id, voice_id, text_id).setPaypalEmail(paypal_email);
+                        new Customer(member_id, text_id).setPaypalEmail(paypal_email);
                     }
                 }
 
