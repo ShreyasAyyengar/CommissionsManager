@@ -8,7 +8,6 @@ import dev.shreyasayyengar.bot.functional.type.DiscordButton;
 import dev.shreyasayyengar.bot.functional.type.DiscordMenu;
 import dev.shreyasayyengar.bot.functional.type.DiscordModal;
 import dev.shreyasayyengar.bot.paypal.Invoice;
-import dev.shreyasayyengar.bot.paypal.InvoiceDraft;
 import dev.shreyasayyengar.bot.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -209,8 +208,9 @@ public class MenuSelect extends ListenerAdapter {
                                                     int amount = Integer.parseInt(subInvoiceEvent.getValue("amount").getAsString());
 
                                                     try {
-                                                        noButtonEvent.replyEmbeds(EmbedUtil.invoiceInProgress()).queue();
-                                                        new InvoiceDraft(commission, commission.getPluginName() + "-" + description, amount, noButtonEvent.getHook()).generateInvoice();
+                                                        // TODO FIX URGENTLY.
+                                                        subInvoiceEvent.replyEmbeds(EmbedUtil.invoiceInProgress()).queue();
+//                                                        new InvoiceDraft(commission, commission.getPluginName() + "-" + description, amount, noButtonEvent.getHook()).generateInvoice();
                                                     } catch (Exception e) {
                                                         throw new RuntimeException(e);
                                                     }
