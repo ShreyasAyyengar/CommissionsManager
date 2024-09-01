@@ -17,7 +17,7 @@ public class GuildVoiceUpdate extends ListenerAdapter {
             if (!customer.getTemporaryVoiceChannel().getId().equalsIgnoreCase(channelLeft.getId())) return;
 
             // customer left their temporary voice channel.
-            customer.getTemporaryVoiceChannel().delete();
+            customer.getTemporaryVoiceChannel().delete().queue();
         }
     }
 }
