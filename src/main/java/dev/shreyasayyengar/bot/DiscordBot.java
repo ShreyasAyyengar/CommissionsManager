@@ -35,6 +35,7 @@ import okhttp3.Response;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -157,8 +158,23 @@ public class DiscordBot {
                     "    info_embed  tinytext null" +
                     ");").executeUpdate();
 
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> database.preparedStatementBuilder("SELECT 1;").executeQuery(resultSet -> {
-            }), 5, 30, TimeUnit.SECONDS);
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
+                try {
+                    if (database.getConnection().isClosed()) {
+                        database = new MySQL(
+                                Authentication.MYSQL_USERNAME.get(),
+                                Authentication.MYSQL_PASSWORD.get(),
+                                Authentication.MYSQL_DATABASE.get(),
+                                Authentication.MYSQL_HOST.get(),
+                                Integer.parseInt(Authentication.MYSQL_PORT.get())
+                        );
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                database.preparedStatementBuilder("SELECT 1;").executeQuery(resultSet -> {
+                });
+            }, 5, 30, TimeUnit.SECONDS);
 
         } catch (Exception e) {
             log(Department.DATABASE, "FATAL ERROR WHEN initMySQL: " + e.getMessage());
