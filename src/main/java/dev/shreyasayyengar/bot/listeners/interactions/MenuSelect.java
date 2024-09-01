@@ -209,7 +209,6 @@ public class MenuSelect extends ListenerAdapter {
                                                     int amount = Integer.parseInt(subInvoiceEvent.getValue("amount").getAsString());
 
                                                     try {
-                                                        // TODO FIX URGENTLY.
                                                         subInvoiceEvent.getHook().sendMessageEmbeds(EmbedUtil.invoiceInProgress()).setEphemeral(false).queue();
                                                         new InvoiceDraft(commission, commission.getPluginName() + "-" + description, amount, subInvoiceEvent.getHook()).generateInvoice();
                                                     } catch (Exception e) {
