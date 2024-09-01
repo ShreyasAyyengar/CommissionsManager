@@ -181,9 +181,6 @@ public class DiscordBot {
 
         this.interactionManager = new InteractionManager();
 
-        this.discordBot.upsertCommand("voice", "Create a temporary voice channel.").queue(command -> {
-            System.out.println(command.getId());
-        });
     }
 
     /**
