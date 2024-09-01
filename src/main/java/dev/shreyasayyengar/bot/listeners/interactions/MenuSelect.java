@@ -81,7 +81,6 @@ public class MenuSelect extends ListenerAdapter {
                                                 }));
                                             }};
 
-                                            // TODO reply to modal
                                             amountSubmitEvent.reply("@here")
                                                     .setEmbeds(EmbedUtil.confirmCommission(commission))
                                                     .setActionRow(confirmDenyButtons.stream().map(DiscordButton::asButton).toList())
