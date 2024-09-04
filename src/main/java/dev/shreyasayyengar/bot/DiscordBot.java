@@ -170,7 +170,8 @@ public class DiscordBot {
                         );
                     }
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                    log(Department.DATABASE, "FATAL ERROR WHEN ATTEMPTING TO RECONNECT TO DATABASE: " + e.getMessage());
+                    e.printStackTrace();
                 }
                 database.preparedStatementBuilder("SELECT 1;").executeQuery(resultSet -> {
                 });
