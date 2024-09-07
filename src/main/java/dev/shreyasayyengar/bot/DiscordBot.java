@@ -49,15 +49,12 @@ import java.util.stream.Stream;
  * @author Shreyas Ayyengar
  */
 public class DiscordBot {
-
     private static DiscordBot instance; // Ths instance of this class. (Singleton)
 
     private JDA discordBot;
     public MySQL database;
-
     private CustomerManager customerManager;
     private InteractionManager interactionManager;
-
     public Guild workingGuild;
     private String paypalAccessToken;
 
@@ -87,8 +84,9 @@ public class DiscordBot {
      * every 5 hours. This is done via HTTP requests to the PayPal API.
      */
     private void maintainAccessToken() {
-        ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
-        scheduledService.scheduleAtFixedRate(() -> this.paypalAccessToken = this.getAccessToken(), 0, 5, TimeUnit.HOURS);
+        try (ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor()) {
+            scheduledService.scheduleAtFixedRate(() -> this.paypalAccessToken = this.getAccessToken(), 0, 5, TimeUnit.HOURS);
+        }
     }
 
     private String getAccessToken() {
@@ -113,6 +111,7 @@ public class DiscordBot {
 
             return decode.getString("access_token");
         } catch (IOException e) {
+            log(Department.PAYPAL, "FATAL ERROR WHEN ATTEMPTING TO GET PAYPAL ACCESS TOKEN: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -197,7 +196,6 @@ public class DiscordBot {
                 .build().awaitReady();
 
         this.interactionManager = new InteractionManager();
-
     }
 
     /**
