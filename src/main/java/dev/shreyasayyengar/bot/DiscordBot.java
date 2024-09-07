@@ -4,7 +4,6 @@ import dev.shreyasayyengar.bot.commands.CustomerCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousCommandManager;
 import dev.shreyasayyengar.bot.commands.MiscellaneousSlashCommandManager;
 import dev.shreyasayyengar.bot.customer.Customer;
-import dev.shreyasayyengar.bot.customer.CustomerCommission;
 import dev.shreyasayyengar.bot.customer.CustomerManager;
 import dev.shreyasayyengar.bot.database.MySQL;
 import dev.shreyasayyengar.bot.functional.InteractionManager;
@@ -35,7 +34,6 @@ import okhttp3.Response;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -49,11 +47,11 @@ import java.util.stream.Stream;
  * @author Shreyas Ayyengar
  */
 public class DiscordBot {
-    private static DiscordBot instance; // Ths instance of this class. (Singleton)
+    private static DiscordBot instance;
 
+    private CustomerManager customerManager;
     private JDA discordBot;
     public MySQL database;
-    private CustomerManager customerManager;
     private InteractionManager interactionManager;
     public Guild workingGuild;
     private String paypalAccessToken;
@@ -71,8 +69,7 @@ public class DiscordBot {
         maintainAccessToken();
         initMySQL();
         createBot();
-        fixData();
-        deserialiseMySQLData();
+        loadData();
         initThreadHandler();
 
         log(Department.MAIN, "*** CommissionsManager Ready! ***");
@@ -84,9 +81,9 @@ public class DiscordBot {
      * every 5 hours. This is done via HTTP requests to the PayPal API.
      */
     private void maintainAccessToken() {
-        try (ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor()) {
-            scheduledService.scheduleAtFixedRate(() -> this.paypalAccessToken = this.getAccessToken(), 0, 5, TimeUnit.HOURS);
-        }
+        ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
+        scheduledService.scheduleAtFixedRate(() -> this.paypalAccessToken = this.getAccessToken(), 0, 5, TimeUnit.HOURS);
+
     }
 
     private String getAccessToken() {
@@ -136,46 +133,6 @@ public class DiscordBot {
             );
 
             log(Department.DATABASE, "Loading Tables...");
-            database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_info(" +
-                    "    member_id    tinytext     null," +
-                    "    text_id      tinytext     null," +
-                    "    paypal_email tinytext     null" +
-                    ");").executeUpdate();
-
-            database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_invoice_info(" +
-                    "    invoice_id tinytext null," +
-                    "    message_id tinytext null," +
-                    "    client_id  tinytext null" +
-                    ");").executeUpdate();
-
-            database.preparedStatementBuilder("CREATE TABLE IF NOT EXISTS customer_commission_info(" +
-                    "    holder_id   tinytext null," +
-                    "    plugin_name tinytext null," +
-                    "    source_code boolean  null," +
-                    "    confirmed   boolean  null," +
-                    "    price       double   null," +
-                    "    info_embed  tinytext null" +
-                    ");").executeUpdate();
-
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-                try {
-                    if (database.getConnection().isClosed()) {
-                        database = new MySQL(
-                                Authentication.MYSQL_USERNAME.get(),
-                                Authentication.MYSQL_PASSWORD.get(),
-                                Authentication.MYSQL_DATABASE.get(),
-                                Authentication.MYSQL_HOST.get(),
-                                Integer.parseInt(Authentication.MYSQL_PORT.get())
-                        );
-                    }
-                } catch (SQLException e) {
-                    log(Department.DATABASE, "FATAL ERROR WHEN ATTEMPTING TO RECONNECT TO DATABASE: " + e.getMessage());
-                    e.printStackTrace();
-                }
-                database.preparedStatementBuilder("SELECT 1;").executeQuery(resultSet -> {
-                });
-            }, 5, 30, TimeUnit.SECONDS);
-
         } catch (Exception e) {
             log(Department.DATABASE, "FATAL ERROR WHEN initMySQL: " + e.getMessage());
             e.printStackTrace();
@@ -204,53 +161,26 @@ public class DiscordBot {
      *
      * @see CustomerManager
      */
-    private void fixData() {
+    private void loadData() {
         this.workingGuild = discordBot.getGuildById(Authentication.GUILD_ID.get());
         this.workingGuild.loadMembers().get();
         this.customerManager = new CustomerManager();
         this.customerManager.registerExistingCustomers();
+
+        Invoice.pollInvoices();
     }
 
-    /**
-     * This method deserialises the data from the MySQL database and stores
-     * them in respective objects and lists.
-     *
-     * @see CustomerManager
-     * @see Invoice#registerInvoices()
-     */
-    private void deserialiseMySQLData() {
-        CustomerCommission.registerCommissions();
-        Invoice.registerInvoices();
-    }
-
-    /**
-     * This method initializes the ThreadHandler, which is used to
-     * properly close the MySQL database connection, serialise
-     * any important data for the next time the bot is started,
-     * and manage stacktraces or errors that may occur during
-     * runtime.
-     *
-     * @see ThreadHandler
-     */
     private void initThreadHandler() {
         ThreadHandler handler = new ThreadHandler();
         Runtime.getRuntime().addShutdownHook(handler);
         Thread.currentThread().setUncaughtExceptionHandler(handler.getUncaughtExceptionHandler());
-
-//        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(System::gc, 0, 30, TimeUnit.MINUTES);
     }
 
     public void shutdown() {
         DiscordBot.log(Department.SHUTDOWN_MANAGER, "Shutting down...");
 
-        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Customers...");
+        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Customers, Commissions, and Invoices...");
         DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialise);
-
-        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Commissions...");
-        DiscordBot.get().getCustomerManger().getMap().values().forEach(Customer::serialiseCommissions);
-
-        DiscordBot.log(Department.SHUTDOWN_MANAGER, "[MySQL] Serialising Active Invoices...");
-        Invoice.INVOICES.forEach(Invoice::serialise);
 
         DiscordBot.get().discordBot.getTextChannelById("997328980086632448").sendMessageEmbeds(EmbedUtil.dataSaved()).queue();
 

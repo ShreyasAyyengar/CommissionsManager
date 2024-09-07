@@ -7,10 +7,11 @@ import dev.shreyasayyengar.bot.utils.EmbedUtil;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.awt.*;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -27,41 +28,13 @@ import java.util.HashSet;
  * @author Shreyas Ayyengar
  */
 public class CustomerCommission {
-
-    public static final Collection<CustomerCommission> COMMISSIONS = new HashSet<>();
-
-    private final Collection<Invoice> invoices = new HashSet<>();
-
     private final Customer customer;
     private final String pluginName;
     private final String infoEmbedId;
-
     private boolean requestedSourceCode;
     private boolean confirmed;
     private double price;
-
-    /**
-     * Registers all serialise commissions from the MySQL database and loads them up
-     * and assigns them to the corresponding {@link Customer} object.
-     */
-    public static void registerCommissions() {
-        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_commission_info").executeQuery(resultSet -> {
-            try {
-                while (resultSet.next()) {
-                    String holderId = resultSet.getString("holder_id");
-                    String pluginName = resultSet.getString("plugin_name");
-                    boolean requestedSourceCode = resultSet.getBoolean("source_code");
-                    boolean confirmed = resultSet.getBoolean("confirmed");
-                    double price = resultSet.getDouble("price");
-                    String infoEmbed = resultSet.getString("info_embed");
-
-                    new CustomerCommission(holderId, pluginName, requestedSourceCode, confirmed, price, infoEmbed);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        });
-    }
+    private final Collection<Invoice> invoices = new HashSet<>();
 
     /**
      * Constructs a new CustomerCommission object during Runtime. <b>This method should not be called
@@ -80,8 +53,6 @@ public class CustomerCommission {
         this.requestedSourceCode = requestedSourceCode;
         this.confirmed = false;
         this.infoEmbedId = infoEmbedId;
-
-        COMMISSIONS.add(this);
     }
 
     /**
@@ -105,7 +76,6 @@ public class CustomerCommission {
 
         this.customer = DiscordBot.get().getCustomerManger().get(holderId);
         this.customer.getCommissions().add(this);
-        COMMISSIONS.add(this);
     }
 
     /**
@@ -126,60 +96,11 @@ public class CustomerCommission {
     }
 
     /**
-     * Serialises the Commission and vital data to the MySQL database.
-     */
-    public void serialise() {
-        try {
-            // Does the commission exist?
-            DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_commission_info WHERE holder_id = ? AND plugin_name = ?")
-                    .setString(customer.getHolder().getId())
-                    .setString(pluginName).executeQuery(resultSet -> {
-                        try {
-                            if (resultSet.next()) {
-                                DiscordBot.get().database.preparedStatementBuilder("UPDATE customer_commission_info SET plugin_name = ?, source_code = ?, confirmed = ?, price = ?, info_embed = ? WHERE holder_id = ? AND plugin_name = ?")
-                                        .setString(pluginName)
-                                        .setBoolean(requestedSourceCode)
-                                        .setBoolean(confirmed)
-                                        .setDouble(price)
-                                        .setString(infoEmbedId)
-                                        .setString(customer.getHolder().getId())
-                                        .setString(pluginName)
-                                        .build().executeUpdate();
-                            } else {
-                                DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_commission_info (holder_id, plugin_name, source_code, confirmed, price, info_embed) VALUES (?, ?, ?, ?, ?, ?);")
-                                        .setString(customer.getHolder().getId())
-                                        .setString(pluginName)
-                                        .setBoolean(requestedSourceCode)
-                                        .setBoolean(confirmed)
-                                        .setDouble(price)
-                                        .setString(infoEmbedId)
-                                        .build().executeUpdate();
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                    });
-
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Closes the commission for any reason and removes it from the {@link #COMMISSIONS} & {@link Customer#getCommissions()} list.
+     * Closes the commission for any reason and removes it from the {@link} & {@link Customer#getCommissions()} list.
      */
     public void close(boolean completed) {
-        COMMISSIONS.remove(this);
         this.customer.getCommissions().remove(this);
         this.invoices.forEach(Invoice::cancel);
-
-        try {
-            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM customer_commission_info WHERE holder_id = ?")
-                    .setString(customer.getHolder().getId()).executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
 
         customer.getTextChannel().retrieveMessageById(infoEmbedId).queue(message -> {
             MessageEmbed messageEmbed = message.getEmbeds().get(0);
@@ -196,7 +117,6 @@ public class CustomerCommission {
             }
             message.editMessageEmbeds(completedEmbed.build()).queue();
         });
-
     }
 
     /**
@@ -253,5 +173,21 @@ public class CustomerCommission {
 
     public void setPrice(double newQuote) {
         this.price = newQuote;
+    }
+
+    public JSONObject toJSON() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("user_id", customer.getUser().getId());
+        jsonObject.put("plugin_name", pluginName);
+        jsonObject.put("source_code", requestedSourceCode);
+        jsonObject.put("confirmed", confirmed);
+        jsonObject.put("price", price);
+        jsonObject.put("info_embed_id", infoEmbedId);
+
+        JSONArray invoicesArray = new JSONArray();
+        invoices.forEach(invoice -> invoicesArray.put(invoice.toJSON()));
+        jsonObject.put("invoices", invoicesArray);
+
+        return jsonObject;
     }
 }

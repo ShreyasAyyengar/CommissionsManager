@@ -13,6 +13,8 @@ import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,46 +34,42 @@ import java.util.stream.Stream;
  * @author Shreyas Ayyengar
  */
 public class Customer {
-
     private static final Category CHAT_CATEGORY = DiscordBot.get().workingGuild.getCategoryById("1091671476752613396");
     private static final Category VOICE_CATEGORY = DiscordBot.get().workingGuild.getCategoryById("1091671511569551371");
 
     private final Collection<CustomerCommission> commissions = new HashSet<>();
 
-    private final Member holder;
-    private final TextChannel textChannel;
+//    private final Member user;
+//    private final TextChannel textChannel;
+    private  Member user;
+    private  TextChannel textChannel;
     private VoiceChannel temporaryVoiceChannel;
-
     private String paypalEmail;
 
     /**
      * This creates a new Customer object, given the JDA Member object of the user. <b>This constructor should
      * only be used when a new Member has joined a server.</b> If ran outside this context, the Customer object will generate
      * duplicate channels.
-     * <p></p>
-     * To <b>load</b> an existing Customer object via a ResultSet use the {@link #Customer(String, String)} constructor.
      *
-     * <p></p>
-     *
-     * @param holder The JDA Member object of the user to wrap.
+     * @param user The JDA Member object of the user to wrap.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public Customer(Member holder) {
-        this.holder = holder;
+    public Customer(Member user) {
+        this.user = user;
 
         Guild workingGuild = DiscordBot.get().workingGuild;
 
         // region Text Channel
-        ChannelAction<TextChannel> textChannelAction = workingGuild.createTextChannel(holder.getEffectiveName() + "-text").setParent(CHAT_CATEGORY)
-                .setTopic("Discussions relating to " + holder.getEffectiveName() + "'s commissions & work");
+        ChannelAction<TextChannel> textChannelAction = workingGuild.createTextChannel(user.getEffectiveName() + "-text").setParent(CHAT_CATEGORY)
+                .setTopic("Discussions relating to " + user.getEffectiveName() + "'s commissions & work");
 
-        textChannelAction.addMemberPermissionOverride(holder.getIdLong(), Util.getAllowedPermissions(), Util.getDeniedPermissions());
+        textChannelAction.addMemberPermissionOverride(user.getIdLong(), Util.getAllowedPermissions(), Util.getDeniedPermissions());
         textChannelAction.addPermissionOverride(workingGuild.getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL));
 
         this.textChannel = textChannelAction.complete();
         // endregion
 
-        DiscordBot.get().getCustomerManger().add(holder.getId(), this);
+        DiscordBot.get().getCustomerManger().add(user.getId(), this);
     }
 
     /**
@@ -79,14 +77,19 @@ public class Customer {
      * initialise the object and keep it in the CustomerManager, to be used for later. This <b>will not generate any new channels</b>
      * or run any other setup actions, this merely loads the Customer object to be recognised and visible.
      *
-     * @param holderId      The Discord ID of the holder of the Customer object.
+     * @param userId        The Discord ID of the holder of the Customer object.
      * @param textChannelId The Discord ID of the TextChannel of the Customer object.
      */
-    public Customer(String holderId, String textChannelId) {
-        this.holder = DiscordBot.get().workingGuild.getMemberById(holderId);
-        this.textChannel = DiscordBot.get().workingGuild.getTextChannelById(textChannelId);
+    public Customer(String userId, String textId, String paypalEmail, Collection<CustomerCommission> commissions) {
+        try {
+            this.user = DiscordBot.get().workingGuild.getMemberById(userId);
+            this.textChannel = DiscordBot.get().workingGuild.getTextChannelById(textId);
+            this.paypalEmail = paypalEmail;
 
-        DiscordBot.get().getCustomerManger().add(holder.getId(), this);
+            DiscordBot.get().getCustomerManger().add(user.getId(), this);
+        } catch (Exception e) {
+            System.out.println("Issue with customer: " + userId);
+        }
     }
 
     /**
@@ -124,7 +127,7 @@ public class Customer {
                     .build();
         }
 
-        ChannelAction<VoiceChannel> temporaryVoiceChannel = DiscordBot.get().workingGuild.createVoiceChannel(holder.getEffectiveName() + "-vc").setParent(VOICE_CATEGORY)
+        ChannelAction<VoiceChannel> temporaryVoiceChannel = DiscordBot.get().workingGuild.createVoiceChannel(user.getEffectiveName() + "-vc").setParent(VOICE_CATEGORY)
                 .setBitrate(64000);
 
         for (Member member : this.getTextChannel().getMembers()) {
@@ -146,22 +149,19 @@ public class Customer {
      */
     public void serialise() {
         // Does the customer exist?
-        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_info WHERE member_id = '" + holder.getId() + "'").executeQuery(resultSet -> {
+        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_data WHERE user_id = '" + user.getId() + "'").executeQuery(resultSet -> {
             try {
-
                 if (resultSet.next()) {
                     // Update the customer info
-                    DiscordBot.get().database.preparedStatementBuilder("UPDATE customer_info SET text_id = ?, paypal_email = ? WHERE member_id = ?")
-                            .setString(textChannel.getId())
-                            .setString(paypalEmail)
-                            .setString(holder.getId())
+                    DiscordBot.get().database.preparedStatementBuilder("UPDATE customer_data SET data = ? WHERE user_id = ?")
+                            .setString(toJSON().toString())
+                            .setString(user.getId())
                             .build().executeUpdate();
                 } else {
                     // Create customer info
-                    DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_info (member_id, text_id, paypal_email) VALUES (?, ?, ?)")
-                            .setString(holder.getId())
-                            .setString(textChannel.getId())
-                            .setString(paypalEmail == null ? null : paypalEmail)
+                    DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_data (user_id, data) VALUES (?, ?)")
+                            .setString(user.getId())
+                            .setString(toJSON().toString())
                             .build().executeUpdate();
                 }
 
@@ -171,27 +171,29 @@ public class Customer {
         });
     }
 
-    /**
-     * Iterates through all CustomerCommissions inside the {@link #commissions} list to the MySQL
-     * database.
-     */
-    public void serialiseCommissions() {
-        for (CustomerCommission commission : commissions) {
-            commission.serialise();
+    public JSONObject toJSON() {
+        JSONObject customer = new JSONObject();
+        customer.put("user_id", user.getId());
+        customer.put("text_id", textChannel.getId());
+        customer.put("paypal_email", paypalEmail);
+
+        JSONArray commissions = new JSONArray();
+        for (CustomerCommission commission : this.commissions) {
+            JSONObject json = commission.toJSON();
+            commissions.put(json);
         }
+        customer.put("commissions", commissions);
+
+        return customer;
     }
 
     // ------------------------------------------------- Getters ----------------------------------------------------//
-    public Member getHolder() {
-        return holder;
+    public Member getUser() {
+        return user;
     }
 
-    public TextChannel getTextChannel() {
-        return textChannel;
-    }
-
-    public VoiceChannel getTemporaryVoiceChannel() {
-        return temporaryVoiceChannel;
+    public Collection<CustomerCommission> getCommissions() {
+        return commissions;
     }
 
     public CustomerCommission getCommission(String pluginName) {
@@ -202,17 +204,21 @@ public class Customer {
                 .orElse(null);
     }
 
+    public TextChannel getTextChannel() {
+        return textChannel;
+    }
+
+    public VoiceChannel getTemporaryVoiceChannel() {
+        return temporaryVoiceChannel;
+    }
+
     public Invoice getInvoiceByID(String id) {
         return commissions
                 .stream()
                 .flatMap(commission -> commission.getInvoices().stream())
-                .filter(invoice -> invoice.getID().equalsIgnoreCase(id))
+                .filter(invoice -> invoice.getId().equalsIgnoreCase(id))
                 .findFirst()
                 .orElse(null);
-    }
-
-    public Collection<CustomerCommission> getCommissions() {
-        return commissions;
     }
 
     public String getPaypalEmail() {
@@ -227,6 +233,6 @@ public class Customer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Customer that = (Customer) o;
-        return Objects.equals(holder.getId().toLowerCase(), that.holder.getId().toLowerCase());
+        return Objects.equals(user.getId().toLowerCase(), that.user.getId().toLowerCase());
     }
 }

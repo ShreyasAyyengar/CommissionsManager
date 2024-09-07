@@ -14,7 +14,11 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.FileUpload;
-import okhttp3.*;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
@@ -23,10 +27,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -61,34 +66,12 @@ public class Invoice {
     private File QRCodeImg;
 
     /**
-     * The registerInvoices method is used to register all the invoices that are currently stored in the database.
-     * This is only called once, when the program is started via {@link DiscordBot#deserialiseMySQLData()}.
-     */
-    public static void registerInvoices() {
-        DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_invoice_info").executeQuery(resultSet -> {
-            try {
-                while (resultSet.next()) {
-                    String customerId = resultSet.getString("client_id");
-                    String invoiceId = resultSet.getString("invoice_id");
-                    String messageId = resultSet.getString("message_id");
-                    String commissionName = resultSet.getString("commission_name");
-
-                    new Invoice(customerId, commissionName, messageId, invoiceId);
-                }
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        cycleChecks();
-    }
-
-    /**
      * The cycleChecks method loops through all invoices inside the {@link #INVOICES} collection, and checks if they
      * are paid or not. Action is only taken if the invoice is paid, and is done so by updating the {@link #status} of the
      * invoice object. The MessageEmbed, which would've been sent to the user immediately after the invoice was created
      * ({@link #getInvoiceEmbed(String)}) is updated to reflect the new status, provided by {@link #getPaidInvoiceEmbed(String)}.
      */
-    private static void cycleChecks() {
+    public static void pollInvoices() {
         ScheduledExecutorService scheduledService = Executors.newSingleThreadScheduledExecutor();
         scheduledService.scheduleAtFixedRate(() -> {
             try {
@@ -140,7 +123,7 @@ public class Invoice {
      * database during a restart/reload of the discord bot. <b>This method cannot be used anywhere else other than this class</b>
      * hence the private access modifier.
      */
-    private Invoice(String customerID, String commissionName, String messageID, String invoiceID) {
+    public Invoice(String customerID, String commissionName, String messageID, String invoiceID) {
         this.customer = DiscordBot.get().getCustomerManger().get(customerID);
         this.commission = customer.getCommission(commissionName);
 
@@ -156,8 +139,6 @@ public class Invoice {
      * If the invoice has been paid successfully and the status returned is "<code>PAID</code>", then
      * the {@link #status} is updated to reflect this, and the {@link #getPaidInvoiceEmbed(String)} method is called to
      * edit the embed to reflect the new status. No action is taken if the return status is not "<code>PAID</code>".
-     *
-     * @apiNote This method is called automatically by the {@link #cycleChecks()}
      */
     private void updateIfPaid() throws IOException {
         OkHttpClient client = new OkHttpClient();
@@ -178,7 +159,7 @@ public class Invoice {
             Message invoiceMessage = customer.getTextChannel().retrieveMessageById(messageID).complete();
             invoiceMessage.editMessageEmbeds(getPaidInvoiceEmbed(timePaid)).setActionRow(viewInvoiceButton).setFiles().queue();
 
-            customer.getTextChannel().sendMessageEmbeds(EmbedUtil.invoicePaid(customer.getHolder().getUser(), invoiceMessage.getJumpUrl())).setContent("@here").queue();
+            customer.getTextChannel().sendMessageEmbeds(EmbedUtil.invoicePaid(customer.getUser().getUser(), invoiceMessage.getJumpUrl())).setContent("@here").queue();
 
             closeInvoice();
             releaseFiles();
@@ -195,13 +176,6 @@ public class Invoice {
     private void closeInvoice() {
         INVOICES.remove(this);
         this.commission.getInvoices().remove(this);
-
-        try {
-            DiscordBot.get().database.preparedStatementBuilder("DELETE FROM customer_invoice_info WHERE invoice_id = ?")
-                    .setString(invoiceID).executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -241,7 +215,7 @@ public class Invoice {
 
     private EmbedBuilder getInvoiceEmbed(String timeCreated) {
         return new EmbedBuilder()
-                .setAuthor("Invoice: " + this.invoiceID, null, customer.getHolder().getEffectiveAvatarUrl())
+                .setAuthor("Invoice: " + this.invoiceID, null, customer.getUser().getEffectiveAvatarUrl())
                 .setTitle("Important Information regarding your invoice:")
                 .addField("**Status:** `" + this.status + "` ❌", "", false)
                 .addField("**Billed to:**", "`" + this.clientEmail + "`\n\n", false)
@@ -252,7 +226,7 @@ public class Invoice {
                 .setTimestamp(new Date().toInstant())
                 .setFooter("""
                         This message will update upon payment.
-
+                        
                         Reminder: This message only displays the most important information regarding your invoice. Please check the invoice on PayPal for more, official information.""")
                 .setColor(Util.THEME_COLOUR);
     }
@@ -272,8 +246,8 @@ public class Invoice {
      * Nudges and prompts the {@link Customer}s holder to pay the invoice.
      */
     public void nudgePayment(ButtonInteractionEvent event) {
-        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + this.getID(), Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
-        event.getInteraction().replyEmbeds(EmbedUtil.nudge(this)).addActionRow(paypalButton).setContent(customer.getHolder().getAsMention()).queue();
+        Button paypalButton = Button.link("https://www.paypal.com/invoice/p/#" + this.getId(), Emoji.fromFormatted("<:PayPal:933225559343923250>")).withLabel("Pay via PayPal");
+        event.getInteraction().replyEmbeds(EmbedUtil.nudge(this)).addActionRow(paypalButton).setContent(customer.getUser().getAsMention()).queue();
     }
 
     /**
@@ -341,7 +315,7 @@ public class Invoice {
             if (String.valueOf(response.code()).startsWith("2")) {
                 MessageEmbed embed = new EmbedBuilder()
                         .setTitle("Invoice Cancelled")
-                        .setDescription("{name}'s invoice has been cancelled!".replace("{name}", customer.getHolder().getEffectiveName()))
+                        .setDescription("{name}'s invoice has been cancelled!".replace("{name}", customer.getUser().getEffectiveName()))
                         .setColor(Color.RED)
                         .setFooter("For the invoice: " + invoiceID + " | For the commission: " + commission.getPluginName())
                         .setTimestamp(new Date().toInstant())
@@ -357,32 +331,9 @@ public class Invoice {
         }
     }
 
-    /**
-     * Serialises the invoice to the MySQL database (if not paid).
-     */
-    public void serialise() {
-        try {
-            ResultSet resultSet = DiscordBot.get().database.preparedStatementBuilder("SELECT * FROM customer_invoice_info WHERE invoice_id = ?")
-                    .setString(invoiceID)
-                    .build().executeQuery();
-
-            if (!resultSet.next()) {
-                DiscordBot.get().database.preparedStatementBuilder("INSERT INTO customer_invoice_info (invoice_id, message_id, client_id, commission_name) VALUES (?, ?, ?, ?);")
-                        .setString(this.invoiceID)
-                        .setString(this.messageID)
-                        .setString(this.customer.getHolder().getId())
-                        .setString(this.commission.getPluginName())
-                        .build().executeUpdate();
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     // -------------------------------- GETTERS -------------------------------- //
 
-    public String getID() {
+    public String getId() {
         return invoiceID;
     }
 
@@ -392,5 +343,13 @@ public class Invoice {
 
     public String getTotal() {
         return total;
+    }
+
+    public JSONObject toJSON() {
+        return new JSONObject()
+                .put("user_id", customer.getUser().getId())
+                .put("invoice_id", invoiceID)
+                .put("message_id", messageID)
+                .put("commission_name", commission.getPluginName());
     }
 }

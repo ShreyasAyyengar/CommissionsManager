@@ -17,13 +17,13 @@ public class MemberRemove extends ListenerAdapter {
         User user = event.getUser();
 
         Customer customer = DiscordBot.get().getCustomerManger().get(user.getId());
-        DiscordBot.get().getCustomerManger().purgeMemberSQL(user);
+        DiscordBot.get().getCustomerManger().handleRemoval(user);
 
         DiscordButton purgeButton = new DiscordButton(ButtonStyle.DANGER, "Purge Channels", "U+1F5D1", (buttonUser, buttonInteractionEvent) -> {
             customer.getTextChannel().delete().queue();
             if (customer.getTemporaryVoiceChannel() != null) customer.getTemporaryVoiceChannel().delete().queue();
 
-            DiscordBot.get().getCustomerManger().getMap().remove(customer.getHolder().getId());
+            DiscordBot.get().getCustomerManger().getMap().remove(customer.getUser().getId());
         });
         customer.getTextChannel().sendMessageEmbeds(EmbedUtil.requestPurge(user)).setActionRow(purgeButton.asButton()).queue();
     }

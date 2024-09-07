@@ -46,7 +46,7 @@ public class MemberScreeningPass extends ListenerAdapter {
                 .setTimestamp(new Date().toInstant())
                 .build();
 
-        customer.getTextChannel().sendMessage(customer.getHolder().getAsMention()).queue(message -> message.delete().queue());
+        customer.getTextChannel().sendMessage(customer.getUser().getAsMention()).queue(message -> message.delete().queue());
         customer.getTextChannel().sendMessageEmbeds(embed).queue();
     }
 

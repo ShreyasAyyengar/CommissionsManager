@@ -196,7 +196,7 @@ public class EmbedUtil {
 
     public static MessageEmbed addAttachments(Invoice invoice) {
         return new EmbedBuilder()
-                .setTitle("Add attachments to the invoice: " + invoice.getID())
+                .setTitle("Add attachments to the invoice: " + invoice.getId())
                 .setDescription("These files will be added to the invoice's file holding. " +
                         "Once the invoice is paid, the files will be released to the client!")
                 .setFooter("Please send any attachments below.")
@@ -227,7 +227,7 @@ public class EmbedUtil {
         return new EmbedBuilder()
                 .setTitle("Outstanding Invoice!")
                 .setDescription("This is a reminder that you have an outstanding invoice!")
-                .addField("Invoice ID: ", invoice.getID(), false)
+                .addField("Invoice ID: ", invoice.getId(), false)
                 .setFooter("Click the button below to pay it via PayPal!")
                 .setColor(Util.THEME_COLOUR)
                 .setTimestamp(new Date().toInstant())

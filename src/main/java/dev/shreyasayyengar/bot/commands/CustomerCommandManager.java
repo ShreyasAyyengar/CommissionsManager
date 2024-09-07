@@ -88,7 +88,7 @@ public class CustomerCommandManager extends ListenerAdapter {
                             boolean longerDescription = description.length() > 1000;
 
                             EmbedBuilder compiledResponsesEmbedBuilder = new EmbedBuilder();
-                            compiledResponsesEmbedBuilder.setTitle(customer.getHolder().getEffectiveName() + "'s Plugin Request");
+                            compiledResponsesEmbedBuilder.setTitle(customer.getUser().getEffectiveName() + "'s Plugin Request");
                             compiledResponsesEmbedBuilder.setDescription("For the plugin: `" + name + "`");
 
                             if (longerDescription) {
@@ -171,7 +171,7 @@ public class CustomerCommandManager extends ListenerAdapter {
                 String action = event.getSubcommandName().toLowerCase();
                 Member member = event.getOption("member").getAsMember();
 
-                if (member.getId().equalsIgnoreCase(customer.getHolder().getId())) {
+                if (member.getId().equalsIgnoreCase(customer.getUser().getId())) {
                     event.replyEmbeds(EmbedUtil.alreadyCollaborator()).setEphemeral(true).queue();
                     return;
                 }

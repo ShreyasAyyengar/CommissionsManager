@@ -123,7 +123,7 @@ public class MenuSelect extends ListenerAdapter {
                                     add(new DiscordButton("Vouch on SpigotMC", "https://tinyurl.com/mpmk7fy2"));
                                 }};
 
-                                completeButtonEvent.replyEmbeds(EmbedUtil.commissionCompleted(commission)).addContent(customer.getHolder().getAsMention()).addActionRow(closingButtons.stream().map(DiscordButton::asButton).toList()).queue();
+                                completeButtonEvent.replyEmbeds(EmbedUtil.commissionCompleted(commission)).addContent(customer.getUser().getAsMention()).addActionRow(closingButtons.stream().map(DiscordButton::asButton).toList()).queue();
                             }));
                             add(new DiscordButton(ButtonStyle.DANGER, "Cancel", "⛔", (user1, cancelButtonEvent) -> {
                                 commission.close(false);
@@ -174,7 +174,7 @@ public class MenuSelect extends ListenerAdapter {
 
                                     generateButtonEvent.deferEdit().queue();
                                     generateButtonEvent.getHook().editOriginalEmbeds(EmbedUtil.paypalEmailNotSet()).setComponents().queue();
-                                    generateButtonEvent.getHook().sendMessageEmbeds(EmbedUtil.promptEmail()).addContent(customer.getHolder().getAsMention()).setActionRow(setEmailButton.asButton()).queue();
+                                    generateButtonEvent.getHook().sendMessageEmbeds(EmbedUtil.promptEmail()).addContent(customer.getUser().getAsMention()).setActionRow(setEmailButton.asButton()).queue();
                                     return;
                                 }
 
@@ -232,7 +232,7 @@ public class MenuSelect extends ListenerAdapter {
                                         .setRequiredRange(1, 1);
 
                                 for (Invoice invoice : commission.getInvoices()) {
-                                    outstandingInvoicesMenu.addOptions(SelectOption.of(invoice.getID() + " (" + invoice.getTotal() + ")", invoice.getID()));
+                                    outstandingInvoicesMenu.addOptions(SelectOption.of(invoice.getId() + " (" + invoice.getTotal() + ")", invoice.getId()));
                                 }
 
                                 outstandingInvoicesMenu.onSelect((menuUser, menuEvent) -> {
