@@ -197,19 +197,16 @@ public class MenuSelect extends ListenerAdapter {
                                         }
                                     }));
                                     add(new DiscordButton(ButtonStyle.SECONDARY, "Secondary Invoice", "U+26D4", (buttonUser1, noButtonEvent) -> {
-
                                         DiscordModal subInvoiceModal = new DiscordModal("Create a Sub-Invoice")
                                                 .addTextInput(TextInput.create("description", "Sub-Invoice Description", TextInputStyle.SHORT).setRequired(true).build())
                                                 .addTextInput(TextInput.create("amount", "Sub-Invoice Amount", TextInputStyle.SHORT).setRequired(true).build())
-                                                .onSubmit((modalUser, subInvoiceEvent) -> {
-                                                    subInvoiceEvent.deferEdit().queue();
-
-                                                    String description = subInvoiceEvent.getValue("description").getAsString();
-                                                    int amount = Integer.parseInt(subInvoiceEvent.getValue("amount").getAsString());
+                                                .onSubmit((modalUser, subInvoiceSubmitEvent) -> {
+                                                    String description = subInvoiceSubmitEvent.getValue("description").getAsString();
+                                                    int amount = Integer.parseInt(subInvoiceSubmitEvent.getValue("amount").getAsString());
 
                                                     try {
-                                                        subInvoiceEvent.getHook().sendMessageEmbeds(EmbedUtil.invoiceInProgress()).setEphemeral(false).queue();
-                                                        new InvoiceDraft(commission, commission.getPluginName() + "-" + description, amount, subInvoiceEvent.getHook()).generateInvoice();
+                                                        subInvoiceSubmitEvent.replyEmbeds(EmbedUtil.invoiceInProgress()).queue();
+                                                        new InvoiceDraft(commission, commission.getPluginName() + "-" + description, amount, subInvoiceSubmitEvent.getHook()).generateInvoice();
                                                     } catch (Exception e) {
                                                         throw new RuntimeException(e);
                                                     }
