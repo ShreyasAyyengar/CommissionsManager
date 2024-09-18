@@ -131,8 +131,9 @@ public class DiscordBot {
                     Authentication.MYSQL_HOST.get(),
                     Integer.parseInt(Authentication.MYSQL_PORT.get())
             );
-
             log(Department.DATABASE, "Loading Tables...");
+
+            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> this.database.preparedStatementBuilder("select (1);").executeQuery(resultSet -> {}, false), 100, 60, TimeUnit.SECONDS);
         } catch (Exception e) {
             log(Department.DATABASE, "FATAL ERROR WHEN initMySQL: " + e.getMessage());
             e.printStackTrace();
