@@ -202,7 +202,7 @@ public class MenuSelect extends ListenerAdapter {
                                                 .addTextInput(TextInput.create("amount", "Sub-Invoice Amount", TextInputStyle.SHORT).setRequired(true).build())
                                                 .onSubmit((modalUser, subInvoiceSubmitEvent) -> {
                                                     String description = subInvoiceSubmitEvent.getValue("description").getAsString();
-                                                    int amount = Integer.parseInt(subInvoiceSubmitEvent.getValue("amount").getAsString());
+                                                    double amount = Double.parseDouble(subInvoiceSubmitEvent.getValue("amount").getAsString());
 
                                                     try {
                                                         subInvoiceSubmitEvent.replyEmbeds(EmbedUtil.invoiceInProgress()).queue();
